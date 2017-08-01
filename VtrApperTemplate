@@ -1,0 +1,6 @@
+<VTKFile type="RectilinearGrid" version="0.1" byte_order="LittleEndian">
+    <RectilinearGrid WholeExtent="0 0 0 0 0 0">
+        <Piece Extent="0 0 0 0 0 0">
+            <PointData></PointData>
+            <CellData>
+                <DataArray Name="v" NumberOfComponents="3" type="Float32">
