@@ -1,18 +1,33 @@
 package main.java;
 
-import main.java.utils.MatrixRepresenter;
-import org.jblas.DoubleMatrix;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class Hello {
     public static void main(String[] args) {
-        DoubleMatrix A = new DoubleMatrix(new double[][]{
-                {100000.0, 200000.0, 3000000.0},
-                {4.0, 5.5656565656, 6.5656565656},
-                {7.565656565657, 8.0, 9.0}
-        });
+        double lambda = 2.0;
+        double mu = 1.0;
+        double rho = 1.0;
 
+        int xMin = -50;
+        int xMax = 50;
+        int yMin = -50;
+        int yMax = 50;
 
-        MatrixRepresenter.print(A);
+        int fine = 50;
+
+        Mesh mesh = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+                yMin, yMax, fine);
+        Path dir = Paths.get("/home/bobo/AData/");
+        MeshWriter meshWriter = new MeshWriter(dir, Paths.get("PvtrTemplate"), Paths.get("PvtrTemplate"));
+        Mesh[] meshes = new Mesh[1];
+        meshes[0] = mesh;
+
+        Long [] extent = {120L,130L,140L};
+
+        meshWriter.writeMeshes(meshes, extent);
+        System.out.println("fin");
+
 
     }
 }
