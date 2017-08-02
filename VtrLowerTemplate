@@ -2,13 +2,13 @@
         </CellData>
 <Coordinates>
     <DataArray NumberOfComponents="1" type="Float32">
-        x
+x
     </DataArray>
     <DataArray NumberOfComponents="1" type="Float32">
-        y
+y
     </DataArray>
     <DataArray NumberOfComponents="1" type="Float32">
-        z
+z
     </DataArray>
 </Coordinates>
         </Piece>
