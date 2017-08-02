@@ -1,5 +1,6 @@
 package main.java;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -18,14 +19,19 @@ public class Hello {
 
         Mesh mesh = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, fine);
-        Path dir = Paths.get("/home/bobo/AData/");
-        MeshWriter meshWriter = new MeshWriter(dir, Paths.get("PvtrTemplate"), Paths.get("PvtrTemplate"));
-        Mesh[] meshes = new Mesh[1];
+        Path outPutDir = Paths.get("/home/bobo/AData/");
+        MeshWriter meshWriter = new MeshWriter(outPutDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
+                Paths.get("VtrLowerTemplate"));
+        Mesh[] meshes = new Mesh[2];
         meshes[0] = mesh;
+        meshes[1] = mesh;
 
-        Long [] extent = {120L,130L,140L};
-
-        meshWriter.writeMeshes(meshes, extent);
+        Long [] extent = mesh.getRawExtent(xMin, xMax, yMin, yMax, fine);
+        try {
+            meshWriter.writeMeshes(meshes, extent);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         System.out.println("fin");
 
 
