@@ -47,3 +47,4 @@ fabric.properties
 
 *.iml
 *.xml
+.idea
