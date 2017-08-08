@@ -1,5 +1,3 @@
-package main.java;
-
 import org.jblas.DoubleMatrix;
 
 import java.util.ArrayList;
@@ -11,10 +9,10 @@ import static java.lang.Math.sqrt;
 
 public class MeshConstructor {
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
-                                         int xMin, int xMax, int yMin, int yMax, int fine){
+                                         double xMin, double xMax, double yMin, double yMax, double fine){
         assert xMax - xMin == yMax - yMin;
 
-        int sideLength = xMax - xMin;
+        double sideLength = xMax - xMin;
         List<Triangle> triangles = new ArrayList<Triangle>();
 
         // x, y - координаты левой нижней вершины текущего прямоугольника
@@ -52,9 +50,9 @@ public class MeshConstructor {
 
         int i = 0;
 
-        for (int y = yMin; y < yMax; y += fine){
+        for (double y = yMin; y < yMax; y += fine){
             // горизонтальный "ход"
-            for (int x = xMin; x < xMax; x += fine){
+            for (double x = xMin; x < xMax; x += fine){
                 // в каждом квадрате по четыре треугольника
                 // заполняем каждый в соответствии с ФИЗИЧЕСКОЙ координатой
                 for (int numberOfTriangle = 0; numberOfTriangle < 4; numberOfTriangle++){

@@ -1,5 +1,3 @@
-package main.java;
-
 import org.jblas.DoubleMatrix;
 
 public class Triangle {

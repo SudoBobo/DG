@@ -1,5 +1,3 @@
-package main.java;
-
 import java.util.List;
 
 public class Mesh {
@@ -46,9 +44,13 @@ public class Mesh {
         return result;
     }
 
-    public Long[] getRawExtent(int xMin, int xMax, int yMin, int yMax, int fine) {
-        long xExtent = (long)((xMax - xMin) / fine);
-        long yExtent = (long)((yMax - yMin) / fine);
+    public Long[] getRawExtent(double xMin, double xMax, double yMin, double yMax, double fine) {
+
+
+
+
+        long xExtent = (long) Math.floor((xMax - xMin) / fine);
+        long yExtent = (long) Math.floor((yMax - yMin) / fine);
         long zExtent = 1;
         Long [] result = new Long[3];
 
