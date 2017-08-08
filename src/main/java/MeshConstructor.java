@@ -48,7 +48,7 @@ public class MeshConstructor {
         assert cP == 2;
         assert cS == 1;
 
-        int i = 0;
+
 
         for (double y = yMin; y < yMax; y += fine){
             // горизонтальный "ход"
@@ -98,7 +98,8 @@ public class MeshConstructor {
         }
 
 
-        // необходимо повторить обход, чтобы заполнить
+        // необходимо повторить обход, чтобы заполнить сведения о том, какие треугольники граничат с данным
+        // какие координаты у вершин и какие нормали к вершинам
 
         return new Mesh(triangles);
     }

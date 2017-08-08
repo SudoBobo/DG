@@ -19,33 +19,28 @@ public class Hello {
         double yMax = size/2;
         double xMax = size/2;
 
-        double fine = 0.1;
+        double spatialStep = 1;
 
-        Mesh mesh = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, fine);
+        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+                yMin, yMax, spatialStep);
+
+
+        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep);
 
 
 
-        Path outPutDir = Paths.get(String.format("/home/bobo/AData/%.3f_%.3f_with_fine_%.3f", size, size, fine));
-
-        if (Files.exists(outPutDir)){
-            try {
-                FileUtils.deleteDirectory(outPutDir.toFile());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
-
-        outPutDir.toFile().mkdir();
-
-        MeshWriter meshWriter = new MeshWriter(outPutDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
+        MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-        Mesh[] meshes = new Mesh[2];
-        meshes[0] = mesh;
-        meshes[1] = mesh;
+//        Mesh[] meshes = new Mesh[2];
+//        meshes[0] = initialCondition;
+//        meshes[1] = initialCondition;
 
-        Long [] extent = mesh.getRawExtent(xMin, xMax, yMin, yMax, fine);
+        Solver solver = new Solver();
+
+        Mesh[] meshes = solver.solve(initialCondition, realFullTime, timeStep);
+
+        Long [] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
         try {
             meshWriter.writeMeshes(meshes, extent);
@@ -55,5 +50,20 @@ public class Hello {
         System.out.println("fin");
 
 
+    }
+
+    private static Path getOutputPath(Path generalOutputPath, double size, double fine) {
+        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f", size, size, fine));
+
+        if (Files.exists(outputDir)){
+            try {
+                FileUtils.deleteDirectory(outputDir.toFile());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        outputDir.toFile().mkdir();
+        return outputDir;
     }
 }
