@@ -32,13 +32,14 @@ public class Hello {
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-//        Mesh[] meshes = new Mesh[2];
-//        meshes[0] = initialCondition;
-//        meshes[1] = initialCondition;
+        Mesh[] meshes = new Mesh[2];
+        meshes[0] = initialCondition;
+        meshes[1] = initialCondition;
 
-        Solver solver = new Solver();
+        SystemSolver eulerSolver = new EulerSystemSolver();
+        Solver solver = new Solver(eulerSolver);
 
-        Mesh[] meshes = solver.solve(initialCondition, realFullTime, timeStep);
+//        Mesh[] meshes = solver.solve(initialCondition, realFullTime, timeStep);
 
         Long [] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 

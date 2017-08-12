@@ -36,8 +36,8 @@ public class Mesh {
                 j = 0;
                 k++;
             }
-            result[i] = (triangles.get(k).u.get(j) + triangles.get(k + 1).u.get(j) +
-                    triangles.get(k + 2).u.get(j) + triangles.get(k + 3).u.get(j)) / 4;
+            result[i] = ((triangles.get(k).rowSum(j) + triangles.get(k + 1).rowSum(j) +
+                    triangles.get(k + 2).rowSum(j) + triangles.get(k + 3).rowSum(j)) / 4);
             j++;
         }
 

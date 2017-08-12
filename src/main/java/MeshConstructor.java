@@ -9,7 +9,7 @@ import static java.lang.Math.sqrt;
 
 public class MeshConstructor {
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
-                                         double xMin, double xMax, double yMin, double yMax, double fine){
+                                                   double xMin, double xMax, double yMin, double yMax, double fine){
         assert xMax - xMin == yMax - yMin;
 
         double sideLength = xMax - xMin;
@@ -89,6 +89,12 @@ public class MeshConstructor {
 
                     DoubleMatrix u = R2.mmul(sin(k.dot(centerVector))).add(
                             R5.mmul(sin(k.dot(centerVector))));
+
+                    // TODO make it more elegant
+
+//                    DoubleMatrix uFine = new DoubleMatrix(new double[][]{{u.get(0),0,0,0,0}, {u.get(1),0,0,0,0},
+//                            {u.get(2),0,0,0,0}, {u.get(3),0,0,0,0}, {u.get(4),0,0,0,0}});
+
 
                     Triangle triangle = new Triangle(u);
                     triangles.add(triangle);
