@@ -20,7 +20,7 @@ public class Triangle {
     private DoubleMatrix T [];
     private DoubleMatrix TInv[];
 
-    private DoubleMatrix uNeib [];
+    private Triangle uNeib [];
 
     // static lambda spatialBasis []
 
@@ -39,7 +39,7 @@ public class Triangle {
                     DoubleMatrix fkl, DoubleMatrix KKsi,
                     DoubleMatrix KMu, DoubleMatrix[] fkl_j,
                     DoubleMatrix[] t, DoubleMatrix[] TInv,
-                    DoubleMatrix[] uNeib, DoubleMatrix u) {
+                    Triangle [] uNeib, DoubleMatrix u) {
         this.number = number;
         this.numberInRectangle = numberInRectangle;
         A = a;
@@ -98,7 +98,7 @@ public class Triangle {
         return Fkl;
     }
 
-    public DoubleMatrix uNeib(int j) {
+    public Triangle uNeib(int j) {
 
         return uNeib[j];
     }
@@ -129,5 +129,65 @@ public class Triangle {
 
     public DoubleMatrix B() {
         return B;
+    }
+
+    public void setNumber(long number) {
+        this.number = number;
+    }
+
+    public void setNumberInRectangle(int numberInRectangle) {
+        this.numberInRectangle = numberInRectangle;
+    }
+
+    public void setAStr(DoubleMatrix AStr) {
+        this.AStr = AStr;
+    }
+
+    public void setBStr(DoubleMatrix BStr) {
+        this.BStr = BStr;
+    }
+
+    public void setS(double[] s) {
+        S = s;
+    }
+
+    public void setJacobian(double jacobian) {
+        this.jacobian = jacobian;
+    }
+
+    public void setMkl(DoubleMatrix mkl) {
+        Mkl = mkl;
+    }
+
+    public void setFkl(DoubleMatrix fkl) {
+        Fkl = fkl;
+    }
+
+    public void setKKsi(DoubleMatrix KKsi) {
+        this.KKsi = KKsi;
+    }
+
+    public void setKMu(DoubleMatrix KMu) {
+        this.KMu = KMu;
+    }
+
+    public void setFkl_j(DoubleMatrix[] fkl_j) {
+        Fkl_j = fkl_j;
+    }
+
+    public void setT(DoubleMatrix[] t) {
+        T = t;
+    }
+
+    public void setTInv(DoubleMatrix[] TInv) {
+        this.TInv = TInv;
+    }
+
+    public void setuNeib(Triangle[] uNeib) {
+        this.uNeib = uNeib;
+    }
+
+    public void setU(DoubleMatrix u) {
+        this.u = u;
     }
 }

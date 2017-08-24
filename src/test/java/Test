@@ -4,13 +4,13 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-public class DBTests {
+public class Test {
 
 
 
     @BeforeClass
     public static void setUpClass() {
-        main();
+        
     }
 
     @Test

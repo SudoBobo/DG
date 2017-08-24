@@ -1,9 +1,7 @@
-import org.apache.commons.io.FileUtils;
-
+import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.nio.file.*;
+import java.nio.file.attribute.BasicFileAttributes;
 
 
 public class Hello {
@@ -14,10 +12,10 @@ public class Hello {
         double rho = 1.0;
 
         double size = 100;
-        double xMin = -(size/2);
-        double yMin = -(size/2);
-        double yMax = size/2;
-        double xMax = size/2;
+        double xMin = -(size / 2);
+        double yMin = -(size / 2);
+        double yMax = size / 2;
+        double xMax = size / 2;
 
         double spatialStep = 1;
 
@@ -26,7 +24,6 @@ public class Hello {
 
 
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep);
-
 
 
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
@@ -41,7 +38,7 @@ public class Hello {
 
 //        Mesh[] meshes = solver.solve(initialCondition, realFullTime, timeStep);
 
-        Long [] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
+        Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
         try {
             meshWriter.writeMeshes(meshes, extent);
@@ -56,15 +53,34 @@ public class Hello {
     private static Path getOutputPath(Path generalOutputPath, double size, double fine) {
         Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f", size, size, fine));
 
-        if (Files.exists(outputDir)){
-            try {
-                FileUtils.deleteDirectory(outputDir.toFile());
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        if (Files.exists(outputDir)) {
+            deleteDirectory(outputDir.toFile());
         }
 
         outputDir.toFile().mkdir();
         return outputDir;
+    }
+
+    private static void deleteDirectory(File file) {
+
+        Path directory = Paths.get(file.getPath());
+
+        try {
+            Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
+                @Override
+                public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+                    Files.delete(file);
+                    return FileVisitResult.CONTINUE;
+                }
+
+                @Override
+                public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+                    Files.delete(dir);
+                    return FileVisitResult.CONTINUE;
+                }
+            });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
