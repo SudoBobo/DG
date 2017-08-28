@@ -6,6 +6,7 @@ import java.util.List;
 
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
+import static java.lang.Math.abs;
 
 
 public class MeshConstructor {
@@ -71,6 +72,22 @@ public class MeshConstructor {
                 {0, -(1/rho), 0, 0, 0}
         });
 
+
+        double nX = 1;
+        double nY = 0;
+
+        // in homo-mesh case these two matrices are the same for all triangles as they represent
+        // their attributes in inner coordinate system (nX = 1, nY = 0)
+        DoubleMatrix s = B.mul(nY);
+        DoubleMatrix An = A.mul(nX).add(s);
+
+
+        // as given in formula 8 on page 4
+        DoubleMatrix Rpqn = calcRpqn(lambda, mu, cP, cS, nX, nY);
+        // as given in formula 15 on page 4
+        DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
+
+
         DoubleMatrix Mkl = new DoubleMatrix(new double[] {1.0});
         DoubleMatrix Fkl = new DoubleMatrix(new double[] {1.0});
 
@@ -99,8 +116,10 @@ public class MeshConstructor {
                     // x, y - координаты левой нижней вершины текущего прямоугольника
                     double v [][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
+                    // TODO may be totaly wrong
                     double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
                             (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
+                    jacobian = -jacobian;
 
                     switch (numberInRectangle) {
                         case 0:
@@ -133,7 +152,6 @@ public class MeshConstructor {
                     DoubleMatrix u = R2.mmul(sin(k.dot(centerVector))).add(
                             R5.mmul(sin(k.dot(centerVector))));
 
-                    assert numberInRectangle != 1;
 
                     Border[] borders = makeBorders(xMin, xMax, yMin, yMax, fine, x, y, centerX, centerY, triangles,
                             currentTriangle, numberInRectangle);
@@ -147,16 +165,11 @@ public class MeshConstructor {
                     double[] S = calcSidesLengths(numberInRectangle, fine);
 
 
-                    DoubleMatrix AAbs = null;
-
-
-
-
                     Triangle uNeib [] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
 
                     Triangle triangle = new Triangle(currentTriangle, numberInRectangle, A, B, AAbs, AStr,
                             BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv,
-                            uNeib, u);
+                            uNeib, u, An);
 
                     triangles.set(currentTriangle, triangle);
                     currentTriangle++;
@@ -170,6 +183,26 @@ public class MeshConstructor {
         // какие координаты у вершин и какие нормали к вершинам
 
         return new Mesh(triangles);
+    }
+
+    // TODO test this
+    private static DoubleMatrix calcAAbs(double cP, double cS, DoubleMatrix rpqn) {
+        DoubleMatrix invRpqn = inverseMatrix(rpqn);
+        DoubleMatrix diagMatrix = DoubleMatrix.diag(new DoubleMatrix(new double[]{
+                abs(cP), abs(cS), 0, abs(cS), abs(cP)
+        }));
+
+        return rpqn.mmul(diagMatrix).mmul(invRpqn);
+    }
+
+    private static DoubleMatrix calcRpqn(double lbd, double mu, double cP, double cS, double nX, double nY) {
+        return new DoubleMatrix(new double[][]{
+                {lbd + 2 * mu * nX * nX,  -2 * mu * nX * nY,  nY * nY,  -2 * mu * nX * nY,  lbd + 2 * mu * nX * nX},
+                {lbd + 2*mu*nY*nY, 2*mu*nX*nY, nX*nX, 2*mu*nX*nY, lbd + 2*mu*nY*nY },
+                {2*mu*nX*nY, mu*(nX*nX - nY*nY), -nX*nY, mu*(nX*nX - nY*nY), 2*mu*nX*nY},
+                {nX*cP, -nY*cS, 0, nY*cS, -nX*cP},
+                {nY*cP, nX*cS, 0, -nX*cS, -nY*cP}
+        });
     }
 
     private static double[] calcSidesLengths(int numberInRectangle, double fine) {
@@ -527,35 +560,41 @@ public class MeshConstructor {
 
         return borders;
     }
-    // TODO test this
-    private static int calcIdxOnRight(double xMin, double xMax, double fine, int triangleNumber) {
+    public static int calcIdxOnRight(double xMin, double xMax, double fine, int triangleNumber) {
         // For regular mesh
-        return ((int) ((xMax - xMin) / fine + 1) * 4 - 2) + triangleNumber;
+        // return left neighbor for triangles on the left borders of the mesh
+        return ((int) ((xMax - xMin) / fine) * 4 - 2) + triangleNumber;
     }
 
-    private static int calcIdxOnLeft(double xMin, double xMax, double fine, int triangleNumber) {
+    public static int calcIdxOnLeft(double xMin, double xMax, double fine, int triangleNumber) {
         // For regular mesh
-        return triangleNumber - ((int) ((xMax - xMin) / fine + 1) * 4 - 2);
+        return triangleNumber - ((int) ((xMax - xMin) / fine) * 4 - 2);
     }
 
-    private static int calcIdxOnUp(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
+    public static int calcIdxOnUp(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
         // For regular mesh
-        return triangleNumber + (int) ((((xMax - xMin) / fine + 1) * 4) * ((yMax - yMin) / fine)) - 2;
+        // return down neighbor for triangle on the bottom of the mesh
+        return triangleNumber + (int) ((((xMax - xMin) / fine) * 4) * (((yMax - yMin) / fine) - 1) - 2);
     }
 
-    private static int calcIdxOnDown(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
+    public static int calcIdxOnDown(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
         // For regular mesh
         return triangleNumber * 2 - calcIdxOnUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
     }
 
-    private static int calcIdxOfTriangleUp(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
+    public static int calcIdxOfTriangleUp(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
         // For regular mesh
         return triangleNumber + (int) ((((xMax - xMin) / fine + 1) * 4)) - 2;
     }
 
-    private static int calcIdOfTriangleDown(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
+    public static int calcIdOfTriangleDown(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
         // For regular mesh
         return  triangleNumber * 2 - calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
+    }
+
+    // TODO test this
+    private static DoubleMatrix inverseMatrix(DoubleMatrix orig){
+        return Solve.pinv(orig);
     }
 }
 

@@ -35,12 +35,12 @@ public class Solver {
 
         // TODO consider using mul for matrix * number, not mmul
         for (int j = 0 ; j < 3; j++){
-            first. addi(tr.T(j). mmul(0.5). mmuli( tr.A().addi(tr.AAbs()) ).
+            first. addi(tr.T(j). mmul(0.5). mmuli( tr.An().addi(tr.AAbs()) ).
                     mmuli(tr.TInv(j)). mmuli(u).mmuli(tr.S(j)).
                     mmuli(tr.Fkl()));
 
 
-            second. addi( tr.T(j). mmul(0.5). mmuli( tr.A(). subi(tr.AAbs())).
+            second. addi( tr.T(j). mmul(0.5). mmuli( tr.An(). subi(tr.AAbs())).
                     mmuli(tr.TInv(j)). mmuli(tr.uNeib(j).u). mmuli(tr.S(j)).
                     mmuli(tr.Fkl(j)));
 

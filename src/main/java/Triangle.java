@@ -20,6 +20,8 @@ public class Triangle {
     private DoubleMatrix T [];
     private DoubleMatrix TInv[];
 
+    private DoubleMatrix An;
+
     private Triangle uNeib [];
 
     // static lambda spatialBasis []
@@ -39,7 +41,7 @@ public class Triangle {
                     DoubleMatrix fkl, DoubleMatrix KKsi,
                     DoubleMatrix KMu, DoubleMatrix[] fkl_j,
                     DoubleMatrix[] t, DoubleMatrix[] TInv,
-                    Triangle [] uNeib, DoubleMatrix u) {
+                    Triangle [] uNeib, DoubleMatrix u, DoubleMatrix An) {
         this.number = number;
         this.numberInRectangle = numberInRectangle;
         A = a;
@@ -58,6 +60,7 @@ public class Triangle {
         this.TInv = TInv;
         this.uNeib = uNeib;
         this.u = u;
+        this.An = An;
     }
 
     public double rowSum(int rowIndex){
@@ -125,6 +128,16 @@ public class Triangle {
 
     public DoubleMatrix KMu() {
         return KMu;
+    }
+
+    public DoubleMatrix An(){
+
+        if (An == null){
+            // create and save An
+            assert false;
+        }
+
+        return An;
     }
 
     public DoubleMatrix B() {
