@@ -116,10 +116,9 @@ public class MeshConstructor {
                     // x, y - координаты левой нижней вершины текущего прямоугольника
                     double v [][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
-                    // TODO may be totaly wrong
                     double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
                             (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
-                    jacobian = -jacobian;
+
 
                     switch (numberInRectangle) {
                         case 0:
@@ -312,12 +311,14 @@ public class MeshConstructor {
                 v[0][1] = y;
 
                 // x2, y2
+                v[2][0] = x + fine / 2;
+                v[2][1] = y + fine / 2;
+
+
+                // x3, y3
                 v[1][0] = x;
                 v[1][1] = y + fine;
 
-                // x3, y3
-                v[2][0] = x + fine / 2;
-                v[2][1] = y + fine / 2;
 
                 break;
 
@@ -328,12 +329,12 @@ public class MeshConstructor {
                 v[0][1] = y + fine / 2;
 
                 // x2, y2
-                v[1][0] = x;
-                v[1][1] = y + fine;
-
-                // x3, y3
                 v[2][0] = x + fine;
                 v[2][1] = y + fine;
+
+                // x3, y3
+                v[1][0] = x;
+                v[1][1] = y + fine;
 
                 break;
 
@@ -344,28 +345,29 @@ public class MeshConstructor {
                 v[0][1] = y;
 
                 // x2, y2
-                v[1][0] = x + fine / 2;
-                v[1][1] = y + fine / 2;
-
-                // x3, y3
                 v[2][0] = x + fine;
                 v[2][1] = y + fine;
+
+
+                // x3, y3
+                v[1][0] = x + fine / 2;
+                v[1][1] = y + fine / 2;
 
                 break;
 
             case 3:
 
                 // x1, y1
-                v[0][0] = x;
-                v[0][1] = y;
+                v[2][0] = x + fine;
+                v[2][1] = y;
 
                 // x2, y2
                 v[1][0] = x + fine / 2;
                 v[1][1] = y + fine / 2;
 
                 // x3, y3
-                v[2][0] = x + fine;
-                v[2][1] = y;
+                v[0][0] = x;
+                v[0][1] = y;
 
                 break;
         }
@@ -592,7 +594,6 @@ public class MeshConstructor {
         return  triangleNumber * 2 - calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
     }
 
-    // TODO test this
     private static DoubleMatrix inverseMatrix(DoubleMatrix orig){
         return Solve.pinv(orig);
     }
