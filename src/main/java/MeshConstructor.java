@@ -14,13 +14,13 @@ import static java.lang.Math.abs;
 public class MeshConstructor {
 
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
-    private static Map<String, DoubleMatrix> nToT;
+    private static Map<Double, DoubleMatrix> nToT;
 
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
                                          double xMin, double xMax, double yMin, double yMax, double fine) {
 
-        TtoInversedT = new HashMap<>(4);
-        nToT = new HashMap<>(4);
+        TtoInversedT = new HashMap<>(12);
+        nToT = new HashMap<>(12);
 
         // For regular mesh
         assert xMax - xMin == yMax - yMin;
@@ -161,7 +161,7 @@ public class MeshConstructor {
                     });
 
 
-                    DoubleMatrix u = R2.mmul(sin(k.dot(centerVector))).add(
+                    DoubleMatrix u = R2.mmul(sin(k.dot(centerVector))).addi(
                             R5.mmul(sin(k.dot(centerVector))));
 
 
@@ -286,7 +286,7 @@ public class MeshConstructor {
             nX = borders[j].nX;
             nY = borders[j].nY;
 
-            String n = Double.toString(nX) + Double.toString(nY);
+            double n = nX * 100 + nY;
 
 
             if (!nToT.containsKey(n)) {
