@@ -33,31 +33,31 @@ public class Solver {
 
         // TODO consider using mul for matrix * number, not mmul
         for (int j = 0 ; j < 3; j++){
-            first. addi(tr.T(j). mmul(0.5). mmuli( tr.An().addi(tr.AAbs()) ).
-                    mmuli(tr.TInv(j)). mmuli(u).mmuli(tr.S(j)).
-                    mmuli(tr.Fkl()));
+            first. addi(tr.T(j). mmul(0.5). mmul( tr.An().add(tr.AAbs()) ).
+                    mmul(tr.TInv(j)). mmul(u).mmul(tr.S(j)).
+                    mmul(tr.Fkl()));
 
 
-            second. addi( tr.T(j). mmul(0.5). mmuli( tr.An(). subi(tr.AAbs())).
-                    mmuli(tr.TInv(j)). mmuli(tr.uNeib(j).u). mmuli(tr.S(j)).
-                    mmuli(tr.Fkl(j)));
+            second. addi( tr.T(j). mmul(0.5). mmul( tr.An(). sub(tr.AAbs())).
+                    mmul(tr.TInv(j)). mmul(tr.uNeib(j).u). mmul(tr.S(j)).
+                    mmul(tr.Fkl(j)));
 
         }
 
         DoubleMatrix third = new DoubleMatrix(u.rows, u.columns);
-        third.addi(tr.AStr().mmul(u). mmuli(tr.jacobian()). mmuli(tr.KKsi()));
+        third.addi(tr.AStr().mmul(u). mmul(tr.jacobian()). mmul(tr.KKsi()));
 
         DoubleMatrix fourth = new DoubleMatrix(u.rows, u.columns);
-        fourth.addi(tr.BStr().mmul(u).mmuli(tr.jacobian()). mmuli(tr.KMu()));
+        fourth.addi(tr.BStr().mmul(u).mmul(tr.jacobian()). mmul(tr.KMu()));
 
         DoubleMatrix fifth = new DoubleMatrix(u.rows, u.columns);
 
         // p * l (size)
         DoubleMatrix dU = new DoubleMatrix(u.rows, u.columns);
-        dU = ( third.addi(fourth).subi(first).subi(second). divi(tr.Mkl().mul(tr.jacobian())) );
+        dU = ( third.add(fourth).sub(first).sub(second). div(tr.Mkl().mul(tr.jacobian())) );
 
         // TODO remove this with system solver
-        return u.add(dU. mmuli(timeStep));
+        return u.add(dU. mmul(timeStep));
     }
 
     private Triangle solveOneTriangleMatrixUse(Triangle previousCondition, double timeStep){

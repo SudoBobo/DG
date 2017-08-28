@@ -11,7 +11,7 @@ public class General {
         double mu = 1.0;
         double rho = 1.0;
 
-        double size = 20;
+        double size = 100;
         double xMin = -(size / 2);
         double yMin = -(size / 2);
         double yMax = size / 2;
@@ -19,33 +19,43 @@ public class General {
 
         double realFullTime = 4;
 
-        double timeStep = 0.5;
-        double spatialStep = 5;
+        double timeStep = 0.01;
+        double spatialStep = 0.1;
+
+        int timeSteps = (int) (realFullTime / timeStep);
+
 
         Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);
 
 
-        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep);
+        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
 
 
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-//        Mesh[] meshes = new Mesh[2];
-//        meshes[0] = initialCondition;
-//        meshes[1] = initialCondition;
+
+        Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
+
+//        meshWriter.writeAllPVTR(extent, 2);
+//
+//        for (int t = 0; t < 2; t++){
+//
+//            try {
+//                meshWriter.writeMeshVTR(initialCondition, extent, t);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
 
         SystemSolver eulerSolver = new EulerSystemSolver();
         Solver solver = new Solver(eulerSolver);
 
 
 
-        Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
-        int timeSteps = (int)(realFullTime / timeStep);
 
-        meshWriter.writeAllPVTR(extent, timeSteps);
+        meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
 
         Mesh orig = initialCondition;
@@ -53,24 +63,22 @@ public class General {
 
         for (int t = 0; t < timeSteps; t++){
 
-            solver.solveOneStep(orig, next, timeStep);
-
             try {
                 meshWriter.writeMeshVTR(orig, extent, t);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
+
+            // TODO solveOneStep changes orig but it shouldn't do it :(
+            solver.solveOneStep(orig, next, timeStep);
             orig = next;
         }
 
-        System.out.println("fin");
-
-
     }
 
-    private static Path getOutputPath(Path generalOutputPath, double size, double fine) {
-        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f", size, size, fine));
+    private static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {
+        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f_and_time_step%3f", size, size, fine, timeStep));
 
         if (Files.exists(outputDir)) {
             deleteDirectory(outputDir.toFile());

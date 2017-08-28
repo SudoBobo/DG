@@ -2,7 +2,9 @@ import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import static java.lang.Math.sin;
 import static java.lang.Math.sqrt;
@@ -10,8 +12,16 @@ import static java.lang.Math.abs;
 
 
 public class MeshConstructor {
+
+    private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
+    private static Map<String, DoubleMatrix> nToT;
+
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
                                          double xMin, double xMax, double yMin, double yMax, double fine) {
+
+        TtoInversedT = new HashMap<>(4);
+        nToT = new HashMap<>(4);
+
         // For regular mesh
         assert xMax - xMin == yMax - yMin;
 
@@ -19,7 +29,7 @@ public class MeshConstructor {
         int numberOfTriangles = (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
 
         List<Triangle> triangles = new ArrayList<>(numberOfTriangles);
-        for (int i = 0; i < numberOfTriangles; i++){
+        for (int i = 0; i < numberOfTriangles; i++) {
             Triangle emptyTriangle = new Triangle();
             triangles.add(emptyTriangle);
         }
@@ -58,22 +68,21 @@ public class MeshConstructor {
         assert cS == 1;
 
 
-
         // A, B are constant all across the mesh
         DoubleMatrix A = new DoubleMatrix(new double[][]{
                 {0, 0, 0, -(lambda + 2 * mu), 0},
                 {0, 0, 0, -lambda, 0},
                 {0, 0, 0, 0, -mu},
-                {-(1/rho), 0, 0, 0, 0},
-                {0, 0, -(1/rho), 0, 0}
+                {-(1 / rho), 0, 0, 0, 0},
+                {0, 0, -(1 / rho), 0, 0}
         });
 
         DoubleMatrix B = new DoubleMatrix(new double[][]{
-                {0, 0, 0, 0, -lambda },
-                {0, 0, 0, 0, -(lambda + 2 * mu) },
-                {0, 0, 0, -mu, 0 },
-                {0, 0, -(1/rho), 0, 0},
-                {0, -(1/rho), 0, 0, 0}
+                {0, 0, 0, 0, -lambda},
+                {0, 0, 0, 0, -(lambda + 2 * mu)},
+                {0, 0, 0, -mu, 0},
+                {0, 0, -(1 / rho), 0, 0},
+                {0, -(1 / rho), 0, 0, 0}
         });
 
 
@@ -92,17 +101,17 @@ public class MeshConstructor {
         DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
 
 
-        DoubleMatrix Mkl = new DoubleMatrix(new double[] {1.0});
-        DoubleMatrix Fkl = new DoubleMatrix(new double[] {1.0});
+        DoubleMatrix Mkl = new DoubleMatrix(new double[]{1.0});
+        DoubleMatrix Fkl = new DoubleMatrix(new double[]{1.0});
 
-        DoubleMatrix [] Fkl_j = new DoubleMatrix[3];
-        for (DoubleMatrix matrix : Fkl_j){
-            matrix = new DoubleMatrix(new double[] {1.0});
+        DoubleMatrix[] Fkl_j = new DoubleMatrix[3];
+        for (int j = 0; j < 3; j++) {
+            Fkl_j[j] = new DoubleMatrix(new double[]{1.0});
         }
 
 
-        DoubleMatrix KKsi = new DoubleMatrix(new double[] {0.0});
-        DoubleMatrix KMu = new DoubleMatrix(new double[] {0.0});
+        DoubleMatrix KKsi = new DoubleMatrix(new double[]{0.0});
+        DoubleMatrix KMu = new DoubleMatrix(new double[]{0.0});
 
 
         int currentTriangle = 0;
@@ -118,7 +127,7 @@ public class MeshConstructor {
                     double centerY = 0;
 
                     // x, y - координаты левой нижней вершины текущего прямоугольника
-                    double v [][] = calcVertexes(numberInRectangle, x, y, fine);
+                    double v[][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
                     double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
                             (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
@@ -162,13 +171,13 @@ public class MeshConstructor {
                     DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
                     DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
 
-                    DoubleMatrix T [] = calcTMatrixes(borders);
-                    DoubleMatrix TInv [] = calcTInversedMatrixes(T);
+                    DoubleMatrix T[] = calcTMatrixes(borders);
+                    DoubleMatrix TInv[] = calcTInversedMatrixes(T);
 
                     double[] S = calcSidesLengths(numberInRectangle, fine);
 
 
-                    Triangle uNeib [] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
+                    Triangle uNeib[] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
 
                     triangles.get(currentTriangle).init(currentTriangle, numberInRectangle, A, B, AAbs, AStr,
                             BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv, u, An);
@@ -199,11 +208,11 @@ public class MeshConstructor {
 
     private static DoubleMatrix calcRpqn(double lbd, double mu, double cP, double cS, double nX, double nY) {
         return new DoubleMatrix(new double[][]{
-                {lbd + 2 * mu * nX * nX,  -2 * mu * nX * nY,  nY * nY,  -2 * mu * nX * nY,  lbd + 2 * mu * nX * nX},
-                {lbd + 2*mu*nY*nY, 2*mu*nX*nY, nX*nX, 2*mu*nX*nY, lbd + 2*mu*nY*nY },
-                {2*mu*nX*nY, mu*(nX*nX - nY*nY), -nX*nY, mu*(nX*nX - nY*nY), 2*mu*nX*nY},
-                {nX*cP, -nY*cS, 0, nY*cS, -nX*cP},
-                {nY*cP, nX*cS, 0, -nX*cS, -nY*cP}
+                {lbd + 2 * mu * nX * nX, -2 * mu * nX * nY, nY * nY, -2 * mu * nX * nY, lbd + 2 * mu * nX * nX},
+                {lbd + 2 * mu * nY * nY, 2 * mu * nX * nY, nX * nX, 2 * mu * nX * nY, lbd + 2 * mu * nY * nY},
+                {2 * mu * nX * nY, mu * (nX * nX - nY * nY), -nX * nY, mu * (nX * nX - nY * nY), 2 * mu * nX * nY},
+                {nX * cP, -nY * cS, 0, nY * cS, -nX * cP},
+                {nY * cP, nX * cS, 0, -nX * cS, -nY * cP}
         });
     }
 
@@ -245,7 +254,7 @@ public class MeshConstructor {
 
         }
 
-        for (int j = 0; j < 3; j++){
+        for (int j = 0; j < 3; j++) {
             S[j] = S[j] * fine;
         }
         return S;
@@ -253,28 +262,43 @@ public class MeshConstructor {
 
     private static DoubleMatrix[] calcTInversedMatrixes(DoubleMatrix[] t) {
         DoubleMatrix inversed[] = new DoubleMatrix[3];
-        for (int j = 0; j < 3; j++){
-            inversed[j] = Solve.pinv(t[j]);
+
+        for (int j = 0; j < 3; j++) {
+            inversed[j] = calcInversed(t[j]);
         }
         return inversed;
     }
 
+    private static DoubleMatrix calcInversed(DoubleMatrix m) {
+
+        if (!TtoInversedT.containsKey(m)) {
+            TtoInversedT.put(m, Solve.pinv(m));
+        }
+        return TtoInversedT.get(m);
+    }
+
     private static DoubleMatrix[] calcTMatrixes(Border[] borders) {
-        DoubleMatrix T [] = new DoubleMatrix[3];
+        DoubleMatrix T[] = new DoubleMatrix[3];
 
         double nX, nY;
 
-        for (int j = 0; j < 3; j++){
+        for (int j = 0; j < 3; j++) {
             nX = borders[j].nX;
             nY = borders[j].nY;
 
-            T[j] = new DoubleMatrix(new double[][]{
-                    {nX * nX, nY * nY, -2 * nX * nY, 0, 0},
-                    {nY * nY, nX * nX, 2 * nX * nY, 0, 0},
-                    {nX * nY, -nX * nY, nX * nX - nY * nY, 0, 0},
-                    {0, 0, 0, nX, -nY},
-                    {0, 0, 0, nY, nX}
-            });
+            String n = Double.toString(nX) + Double.toString(nY);
+
+
+            if (!nToT.containsKey(n)) {
+                nToT.put(n, new DoubleMatrix(new double[][]{
+                        {nX * nX, nY * nY, -2 * nX * nY, 0, 0},
+                        {nY * nY, nX * nX, 2 * nX * nY, 0, 0},
+                        {nX * nY, -nX * nY, nX * nX - nY * nY, 0, 0},
+                        {0, 0, 0, nX, -nY},
+                        {0, 0, 0, nY, nX}
+                }));
+            }
+            T[j] = nToT.get(n);
         }
 
         return T;
@@ -485,7 +509,7 @@ public class MeshConstructor {
     }
 
     private static Border[] secondCase(double xMin, double xMax, double yMin, double yMax, double fine, List<Triangle> triangles,
-                                      int triangleNumber, boolean isRightBordered) {
+                                       int triangleNumber, boolean isRightBordered) {
 
         Border borders[] = new Border[3];
 
@@ -503,7 +527,7 @@ public class MeshConstructor {
         nX = -0.7071067811865475;
         nY = 0.7071067811865475;
 
-        neibIdx = triangleNumber -1;
+        neibIdx = triangleNumber - 1;
 
         borders[1] = new Border(nX, nY, triangles.get(neibIdx));
 
@@ -513,7 +537,7 @@ public class MeshConstructor {
         nY = 0;
 
         neibIdx = -1;
-        if (isRightBordered){
+        if (isRightBordered) {
             neibIdx = calcIdxOnLeft(xMin, xMax, fine, triangleNumber);
         } else {
             neibIdx = triangleNumber + 2;
@@ -535,7 +559,7 @@ public class MeshConstructor {
         double nY = -1;
 
         int neibIdx = -1;
-        if (isDownBordered){
+        if (isDownBordered) {
             neibIdx = calcIdxOnUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
         } else {
             neibIdx = calcIdOfTriangleDown(xMin, xMax, yMin, yMax, fine, triangleNumber);
@@ -563,6 +587,7 @@ public class MeshConstructor {
 
         return borders;
     }
+
     public static int calcIdxOnRight(double xMin, double xMax, double fine, int triangleNumber) {
         // For regular mesh
         // return left neighbor for triangles on the left borders of the mesh
@@ -592,10 +617,10 @@ public class MeshConstructor {
 
     public static int calcIdOfTriangleDown(double xMin, double xMax, double yMin, double yMax, double fine, int triangleNumber) {
         // For regular mesh
-        return  triangleNumber * 2 - calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
+        return triangleNumber * 2 - calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
     }
 
-    private static DoubleMatrix inverseMatrix(DoubleMatrix orig){
+    private static DoubleMatrix inverseMatrix(DoubleMatrix orig) {
         return Solve.pinv(orig);
     }
 }
