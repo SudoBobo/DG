@@ -209,4 +209,14 @@ public class Triangle {
     public void setU(DoubleMatrix u) {
         this.u = u;
     }
+
+    @Override
+    protected Triangle clone() {
+            Triangle newTriangle = new Triangle();
+            newTriangle.init(number, numberInRectangle, A, B, AAbs,AStr, BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j,
+                    T, TInv, u, An);
+            newTriangle.setNeighbors(uNeib);
+
+            return newTriangle;
+    }
 }

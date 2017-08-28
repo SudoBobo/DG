@@ -4,20 +4,23 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
 
-public class Hello {
+public class General {
     public static void main(String[] args) {
 
         double lambda = 2.0;
         double mu = 1.0;
         double rho = 1.0;
 
-        double size = 100;
+        double size = 20;
         double xMin = -(size / 2);
         double yMin = -(size / 2);
         double yMax = size / 2;
         double xMax = size / 2;
 
-        double spatialStep = 0.1;
+        double realFullTime = 4;
+
+        double timeStep = 0.5;
+        double spatialStep = 5;
 
         Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);
@@ -29,22 +32,38 @@ public class Hello {
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-        Mesh[] meshes = new Mesh[2];
-        meshes[0] = initialCondition;
-        meshes[1] = initialCondition;
+//        Mesh[] meshes = new Mesh[2];
+//        meshes[0] = initialCondition;
+//        meshes[1] = initialCondition;
 
         SystemSolver eulerSolver = new EulerSystemSolver();
         Solver solver = new Solver(eulerSolver);
 
-//        Mesh[] meshes = solver.solve(initialCondition, realFullTime, timeStep);
+
 
         Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
-        try {
-            meshWriter.writeMeshes(meshes, extent);
-        } catch (IOException e) {
-            e.printStackTrace();
+        int timeSteps = (int)(realFullTime / timeStep);
+
+        meshWriter.writeAllPVTR(extent, timeSteps);
+
+
+        Mesh orig = initialCondition;
+        Mesh next = initialCondition.getCopy();
+
+        for (int t = 0; t < timeSteps; t++){
+
+            solver.solveOneStep(orig, next, timeStep);
+
+            try {
+                meshWriter.writeMeshVTR(orig, extent, t);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            orig = next;
         }
+
         System.out.println("fin");
 
 

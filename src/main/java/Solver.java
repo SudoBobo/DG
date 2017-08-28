@@ -7,17 +7,15 @@ public class Solver {
         this.systemSolver = systemSolver;
     }
 
-    public Mesh [] solve (Mesh initialCondition, double realFullTime, double timeStep){
-        // in each moment store in memory only two meshes: for t and t+1
-        return null;
+
+    public void solveOneStep(Mesh previousCondition, Mesh newCondition, double timeStep){
+        for(int triangleIdx = 0; triangleIdx < previousCondition.size(); triangleIdx++){
+            newCondition.triangles.get(triangleIdx).u = solveOneTriangle(previousCondition.triangles.get(triangleIdx), timeStep);
+        }
     }
 
-    private Mesh solveOneStep(Mesh previousCondition, double timeStep){
-        return null;
-    }
 
-
-    private Triangle solveOneTriangle(Triangle previousCondition, double timeStep){
+    private DoubleMatrix solveOneTriangle(Triangle previousCondition, double timeStep){
 
         // method for debugging - calculations use two for cycles instead of matrix permutation
         // should be removed for solveOneTriangleMatrixUse
@@ -57,10 +55,9 @@ public class Solver {
         // p * l (size)
         DoubleMatrix dU = new DoubleMatrix(u.rows, u.columns);
         dU = ( third.addi(fourth).subi(first).subi(second). divi(tr.Mkl().mul(tr.jacobian())) );
-//
-//        DoubleMatrix uNew = u.add(dU. mmuli(timeStep));
-//        return new Triangle(uNew);
-        return null;
+
+        // TODO remove this with system solver
+        return u.add(dU. mmuli(timeStep));
     }
 
     private Triangle solveOneTriangleMatrixUse(Triangle previousCondition, double timeStep){

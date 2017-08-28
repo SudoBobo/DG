@@ -44,6 +44,7 @@ public class IndexTest {
         System.out.println(expected_idx);
     }
 
+
     @AfterClass
     public static void tearDown(){
         // освобождение ресурсов

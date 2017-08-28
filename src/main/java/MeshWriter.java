@@ -26,17 +26,9 @@ public class MeshWriter {
 
     }
 
-    public void writeMeshes(Mesh[] meshes, Long[] wholeExtent) throws IOException {
+    public void writeMeshVTR(Mesh mesh, Long[] wholeExtent, int meshNum) throws IOException {
 
         assert wholeExtent.length == 3;
-
-        String vtrSourceNameTemplate = "part0_0.vtr";
-        try {
-            createPVTRs(wholeExtent, vtrSourceNameTemplate, meshes.length - 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
 
         Path apperTemplate = null;
         Path lowerTemplate = null;
@@ -48,19 +40,23 @@ public class MeshWriter {
             e.printStackTrace();
         }
 
+        createVTR(wholeExtent, mesh.getDataArray(), meshNum, apperTemplate, lowerTemplate);
 
-        for (int meshNum = 0; meshNum < meshes.length; meshNum++) {
 
-            Mesh mesh = meshes[meshNum];
-            createVTR(wholeExtent, mesh.getDataArray(), meshNum, apperTemplate, lowerTemplate);
+    }
 
-                }
-
+    public void writeAllPVTR(Long[] wholeExtent, int numberOfMeshes) {
+        String vtrSourceNameTemplate = "part0_0.vtr";
+        try {
+            createPVTRs(wholeExtent, vtrSourceNameTemplate, numberOfMeshes);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private Path createVtrLowerTemplate(Long[] wholeExtent, Path vtrLowerTemplate) throws IOException {
         Path result = Paths.get("VtrLowerTemplatePrepared");
-        if (!Files.exists(result)){
+        if (!Files.exists(result)) {
             result.toFile().createNewFile();
         }
 
@@ -70,12 +66,12 @@ public class MeshWriter {
 
 
         Files.copy(vtrLowerTemplate, result, REPLACE_EXISTING);
-        oldLineToNewLine(result,     "x", xString
-                );
-        oldLineToNewLine(result,     "y", yString
+        oldLineToNewLine(result, "x", xString
+        );
+        oldLineToNewLine(result, "y", yString
         );
 
-        oldLineToNewLine(result,     "z",zString
+        oldLineToNewLine(result, "z", zString
         );
 
         return result;
@@ -83,7 +79,7 @@ public class MeshWriter {
 
     private String produceSizeString(long size) {
         StringBuilder sb = new StringBuilder();
-        for (long i = 0; i <= size; i++){
+        for (long i = 0; i <= size; i++) {
             sb.append(Long.toString(i) + ' ');
         }
         return sb.toString();
@@ -91,16 +87,16 @@ public class MeshWriter {
 
     private Path createVtrApperTemplate(Long[] wholeExtent, Path vtrApperTemplate) throws IOException {
         Path result = Paths.get("VtrApperTemplatePrepared");
-        if (!Files.exists(result)){
+        if (!Files.exists(result)) {
             result.toFile().createNewFile();
         }
 
         Files.copy(vtrApperTemplate, result, REPLACE_EXISTING);
-        oldLineToNewLine(result,     "    <RectilinearGrid WholeExtent=\"0 0 0 0 0 0\">",
+        oldLineToNewLine(result, "    <RectilinearGrid WholeExtent=\"0 0 0 0 0 0\">",
                 String.format("    <RectilinearGrid WholeExtent=\"0 %d 0 %d 0 %d\">", wholeExtent[0], wholeExtent[1],
                         wholeExtent[2]));
 
-        oldLineToNewLine(result,     "        <Piece Extent=\"0 0 0 0 0 0\">",
+        oldLineToNewLine(result, "        <Piece Extent=\"0 0 0 0 0 0\">",
                 String.format("        <Piece Extent=\"0 %d 0 %d 0 %d\">", wholeExtent[0], wholeExtent[1],
                         wholeExtent[2]));
 
@@ -110,7 +106,7 @@ public class MeshWriter {
     }
 
 
-    private void createVTR(Long[] wholeExtent, Double [] dataArray, int number,
+    private void createVTR(Long[] wholeExtent, Double[] dataArray, int number,
                            Path apperTemplate, Path lowerTemplate) throws IOException {
 
         Path vtrFile = Paths.get(directoryForOutPut.toString() + String.format("/part0_%d.vtr", number));
@@ -121,15 +117,15 @@ public class MeshWriter {
 
         Files.copy(apperTemplate, vtrFile, REPLACE_EXISTING);
 
-        try (BufferedWriter writer = new BufferedWriter( new FileWriter(String.valueOf(vtrFile),true))) {
-            for (Double d : dataArray){
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(String.valueOf(vtrFile), true))) {
+            for (Double d : dataArray) {
                 writer.write(d.toString() + " ");
             }
         }
 
         File vtr = vtrFile.toFile();
 
-        File [] files = {vtr, lowerTemplate.toFile()};
+        File[] files = {vtr, lowerTemplate.toFile()};
 
         File finalTemp = Paths.get("FinalTemp").toFile();
         finalTemp.delete();
@@ -139,8 +135,8 @@ public class MeshWriter {
         Files.copy(Paths.get("FinalTemp"), vtrFile, REPLACE_EXISTING);
 
 
-
     }
+
     private void createPVTRs(Long[] wholeExtent, String vtrSourceNameTemplate, int number) throws IOException {
 
         Path filledTemplate = Paths.get("template");

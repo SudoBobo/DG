@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.List;
 
 public class Mesh {
@@ -11,7 +12,7 @@ public class Mesh {
         Double[] result = new Double[(triangles.size()) * 5];
         int j = 0;
         for (int i = 0; i < result.length; i++) {
-            if (j == 5){
+            if (j == 5) {
                 j = 0;
             }
             result[i] = triangles.get(i).u.get(j);
@@ -45,20 +46,30 @@ public class Mesh {
     }
 
     public Long[] getRawExtent(double xMin, double xMax, double yMin, double yMax, double fine) {
-
-
-
-
         long xExtent = (long) Math.floor((xMax - xMin) / fine);
         long yExtent = (long) Math.floor((yMax - yMin) / fine);
         long zExtent = 1;
-        Long [] result = new Long[3];
 
-        result[0] = xExtent;
-        result[1] = yExtent;
-        result[2] = zExtent;
+        return new Long[]{xExtent, yExtent, zExtent};
+    }
 
-        return new Long[] {xExtent, yExtent, zExtent};
+    public int size() {
+        return triangles.size();
+    }
+
+    public Mesh getCopy() {
+        List<Triangle> newTriangles = deepCopy(this.triangles);
+        return new Mesh(newTriangles);
+    }
+
+    private List<Triangle> deepCopy(List<Triangle> origTriangles){
+        List<Triangle> newTriangles = new ArrayList<>(origTriangles.size());
+
+        for(Triangle t : origTriangles) {
+            newTriangles.add(t.clone());
+        }
+
+        return newTriangles;
     }
 }
 
