@@ -17,7 +17,7 @@ public class Hello {
         double yMax = size / 2;
         double xMax = size / 2;
 
-        double spatialStep = 1;
+        double spatialStep = 0.1;
 
         Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);

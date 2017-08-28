@@ -16,9 +16,13 @@ public class MeshConstructor {
         assert xMax - xMin == yMax - yMin;
 
         double sideLength = xMax - xMin;
-        int numberOfTriangles = (int) (sideLength / fine);
+        int numberOfTriangles = (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
 
-        List<Triangle> triangles = new ArrayList<Triangle>(numberOfTriangles);
+        List<Triangle> triangles = new ArrayList<>(numberOfTriangles);
+        for (int i = 0; i < numberOfTriangles; i++){
+            Triangle emptyTriangle = new Triangle();
+            triangles.add(emptyTriangle);
+        }
 
         // x, y - координаты левой нижней вершины текущего ПРЯМОУГОЛЬНИКА
         // вертикальный "ход"
@@ -152,7 +156,7 @@ public class MeshConstructor {
                             R5.mmul(sin(k.dot(centerVector))));
 
 
-                    Border[] borders = makeBorders(xMin, xMax, yMin, yMax, fine, x, y, centerX, centerY, triangles,
+                    Border[] borders = makeBorders(xMin, xMax, yMin, yMax, fine, x, y, triangles,
                             currentTriangle, numberInRectangle);
 
                     DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
@@ -166,11 +170,10 @@ public class MeshConstructor {
 
                     Triangle uNeib [] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
 
-                    Triangle triangle = new Triangle(currentTriangle, numberInRectangle, A, B, AAbs, AStr,
-                            BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv,
-                            uNeib, u, An);
+                    triangles.get(currentTriangle).init(currentTriangle, numberInRectangle, A, B, AAbs, AStr,
+                            BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv, u, An);
 
-                    triangles.set(currentTriangle, triangle);
+                    triangles.get(currentTriangle).setNeighbors(uNeib);
                     currentTriangle++;
 
                 }
@@ -379,8 +382,7 @@ public class MeshConstructor {
     // make it parametrised
 
     private static Border[] makeBorders(double xMin, double xMax, double yMin,
-                                        double yMax, double fine, double x, double y,
-                                        double centerX, double centerY, List<Triangle> triangles,
+                                        double yMax, double fine, double x, double y, List<Triangle> triangles,
                                         int triangleNumber, int numberInRectangle) {
 
         boolean isLeftBordered = (x == xMin);
@@ -396,13 +398,12 @@ public class MeshConstructor {
             case 0:
                 return zeroCase(xMin, xMax, fine, triangles, triangleNumber, isLeftBordered);
             case 1:
-                return firstCase(xMin,xMax, yMin, yMax, fine, triangles, triangleNumber, isUpBordered);
+                return firstCase(xMin, xMax, yMin, yMax, fine, triangles, triangleNumber, isUpBordered);
             case 2:
                 return secondCase(xMin, xMax, yMin, yMax, fine, triangles, triangleNumber, isRightBordered);
             case 3:
                 return thirdCase(xMin, xMax, yMin, yMax, fine, triangles, triangleNumber, isDownBordered);
         }
-        assert false;
         return null;
     }
 

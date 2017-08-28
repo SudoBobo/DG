@@ -1,28 +1,28 @@
 import org.jblas.DoubleMatrix;
 
 public class Triangle {
-    public  long number;
-    public  int numberInRectangle;
+    public long number;
+    public int numberInRectangle;
 
-    private final DoubleMatrix A;
-    private final DoubleMatrix B;
+    private DoubleMatrix A;
+    private DoubleMatrix B;
 
-    private final DoubleMatrix AAbs;
+    private DoubleMatrix AAbs;
     private DoubleMatrix AStr;
     private DoubleMatrix BStr;
 
-    private double S [];
+    private double S[];
     private double jacobian;
 
     private DoubleMatrix Mkl, Fkl, KKsi, KMu;
-    private DoubleMatrix Fkl_j [];
+    private DoubleMatrix Fkl_j[];
 
-    private DoubleMatrix T [];
+    private DoubleMatrix T[];
     private DoubleMatrix TInv[];
 
     private DoubleMatrix An;
 
-    private Triangle uNeib [];
+    private Triangle uNeib[];
 
     // static lambda spatialBasis []
 
@@ -33,15 +33,18 @@ public class Triangle {
 
     public DoubleMatrix u;
 
-    public Triangle(long number, int numberInRectangle,
-                    DoubleMatrix a, DoubleMatrix b,
-                    DoubleMatrix AAbs, DoubleMatrix AStr,
-                    DoubleMatrix BStr, double[] s,
-                    double jacobian, DoubleMatrix mkl,
-                    DoubleMatrix fkl, DoubleMatrix KKsi,
-                    DoubleMatrix KMu, DoubleMatrix[] fkl_j,
-                    DoubleMatrix[] t, DoubleMatrix[] TInv,
-                    Triangle [] uNeib, DoubleMatrix u, DoubleMatrix An) {
+    public Triangle() {
+    }
+
+    public void init(long number, int numberInRectangle,
+                             DoubleMatrix a, DoubleMatrix b,
+                             DoubleMatrix AAbs, DoubleMatrix AStr,
+                             DoubleMatrix BStr, double[] s,
+                             double jacobian, DoubleMatrix mkl,
+                             DoubleMatrix fkl, DoubleMatrix KKsi,
+                             DoubleMatrix KMu, DoubleMatrix[] fkl_j,
+                             DoubleMatrix[] t, DoubleMatrix[] TInv,
+                             DoubleMatrix u, DoubleMatrix An) {
         this.number = number;
         this.numberInRectangle = numberInRectangle;
         A = a;
@@ -58,19 +61,22 @@ public class Triangle {
         Fkl_j = fkl_j;
         T = t;
         this.TInv = TInv;
-        this.uNeib = uNeib;
         this.u = u;
         this.An = An;
     }
 
-    public double rowSum(int rowIndex){
-        // TODO fix when situation with basis functions will be clear
-       return u.get(rowIndex, 0);
+    public void setNeighbors(Triangle[] uNeib) {
+        this.uNeib = uNeib;
     }
 
 
-    
-    public double jacobian(){
+    public double rowSum(int rowIndex) {
+        // TODO fix when situation with basis functions will be clear
+        return u.get(rowIndex, 0);
+    }
+
+
+    public double jacobian() {
         return jacobian;
     }
 
@@ -130,9 +136,9 @@ public class Triangle {
         return KMu;
     }
 
-    public DoubleMatrix An(){
+    public DoubleMatrix An() {
 
-        if (An == null){
+        if (An == null) {
             // create and save An
             assert false;
         }
