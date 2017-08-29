@@ -168,8 +168,13 @@ public class MeshConstructor {
                     Border[] borders = makeBorders(xMin, xMax, yMin, yMax, fine, x, y, triangles,
                             currentTriangle, numberInRectangle);
 
-                    DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
-                    DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
+                    // TODO this is ONLY FOR l = 0 case !
+//                    DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
+//                    DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
+
+                    DoubleMatrix AStr = new DoubleMatrix();
+                    DoubleMatrix BStr = new DoubleMatrix();
+
 
                     DoubleMatrix T[] = calcTMatrixes(borders);
                     DoubleMatrix TInv[] = calcTInversedMatrixes(T);

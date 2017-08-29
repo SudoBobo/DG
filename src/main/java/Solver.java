@@ -44,17 +44,22 @@ public class Solver {
 
         }
 
-        DoubleMatrix third = new DoubleMatrix(u.rows, u.columns);
-        third.addi(tr.AStr().mmul(u). mmul(tr.jacobian()). mmul(tr.KKsi()));
+        // TODO fix this it is only for l = 0 case !
+//        DoubleMatrix third = new DoubleMatrix(u.rows, u.columns);
+//        third.addi(tr.AStr().mmul(u). mmul(tr.jacobian()). mmul(tr.KKsi()));
+//
+//        DoubleMatrix fourth = new DoubleMatrix(u.rows, u.columns);
+//        fourth.addi(tr.BStr().mmul(u).mmul(tr.jacobian()). mmul(tr.KMu()));
+//
+//        DoubleMatrix fifth = new DoubleMatrix(u.rows, u.columns);
 
-        DoubleMatrix fourth = new DoubleMatrix(u.rows, u.columns);
-        fourth.addi(tr.BStr().mmul(u).mmul(tr.jacobian()). mmul(tr.KMu()));
+        DoubleMatrix third = DoubleMatrix.zeros(u.rows, u.columns);
+        DoubleMatrix fourth = DoubleMatrix.zeros(u.rows, u.columns);
 
-        DoubleMatrix fifth = new DoubleMatrix(u.rows, u.columns);
 
         // p * l (size)
-        DoubleMatrix dU = new DoubleMatrix(u.rows, u.columns);
-        dU = ( third.add(fourth).sub(first).sub(second). div(tr.Mkl().mul(tr.jacobian())) );
+
+        DoubleMatrix dU = ( third.add(fourth).sub(first).sub(second). div(tr.Mkl().mul(tr.jacobian())) );
 
         // TODO remove this with system solver
         return u.add(dU. mmul(timeStep));

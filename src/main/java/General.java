@@ -17,7 +17,7 @@ public class General {
         double yMax = size / 2;
         double xMax = size / 2;
 
-        double realFullTime = 4;
+        double realFullTime = 1;
 
         double timeStep = 0.01;
         double spatialStep = 0.1;
@@ -69,8 +69,6 @@ public class General {
                 e.printStackTrace();
             }
 
-
-            // TODO solveOneStep changes orig but it shouldn't do it :(
             solver.solveOneStep(orig, next, timeStep);
             orig = next;
         }
@@ -78,7 +76,7 @@ public class General {
     }
 
     private static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {
-        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f_and_time_step%3f", size, size, fine, timeStep));
+        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f_and_time_step_%.3f", size, size, fine, timeStep));
 
         if (Files.exists(outputDir)) {
             deleteDirectory(outputDir.toFile());
