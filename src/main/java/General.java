@@ -20,7 +20,7 @@ public class General {
         double realFullTime = 1;
 
         double timeStep = 0.01;
-        double spatialStep = 0.1;
+        double spatialStep = 1;
 
         int timeSteps = (int) (realFullTime / timeStep);
 

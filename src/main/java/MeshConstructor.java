@@ -497,9 +497,18 @@ public class MeshConstructor {
             neibIdx = calcIdxOnDown(xMin, xMax, yMin, yMax, fine, triangleNumber);
         } else {
             neibIdx = calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
+
+            if (neibIdx >= triangles.size()){
+                System.out.println("-");
+            }
         }
 
-        borders[1] = new Border(nX, nY, triangles.get(neibIdx));
+        try {
+            borders[1] = new Border(nX, nY, triangles.get(neibIdx));
+        } catch (IndexOutOfBoundsException e){
+            System.out.println("-");
+
+        }
 
         // third border
 
