@@ -76,7 +76,6 @@ public class NewMeshConstructor {
                 // заполняем каждый в соответствии с ФИЗИЧЕСКОЙ координатой
                 for (int numberInRectangle = 0; numberInRectangle < 4; numberInRectangle++) {
 
-
                     // x, y - координаты левой нижней вершины текущего прямоугольника
                     double v[][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
@@ -117,13 +116,13 @@ public class NewMeshConstructor {
 
                     DoubleMatrix R2 = Rpqn.getColumn(1);
 
-                    double xWidth = xMax / 2;
-                    double yWidth = yMax;
+                    double xWidth = xMax / 4;
+                    double yWidth = yMax / 2;
 
                     int amplitude = 1;
 
-                    double initXCenter = 0;
-                    double initYCenter = 0;
+                    double initXCenter = xMax/2;
+                    double initYCenter = yMax/2;
 
 
                     DoubleMatrix u = calcInitialUStep(centerX, centerY, xWidth, yWidth, amplitude, R2, initXCenter, initYCenter);
@@ -145,21 +144,15 @@ public class NewMeshConstructor {
         // TODO will not work on the border
         assert (initialXCenter == 0.0 && initialYCenter == 0.0);
 
-//        boolean is_x_inside = (initialXCenter - xWidth <= x) && (x <= initialXCenter + xWidth);
-//        boolean is_y_inside = (initialYCenter - yWidth <= y) && (y <= initialYCenter + yWidth);
-//
-//        if (is_x_inside  && is_y_inside) {
-//            return r2.mmul((double) amplitude);
-//        } else {
-//            return DoubleMatrix.zeros(r2.rows, r2.columns);
-//        }
+        boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
+        boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
 
-//        if (x < 25 && y < 25){
-//            return r2;
-//        } else {
-//            return DoubleMatrix.zeros(r2.rows, r2.columns);
-//        }
-        return r2.mmul(x);
+        if (is_x_inside && is_y_inside) {
+            return r2;
+        } else {
+            return DoubleMatrix.zeros(r2.rows, r2.columns);
+        }
+
     }
 
     public static double calcCenterY(int numberInRectangle, double leftestRectangleY, double rectangleSide) {
@@ -232,7 +225,6 @@ public class NewMeshConstructor {
                 {nY * cP, nX * cS, 0, -nX * cS, -nY * cP}
         });
     }
-
 
     private static DoubleMatrix caclAMatrix(double lambda, double mu, double rho) {
         return new DoubleMatrix(new double[][]{
@@ -376,7 +368,6 @@ public class NewMeshConstructor {
         return f.addi(s);
     }
 
-
     private static double[][] calcVertexes(int numberInRectangle, double x, double y, double fine) {
         // returns [[x,y], [x,y], [x,y]]
 
@@ -453,7 +444,6 @@ public class NewMeshConstructor {
 
         return v;
     }
-
 
     // make it parametrised
 
@@ -648,6 +638,9 @@ public class NewMeshConstructor {
 
         return borders;
     }
+
+    //TODO remove all (int) because rounding leads to errors like this
+    // Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 4000001, Size: 4000000
 
     public static int calcIdxOnRight(double xMin, double xMax, double fine, int triangleNumber) {
         // For regular mesh

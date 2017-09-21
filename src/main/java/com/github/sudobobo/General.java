@@ -14,48 +14,34 @@ public class General {
         double rho = 1.0;
 
         double size = 100;
-        //TODO note this
-//        double xMin = -(size / 2);
-//        double yMin = -(size / 2);
-//        double yMax = size / 2;
-//        double xMax = size / 2;
 
         double xMin = 0;
         double yMin = 0;
+
         double yMax = size;
         double xMax = size;
 
         double realFullTime = 10;
 
-        double timeStep = 1;
+        double timeStep = 0.1;
         double spatialStep = 1;
 
         int timeSteps = (int) (realFullTime / timeStep);
 
-
         Mesh initialCondition = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);
 
-
-
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
-
 
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
-
 
         Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
         SystemSolver eulerSolver = new EulerSystemSolver();
         Solver solver = new Solver(eulerSolver);
 
-
-
-
-
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
-
 
         Mesh orig = initialCondition;
         Mesh next = initialCondition.getCopy();

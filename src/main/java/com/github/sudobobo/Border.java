@@ -1,12 +1,12 @@
 package com.github.sudobobo;
 
 public class Border {
-    public double nX;
-    public double nY;
+    double nX;
+    double nY;
 
-    public Triangle neighbor;
+    private Triangle neighbor;
 
-    public Border(double nX, double nY, Triangle neighbor) {
+    Border(double nX, double nY, Triangle neighbor) {
         this.nX = nX;
         this.nY = nY;
         this.neighbor = neighbor;

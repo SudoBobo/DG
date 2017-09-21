@@ -29,21 +29,22 @@ public class Mesh {
         должно получиться нормальное отображение.
         i - индекс позиции в выходном файле
         j - индекс переменной из вектора u внутри одного треугольника
-        k - номер четвёрки треугольников
+        k - номер первого треугольника из обрабатываемой четвёрки треугольников
          */
 
         // TODO check this madness
         Double[] result = new Double[(triangles.size() / 4) * 5];
+
         int j = 0;
+
         int k = 0;
         for (int i = 0; i < result.length; i++) {
             if (j == 5) {
                 j = 0;
-                k++;
-//                k += 4;
+                k += 4;
             }
-            result[i] = ((triangles.get(k).rowSum(j) + triangles.get(k + 1).rowSum(j) +
-                    triangles.get(k + 2).rowSum(j) + triangles.get(k + 3).rowSum(j)) / 4);
+            result[i] = (triangles.get(k).rowSum(j) + triangles.get(k + 1).rowSum(j) +
+                    triangles.get(k + 2).rowSum(j) + triangles.get(k + 3).rowSum(j)) / 4;
             j++;
         }
 
