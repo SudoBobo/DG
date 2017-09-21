@@ -35,23 +35,23 @@ public class Solver {
 
         // TODO consider using mul for matrix * number, not mmul
         for (int j = 0 ; j < 3; j++){
-            first. addi(tr.T(j). mmul(0.5). mmul( tr.An().add(tr.AAbs()) ).
-                    mmul(tr.TInv(j)). mmul(u).mmul(tr.S(j)).
+            first. addi(tr.T(j). mul(0.5). mmul( tr.An().add(tr.AAbs()) ).
+                    mmul(tr.TInv(j)). mmul(u).mul(tr.S(j)).
                     mmul(tr.Fkl()));
 
 
-            second. addi( tr.T(j). mmul(0.5). mmul( tr.An(). sub(tr.AAbs())).
-                    mmul(tr.TInv(j)). mmul(tr.uNeib(j).u). mmul(tr.S(j)).
+            second. addi( tr.T(j). mul(0.5). mmul( tr.An(). sub(tr.AAbs())).
+                    mmul(tr.TInv(j)). mmul(tr.uNeib(j).u). mul(tr.S(j)).
                     mmul(tr.Fkl(j)));
 
         }
 
         // TODO fix this it is only for l = 0 case !
 //        DoubleMatrix third = new DoubleMatrix(u.rows, u.columns);
-//        third.addi(tr.AStr().mmul(u). mmul(tr.jacobian()). mmul(tr.KKsi()));
+//        third.addi(tr.AStr().mmul(u). mul(tr.jacobian()). mmul(tr.KKsi()));
 //
 //        DoubleMatrix fourth = new DoubleMatrix(u.rows, u.columns);
-//        fourth.addi(tr.BStr().mmul(u).mmul(tr.jacobian()). mmul(tr.KMu()));
+//        fourth.addi(tr.BStr().mmul(u).mul(tr.jacobian()). mmul(tr.KMu()));
 //
 //        DoubleMatrix fifth = new DoubleMatrix(u.rows, u.columns);
 

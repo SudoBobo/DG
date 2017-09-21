@@ -23,8 +23,17 @@ public class General {
 
         double realFullTime = 100;
 
-        double timeStep = 0.1;
+        double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
+        double cS = Math.sqrt(mu/rho);
+
         double spatialStep = 1;
+        // durability - desiriable value of relation
+        double durability = 0.5;
+        double courantTimeStep = calcCourantTimeStep(cP, cS, spatialStep, durability);
+        double timeStep = courantTimeStep;
+
+        System.out.println("dx = " + spatialStep);
+        System.out.println("dt = " + timeStep);
 
         int timeSteps = (int) (realFullTime / timeStep);
 
@@ -44,7 +53,8 @@ public class General {
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
         Mesh orig = initialCondition;
-        Mesh next = initialCondition.getCopy();
+        Mesh next = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+                yMin, yMax, spatialStep);
 
         for (int t = 0; t < timeSteps; t++){
 
@@ -58,6 +68,10 @@ public class General {
             orig = next;
         }
 
+    }
+
+    private static double calcCourantTimeStep(double cP, double cS, double spatialStep, double durability) {
+        return durability * spatialStep / Math.max(cP, cS);
     }
 
     private static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {

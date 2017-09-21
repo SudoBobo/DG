@@ -61,11 +61,9 @@ public class NewMeshConstructor {
         // TODO change it!
         DoubleMatrix KKsi = new DoubleMatrix(new double[]{0.0});
         DoubleMatrix KMu = new DoubleMatrix(new double[]{0.0});
-
         //
 
         DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
-
 
         int currentTriangle = 0;
 
@@ -82,9 +80,10 @@ public class NewMeshConstructor {
                     double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
                             (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
 
-                    if (jacobian < 0) {
-                        jacobian = abs(jacobian);
-                    }
+                    // TODO solve this problem with negative jacobian
+//                    if (jacobian < 0) {
+//                        jacobian = abs(jacobian);
+//                    }
 
                     double leftestRectangleX = x;
                     double leftestRectangleY = y;
@@ -258,6 +257,8 @@ public class NewMeshConstructor {
         });
     }
 
+
+    // TODO potentially may give false results because of
     private static int calcNumberOfTrianglesForRegularMesh(double sideLength, double fine) {
         return (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
     }
@@ -265,10 +266,8 @@ public class NewMeshConstructor {
     private static List<Triangle> createArrayWithEmptyTriangles(int numberOfTriangles) {
         List<Triangle> triangles = new ArrayList<>(numberOfTriangles);
         for (int i = 0; i < numberOfTriangles; i++) {
-            Triangle emptyTriangle = new Triangle();
-            triangles.add(emptyTriangle);
+            triangles.add(new Triangle());
         }
-
         return triangles;
     }
 
