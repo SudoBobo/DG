@@ -119,6 +119,9 @@ public class NewMeshConstructor {
                     double xWidth = xMax / 4;
                     double yWidth = yMax / 2;
 
+//                    double xWidth = xMax / 2;
+//                    double yWidth = yMax / 2;
+
                     int amplitude = 1;
 
                     double initXCenter = xMax/2;
@@ -148,7 +151,16 @@ public class NewMeshConstructor {
         boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
 
         if (is_x_inside && is_y_inside) {
-            return r2;
+            DoubleMatrix centerVector = new DoubleMatrix(new double[]{
+                    x/(2 * xWidth), y/(2 * yWidth)
+            });
+
+                    DoubleMatrix k = new DoubleMatrix(new double[]{
+                Math.PI, 0
+        });
+
+            DoubleMatrix res = r2.mmul(cos(k.dot(centerVector ))).mul(-1);
+            return res;
         } else {
             return DoubleMatrix.zeros(r2.rows, r2.columns);
         }

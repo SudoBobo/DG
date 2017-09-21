@@ -21,7 +21,7 @@ public class General {
         double yMax = size;
         double xMax = size;
 
-        double realFullTime = 10;
+        double realFullTime = 100;
 
         double timeStep = 0.1;
         double spatialStep = 1;
