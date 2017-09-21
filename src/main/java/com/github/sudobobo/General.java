@@ -1,3 +1,5 @@
+package com.github.sudobobo;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
@@ -12,21 +14,28 @@ public class General {
         double rho = 1.0;
 
         double size = 100;
-        double xMin = -(size / 2);
-        double yMin = -(size / 2);
-        double yMax = size / 2;
-        double xMax = size / 2;
+        //TODO note this
+//        double xMin = -(size / 2);
+//        double yMin = -(size / 2);
+//        double yMax = size / 2;
+//        double xMax = size / 2;
 
-        double realFullTime = 1;
+        double xMin = 0;
+        double yMin = 0;
+        double yMax = size;
+        double xMax = size;
 
-        double timeStep = 0.01;
+        double realFullTime = 10;
+
+        double timeStep = 1;
         double spatialStep = 1;
 
         int timeSteps = (int) (realFullTime / timeStep);
 
 
-        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+        Mesh initialCondition = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);
+
 
 
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
@@ -37,16 +46,6 @@ public class General {
 
 
         Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
-
-//        meshWriter.writeAllPVTR(extent, 2);
-//
-//        for (int t = 0; t < 2; t++){
-//
-//            try {
-//                meshWriter.writeMeshVTR(initialCondition, extent, t);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
 
         SystemSolver eulerSolver = new EulerSystemSolver();
         Solver solver = new Solver(eulerSolver);

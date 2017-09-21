@@ -1,3 +1,5 @@
+package com.github.sudobobo;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,6 +31,8 @@ public class Mesh {
         j - индекс переменной из вектора u внутри одного треугольника
         k - номер четвёрки треугольников
          */
+
+        // TODO check this madness
         Double[] result = new Double[(triangles.size() / 4) * 5];
         int j = 0;
         int k = 0;
@@ -36,6 +40,7 @@ public class Mesh {
             if (j == 5) {
                 j = 0;
                 k++;
+//                k += 4;
             }
             result[i] = ((triangles.get(k).rowSum(j) + triangles.get(k + 1).rowSum(j) +
                     triangles.get(k + 2).rowSum(j) + triangles.get(k + 3).rowSum(j)) / 4);

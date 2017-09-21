@@ -1,3 +1,5 @@
+package com.github.sudobobo;
+
 import org.jblas.DoubleMatrix;
 
 public class Solver {
@@ -59,7 +61,7 @@ public class Solver {
 
         // p * l (size)
 
-        DoubleMatrix dU = ( third.add(fourth).sub(first).sub(second). div(tr.Mkl().mul(tr.jacobian())) );
+        DoubleMatrix dU = ( third.add(fourth).sub(first).sub(second). div(tr.Mkl().mul(tr.absJacobian())) );
 
         // TODO remove this with system solver
         return u.add(dU. mmul(timeStep));

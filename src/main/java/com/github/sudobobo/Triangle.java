@@ -1,4 +1,8 @@
+package com.github.sudobobo;
+
 import org.jblas.DoubleMatrix;
+
+import static java.lang.Math.abs;
 
 public class Triangle {
     public long number;
@@ -13,6 +17,7 @@ public class Triangle {
 
     private double S[];
     private double jacobian;
+    private double absJacobian;
 
     private DoubleMatrix Mkl, Fkl, KKsi, KMu;
     private DoubleMatrix Fkl_j[];
@@ -54,6 +59,7 @@ public class Triangle {
         this.BStr = BStr;
         S = s;
         this.jacobian = jacobian;
+        this.absJacobian = abs(jacobian);
         Mkl = mkl;
         Fkl = fkl;
         this.KKsi = KKsi;
@@ -79,6 +85,8 @@ public class Triangle {
     public double jacobian() {
         return jacobian;
     }
+
+    public double absJacobian(){ return  absJacobian; }
 
 
     // return pre-calculated values

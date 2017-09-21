@@ -1,3 +1,5 @@
+package com.github.sudobobo;
+
 public class Border {
     public double nX;
     public double nY;
