@@ -118,9 +118,6 @@ public class NewMeshConstructor {
                     double xWidth = xMax / 4;
                     double yWidth = yMax / 2;
 
-//                    double xWidth = xMax / 2;
-//                    double yWidth = yMax / 2;
-
                     int amplitude = 1;
 
                     double initXCenter = xMax/2;
@@ -158,7 +155,7 @@ public class NewMeshConstructor {
                 Math.PI, 0
         });
 
-            DoubleMatrix res = r2.mmul(cos(k.dot(centerVector ))).mul(-1);
+            DoubleMatrix res = r2.mmul(cos(k.dot(centerVector )));
             return res;
         } else {
             return DoubleMatrix.zeros(r2.rows, r2.columns);

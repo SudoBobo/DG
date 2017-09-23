@@ -48,3 +48,9 @@ fabric.properties
 *.iml
 *.xml
 .idea
+Будет удалено FinalTemp
+Будет удалено VtrApperTemplatePrepared
+Будет удалено VtrLowerTemplatePrepared
+Будет удалено outputsfile0.pvtr
+Будет удалено target/
+Будет удалено template
