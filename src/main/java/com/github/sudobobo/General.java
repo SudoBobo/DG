@@ -1,13 +1,21 @@
 package com.github.sudobobo;
 
+import org.yaml.snakeyaml.Yaml;
+
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
-
 public class General {
     public static void main(String[] args) {
+
+
+        Path configFile = Paths.get(args[0]);
+        Configuration config = getConfigFromYML(configFile);
+        System.out.println(config.toString());
+
 
         double lambda = 2.0;
         double mu = 1.0;
@@ -24,7 +32,7 @@ public class General {
         double realFullTime = 100;
 
         double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
-        double cS = Math.sqrt(mu/rho);
+        double cS = Math.sqrt(mu / rho);
 
         double spatialStep = 1;
         // durability - desiriable value of relation
@@ -56,7 +64,7 @@ public class General {
         Mesh next = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep);
 
-        for (int t = 0; t < timeSteps; t++){
+        for (int t = 0; t < timeSteps; t++) {
 
             try {
                 meshWriter.writeMeshVTR(orig, extent, t);
@@ -68,6 +76,18 @@ public class General {
             orig = next;
         }
 
+    }
+
+    private static Configuration getConfigFromYML(Path configFile) {
+
+        Yaml yaml = new Yaml();
+        try (InputStream in = Files.newInputStream(configFile)) {
+            Configuration config = yaml.loadAs(in, Configuration.class);
+            return config;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     private static double calcCourantTimeStep(double cP, double cS, double spatialStep, double durability) {
