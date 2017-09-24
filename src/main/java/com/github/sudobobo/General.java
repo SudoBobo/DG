@@ -40,13 +40,16 @@ public class General {
         double courantTimeStep = calcCourantTimeStep(cP, cS, spatialStep, durability);
         double timeStep = courantTimeStep;
 
+        double spatialStepForNumericalIntegration = 0.00000001;
+        Basis basis = new Basis();
+
         System.out.println("dx = " + spatialStep);
         System.out.println("dt = " + timeStep);
 
         int timeSteps = (int) (realFullTime / timeStep);
 
-        Mesh initialCondition = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep);
+        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
 
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
 
@@ -61,8 +64,8 @@ public class General {
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
         Mesh orig = initialCondition;
-        Mesh next = NewMeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep);
+        Mesh next = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
 
         for (int t = 0; t < timeSteps; t++) {
 

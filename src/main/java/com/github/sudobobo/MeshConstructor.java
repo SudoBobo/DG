@@ -4,14 +4,11 @@ import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
-import static java.lang.Math.abs;
-
+import static java.lang.Math.*;
 
 public class MeshConstructor {
 
@@ -19,120 +16,45 @@ public class MeshConstructor {
     private static Map<Double, DoubleMatrix> nToT;
 
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
-                                         double xMin, double xMax, double yMin, double yMax, double fine) {
+                                         double xMin, double xMax, double yMin, double yMax, double fine,
+                                         double spatialStepForNumericalIntegration, Basis basis) {
 
-        TtoInversedT = new HashMap<>(12);
-        nToT = new HashMap<>(12);
+
+        TtoInversedT = new ConcurrentHashMap<>(12);
+        nToT = new ConcurrentHashMap<>(12);
 
         // For regular mesh
         assert xMax - xMin == yMax - yMin;
 
         double sideLength = xMax - xMin;
-        int numberOfTriangles = (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
+        int numberOfTriangles = calcNumberOfTrianglesForRegularMesh(sideLength, fine);
 
-        List<Triangle> triangles = new ArrayList<>(numberOfTriangles);
-        for (int i = 0; i < numberOfTriangles; i++) {
-            Triangle emptyTriangle = new Triangle();
-            triangles.add(emptyTriangle);
-        }
+        List<Triangle> triangles = createArrayWithEmptyTriangles(numberOfTriangles);
 
-        // x, y - координаты левой нижней вершины текущего ПРЯМОУГОЛЬНИКА
-        // вертикальный "ход"
-        double nXGeneral = 1;
-        double nYGeneral = 0;
+        // prepare matrices that are the same for all triangles
 
-//        double nXGeneral = 1;
-//        double nYGeneral = 1;
+        DoubleMatrix A = calcAMatrix(lambda, mu, rho);
+        DoubleMatrix B = calcBMatrix(lambda, mu, rho);
 
-        double cP = sqrt((lambda + 2 * mu) / rho);
-        double cS = sqrt(mu / rho);
+        Double nXInnerTriangleSystem = 1.0;
+        Double nYInnerTriangleSystem = 0.0;
 
+        DoubleMatrix An = calcAnMatrix(A, B, nXInnerTriangleSystem, nYInnerTriangleSystem);
 
-        // TODO determine normal to boundary vector in inner triangle system
-        // TODO Really? Ask Denis
+        double cP = calcCP(lambda, mu, rho);
+        double cS = calcCS(mu, rho);
 
+        DoubleMatrix Rpqn = calcRpqn(lambda, mu, cP, cS, nXInnerTriangleSystem, nYInnerTriangleSystem);
 
-        DoubleMatrix R2 = new DoubleMatrix(new double[]{
-                -2.0 * mu * nXGeneral * nYGeneral,
-                2.0 * mu * nXGeneral * nYGeneral,
-                mu * (nXGeneral * nXGeneral - nYGeneral * nYGeneral),
-                -nYGeneral * cS,
-                nXGeneral * cS
+        DoubleMatrix Mkl = calcMkl(basis, spatialStepForNumericalIntegration);
+        DoubleMatrix Fkl = calcFkl(basis, spatialStepForNumericalIntegration);
 
-        });
+        DoubleMatrix[] Fkl_j = calcFkl_j(basis, spatialStepForNumericalIntegration);
 
-        DoubleMatrix R5 = new DoubleMatrix(new double[]{
-                lambda + 2.0 * mu * nXGeneral * nXGeneral,
-                lambda + 2.0 * mu * nYGeneral * nYGeneral,
-                2.0 * mu * nXGeneral * nYGeneral,
-                -nXGeneral * cP,
-                -nYGeneral * cP
-        });
+        DoubleMatrix KKsi = calcKKsi(basis, spatialStepForNumericalIntegration);
+        DoubleMatrix KMu = calcKMu(basis, spatialStepForNumericalIntegration);
 
-        // TODO determine wave propogation direction
-
-//        DoubleMatrix k = new DoubleMatrix(new double[]{
-//                2.0 * Math.PI / 25.0, 2.0 * Math.PI / 25.0
-//        });
-
-                DoubleMatrix k = new DoubleMatrix(new double[]{
-                2.0 * Math.PI / 25.0, 0
-        });
-        assert cP == 2;
-        assert cS == 1;
-
-
-        // A, B are constant all across the mesh
-        DoubleMatrix A = new DoubleMatrix(new double[][]{
-                {0, 0, 0, -(lambda + 2 * mu), 0},
-                {0, 0, 0, -lambda, 0},
-                {0, 0, 0, 0, -mu},
-                {-(1 / rho), 0, 0, 0, 0},
-                {0, 0, -(1 / rho), 0, 0}
-        });
-
-        DoubleMatrix B = new DoubleMatrix(new double[][]{
-                {0, 0, 0, 0, -lambda},
-                {0, 0, 0, 0, -(lambda + 2 * mu)},
-                {0, 0, 0, -mu, 0},
-                {0, 0, -(1 / rho), 0, 0},
-                {0, -(1 / rho), 0, 0, 0}
-        });
-
-
-        // TODO determine normal to boundary vector in inner triangle system
-        // TODO Really? Ask Denis
-
-        double nX = 1;
-        double nY = 0;
-
-//        double nX = 1;
-//        double nY = 1;
-
-        // in homo-mesh case these two matrices are the same for all triangles as they represent
-        // their attributes in inner coordinate system (nX = 1, nY = 0)
-        DoubleMatrix s = B.mul(nY);
-        DoubleMatrix An = A.mul(nX).add(s);
-
-
-        // as given in formula 8 on page 4
-        DoubleMatrix Rpqn = calcRpqn(lambda, mu, cP, cS, nX, nY);
-        // as given in formula 15 on page 4
         DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
-
-
-        DoubleMatrix Mkl = new DoubleMatrix(new double[]{1.0});
-        DoubleMatrix Fkl = new DoubleMatrix(new double[]{1.0});
-
-        DoubleMatrix[] Fkl_j = new DoubleMatrix[3];
-        for (int j = 0; j < 3; j++) {
-            Fkl_j[j] = new DoubleMatrix(new double[]{1.0});
-        }
-
-
-        DoubleMatrix KKsi = new DoubleMatrix(new double[]{0.0});
-        DoubleMatrix KMu = new DoubleMatrix(new double[]{0.0});
-
 
         int currentTriangle = 0;
 
@@ -142,90 +64,165 @@ public class MeshConstructor {
                 // в каждом квадрате по четыре треугольника
                 // заполняем каждый в соответствии с ФИЗИЧЕСКОЙ координатой
                 for (int numberInRectangle = 0; numberInRectangle < 4; numberInRectangle++) {
-
-                    double centerX = 0;
-                    double centerY = 0;
-
                     // x, y - координаты левой нижней вершины текущего прямоугольника
                     double v[][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
                     double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
                             (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
 
+                    double leftestRectangleX = x;
+                    double leftestRectangleY = y;
+                    double rectangleSide = fine;
 
-                    switch (numberInRectangle) {
-                        case 0:
-
-                            centerX = (x + x + x + fine / 2.0) / 3.0;
-                            centerY = (y + y + fine + y + fine / 2.0) / 3.0;
-                            break;
-                        case 1:
-                            centerX = (x + x + fine / 2 + x + fine) / 3.0;
-                            centerY = (y + fine + y + fine + y + fine / 2.0);
-                            break;
-
-                        case 2:
-                            centerX = (x + fine + x + fine / 2.0 + x + fine) / 3.0;
-                            centerY = (y + fine + y + y + fine / 2.0) / 3.0;
-                            break;
-
-                        case 3:
-
-                            centerX = (x + x + fine + x + fine / 2.0) / 3.0;
-                            centerY = (y + y + y + fine / 2.0);
-                            break;
-                    }
-
-                    DoubleMatrix centerVector = new DoubleMatrix(new double[]{
-                            centerX, centerY
-                    });
-
-
-//                    DoubleMatrix u = R2.mmul(sin(k.dot(centerVector))).addi(
-//                            R5.mmul(sin(k.dot(centerVector))));
-
-                    // TODO one wave case !!!
-
-
-                    DoubleMatrix u = R2.mmul(sin(k.dot(centerVector)));
+                    double centerX = calcCenterX(numberInRectangle, leftestRectangleX, rectangleSide);
+                    double centerY = calcCenterY(numberInRectangle, leftestRectangleY, rectangleSide);
 
                     Border[] borders = makeBorders(xMin, xMax, yMin, yMax, fine, x, y, triangles,
                             currentTriangle, numberInRectangle);
 
-                    // TODO this is ONLY FOR l = 0 case !
-//                    DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
-//                    DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
+                    Triangle uNeib[] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
 
-                    DoubleMatrix AStr = new DoubleMatrix();
-                    DoubleMatrix BStr = new DoubleMatrix();
-
+                    DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
+                    DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
 
                     DoubleMatrix T[] = calcTMatrixes(borders);
                     DoubleMatrix TInv[] = calcTInversedMatrixes(T);
 
                     double[] S = calcSidesLengths(numberInRectangle, fine);
 
+                    // initial disturbance properties
+                    double xWidth = xMax / 4;
+                    double yWidth = yMax / 2;
 
-                    Triangle uNeib[] = new Triangle[]{borders[0].getNeighbor(), borders[1].getNeighbor(), borders[2].getNeighbor()};
+                    int amplitude = 1;
 
-                    triangles.get(currentTriangle).init(currentTriangle, numberInRectangle, A, B, AAbs, AStr,
-                            BStr, S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv, u, An);
+                    double initXCenter = xMax/2;
+                    double initYCenter = yMax/2;
+
+                    DoubleMatrix R2 = Rpqn.getColumn(1);
+
+                    DoubleMatrix u = calcInitialUStep(centerX, centerY, xWidth, yWidth, amplitude, R2, initXCenter, initYCenter);
+
+                    triangles.get(currentTriangle).init(currentTriangle, numberInRectangle, A, B, AAbs, AStr, BStr,
+                            S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv, u, An);
 
                     triangles.get(currentTriangle).setNeighbors(uNeib);
                     currentTriangle++;
-
                 }
             }
         }
-
-
-        // необходимо повторить обход, чтобы заполнить сведения о том, какие треугольники граничат с данным
-        // какие координаты у вершин и какие нормали к вершинам
-
         return new Mesh(triangles);
     }
 
-    // TODO test this
+    private static DoubleMatrix calcMkl(Basis basis, Double spatialStepForNumericalIntegration) {
+        return new DoubleMatrix(new double[]{1.0});
+    }
+
+    private static DoubleMatrix calcFkl(Basis basis, Double spatialStepForNumericalIntegration){
+        return new DoubleMatrix(new double[]{1.0});
+    }
+
+    private static DoubleMatrix [] calcFkl_j(Basis basis, Double spatialStepForNumericalIntegration){
+        DoubleMatrix[] Fkl_j = new DoubleMatrix[3];
+        for (int j = 0; j < 3; j++) {
+            Fkl_j[j] = new DoubleMatrix(new double[]{1.0});
+        }
+        return Fkl_j;
+    }
+
+
+    private static DoubleMatrix calcKKsi(Basis basis, Double spatialStepForNumericalIntegration){
+        return new DoubleMatrix(new double[]{0.0});
+    }
+
+    private static DoubleMatrix calcKMu(Basis basis, Double spatialStepForNumericalIntegration){
+        return new DoubleMatrix(new double[]{0.0});
+    }
+
+    private static double calcCS(double mu, double rho) {
+        return sqrt(mu / rho);
+    }
+
+    private static double calcCP(double lambda, double mu, double rho) {
+        return sqrt((lambda + 2 * mu) / rho);
+    }
+
+    public static DoubleMatrix calcInitialUStep(double x, double y,
+                                                 double xWidth, double yWidth, int amplitude, DoubleMatrix r2, double initialXCenter, double initialYCenter) {
+        // TODO memorize this
+        // TODO will not work on the border
+
+        boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
+        boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
+
+        if (is_x_inside && is_y_inside) {
+            DoubleMatrix centerVector = new DoubleMatrix(new double[]{
+                    x/(2 * xWidth), y/(2 * yWidth)
+            });
+
+                    DoubleMatrix k = new DoubleMatrix(new double[]{
+                Math.PI, Math.PI
+        });
+
+            DoubleMatrix res = r2.mmul(cos(k.dot(centerVector ))).mul(-1);
+            return res;
+        } else {
+            return DoubleMatrix.zeros(r2.rows, r2.columns);
+        }
+
+    }
+
+    public static double calcCenterY(int numberInRectangle, double leftestRectangleY, double rectangleSide) {
+        // TODO remove with enum
+        assert (-1 < numberInRectangle && numberInRectangle < 4);
+
+        double y = leftestRectangleY;
+        double step = rectangleSide;
+
+        switch (numberInRectangle) {
+            case 0:
+                return (y + y + step + y + step / 2.0) / 3.0;
+            case 1:
+                return (y + step + y + step + y + step / 2.0) / 3.0;
+            case 2:
+                return (y + step + y + y + step / 2.0) / 3.0;
+            case 3:
+                return (y + y + y + step / 2.0) / 3.0;
+            default:
+                return -1;
+        }
+    }
+
+    public static double calcCenterX(int numberInRectangle, double leftestRectangleX, double rectangleSide) {
+        // TODO remove with enum
+        assert (-1 < numberInRectangle && numberInRectangle < 4);
+
+        double x = leftestRectangleX;
+        double step = rectangleSide;
+
+        switch (numberInRectangle) {
+            case 0:
+                return (x + x + x + step / 2.0) / 3.0;
+            case 1:
+                return (x + x + step / 2 + x + step) / 3.0;
+            case 2:
+                return (x + step + x + step / 2.0 + x + step) / 3.0;
+            case 3:
+                return (x + x + step + x + step / 2.0) / 3.0;
+            default:
+                return -1;
+        }
+    }
+
+    private static DoubleMatrix calcAnMatrix(DoubleMatrix a, DoubleMatrix b, Double nXInnerTriangleSystem, Double nYInnerTriangleSystem) {
+        // in homo-mesh case these two matrices are the same for all triangles as they represent
+        // their attributes in inner coordinate system (nX = 1, nY = 0)
+        DoubleMatrix s = b.mul(nYInnerTriangleSystem);
+        DoubleMatrix An = a.mul(nXInnerTriangleSystem).addi(s);
+        return An;
+    }
+
+
     private static DoubleMatrix calcAAbs(double cP, double cS, DoubleMatrix rpqn) {
         DoubleMatrix invRpqn = inverseMatrix(rpqn);
         DoubleMatrix diagMatrix = DoubleMatrix.diag(new DoubleMatrix(new double[]{
@@ -243,6 +240,40 @@ public class MeshConstructor {
                 {nX * cP, -nY * cS, 0, nY * cS, -nX * cP},
                 {nY * cP, nX * cS, 0, -nX * cS, -nY * cP}
         });
+    }
+
+    private static DoubleMatrix calcAMatrix(double lambda, double mu, double rho) {
+        return new DoubleMatrix(new double[][]{
+                {0, 0, 0, -(lambda + 2 * mu), 0},
+                {0, 0, 0, -lambda, 0},
+                {0, 0, 0, 0, -mu},
+                {-(1 / rho), 0, 0, 0, 0},
+                {0, 0, -(1 / rho), 0, 0}
+        });
+    }
+
+    private static DoubleMatrix calcBMatrix(double lambda, double mu, double rho) {
+        return new DoubleMatrix(new double[][]{
+                {0, 0, 0, 0, -lambda},
+                {0, 0, 0, 0, -(lambda + 2 * mu)},
+                {0, 0, 0, -mu, 0},
+                {0, 0, -(1 / rho), 0, 0},
+                {0, -(1 / rho), 0, 0, 0}
+        });
+    }
+
+
+    // TODO potentially may give false results because of double/int conversion
+    private static int calcNumberOfTrianglesForRegularMesh(double sideLength, double fine) {
+        return (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
+    }
+
+    private static List<Triangle> createArrayWithEmptyTriangles(int numberOfTriangles) {
+        List<Triangle> triangles = new ArrayList<>(numberOfTriangles);
+        for (int i = 0; i < numberOfTriangles; i++) {
+            triangles.add(new Triangle());
+        }
+        return triangles;
     }
 
     private static double[] calcSidesLengths(int numberInRectangle, double fine) {
@@ -353,7 +384,6 @@ public class MeshConstructor {
         return f.addi(s);
     }
 
-
     private static double[][] calcVertexes(int numberInRectangle, double x, double y, double fine) {
         // returns [[x,y], [x,y], [x,y]]
 
@@ -430,7 +460,6 @@ public class MeshConstructor {
 
         return v;
     }
-
 
     // make it parametrised
 
@@ -522,14 +551,14 @@ public class MeshConstructor {
         } else {
             neibIdx = calcIdxOfTriangleUp(xMin, xMax, yMin, yMax, fine, triangleNumber);
 
-            if (neibIdx >= triangles.size()){
+            if (neibIdx >= triangles.size()) {
                 System.out.println("-");
             }
         }
 
         try {
             borders[1] = new Border(nX, nY, triangles.get(neibIdx));
-        } catch (IndexOutOfBoundsException e){
+        } catch (IndexOutOfBoundsException e) {
             System.out.println("-");
 
         }
@@ -625,6 +654,9 @@ public class MeshConstructor {
 
         return borders;
     }
+
+    //TODO remove all (int) because rounding leads to errors like this
+    // Exception in thread "main" java.lang.IndexOutOfBoundsException: Index: 4000001, Size: 4000000
 
     public static int calcIdxOnRight(double xMin, double xMax, double fine, int triangleNumber) {
         // For regular mesh
