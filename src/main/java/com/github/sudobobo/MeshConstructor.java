@@ -64,6 +64,11 @@ public class MeshConstructor {
                 // в каждом квадрате по четыре треугольника
                 // заполняем каждый в соответствии с ФИЗИЧЕСКОЙ координатой
                 for (int numberInRectangle = 0; numberInRectangle < 4; numberInRectangle++) {
+
+                    if (!(currentTriangle < numberOfTriangles)){
+                        break;
+                    }
+
                     // x, y - координаты левой нижней вершины текущего прямоугольника
                     double v[][] = calcVertexes(numberInRectangle, x, y, fine);
                     // j = (x2 - x1)*(y3 - y1) - (x3 - x1)*(y2 - y1)
@@ -161,11 +166,10 @@ public class MeshConstructor {
             });
 
                     DoubleMatrix k = new DoubleMatrix(new double[]{
-                Math.PI, Math.PI
+                Math.PI, 0
         });
 
-            DoubleMatrix res = r2.mmul(cos(k.dot(centerVector ))).mul(-1);
-            return res;
+            return r2.mmul(cos(k.dot(centerVector ))).mul(-1);
         } else {
             return DoubleMatrix.zeros(r2.rows, r2.columns);
         }
@@ -264,7 +268,7 @@ public class MeshConstructor {
 
 
     // TODO potentially may give false results because of double/int conversion
-    private static int calcNumberOfTrianglesForRegularMesh(double sideLength, double fine) {
+    public static int calcNumberOfTrianglesForRegularMesh(double sideLength, double fine) {
         return (int) (sideLength / fine) * (int) (sideLength / fine) * 4;
     }
 

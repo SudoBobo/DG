@@ -60,9 +60,14 @@
             <artifactId>lombok</artifactId>
             <version>1.16.6</version>
             <scope>provided</scope>
-
         </dependency>
 
+
+        <dependency>
+            <groupId>org.webjars</groupId>
+            <artifactId>google-diff-match-patch</artifactId>
+            <version>20121119-1</version>
+        </dependency>
 
     </dependencies>
 

@@ -3,7 +3,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import static com.github.sudobobo.NewMeshConstructor.*;
+import static com.github.sudobobo.MeshConstructor.*;
 import static java.lang.Math.pow;
 
 public class IndexTest {

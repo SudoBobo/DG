@@ -11,11 +11,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 public class General {
     public static void main(String[] args) {
 
-
         Path configFile = Paths.get(args[0]);
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
-
 
         double lambda = 2.0;
         double mu = 1.0;
