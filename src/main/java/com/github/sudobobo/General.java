@@ -27,7 +27,7 @@ public class General {
         double yMax = size;
         double xMax = size;
 
-        double realFullTime = 100;
+        double realFullTime = 50;
 
         double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
         double cS = Math.sqrt(mu / rho);
@@ -56,8 +56,8 @@ public class General {
 
         Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
 
-        SystemSolver eulerSolver = new EulerSystemSolver();
-        Solver solver = new Solver(eulerSolver);
+        dUmethod dU_method = new dUmethod();
+        Solver RK_Solver = new RKSolver(dU_method, initialCondition.size());
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
@@ -73,7 +73,7 @@ public class General {
                 e.printStackTrace();
             }
 
-            solver.solveOneStep(orig, next, timeStep);
+            RK_Solver.solveOneStep(orig, next, timeStep);
             orig = next;
         }
 
