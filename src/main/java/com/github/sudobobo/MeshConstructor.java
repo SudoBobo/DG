@@ -17,7 +17,7 @@ public class MeshConstructor {
 
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
                                          double xMin, double xMax, double yMin, double yMax, double fine,
-                                         double spatialStepForNumericalIntegration, Basis basis) {
+                                         double spatialStepForNumericalIntegration) {
 
 
         TtoInversedT = new ConcurrentHashMap<>(12);
@@ -46,13 +46,22 @@ public class MeshConstructor {
 
         DoubleMatrix Rpqn = calcRpqn(lambda, mu, cP, cS, nXInnerTriangleSystem, nYInnerTriangleSystem);
 
-        DoubleMatrix Mkl = calcMkl(basis, spatialStepForNumericalIntegration);
-        DoubleMatrix Fkl = calcFkl(basis, spatialStepForNumericalIntegration);
+//        DoubleMatrix Mkl = calcMkl(basis, spatialStepForNumericalIntegration);
+//        DoubleMatrix Fkl = calcFkl(basis, spatialStepForNumericalIntegration);
+//
+//        DoubleMatrix[] Fkl_j = calcFkl_j(basis, spatialStepForNumericalIntegration);
+//
+//        DoubleMatrix KKsi = calcKKsi(basis, spatialStepForNumericalIntegration);
+//        DoubleMatrix KMu = calcKMu(basis, spatialStepForNumericalIntegration);
 
-        DoubleMatrix[] Fkl_j = calcFkl_j(basis, spatialStepForNumericalIntegration);
+        DoubleMatrix Mkl = null;
+        DoubleMatrix Fkl = null;
 
-        DoubleMatrix KKsi = calcKKsi(basis, spatialStepForNumericalIntegration);
-        DoubleMatrix KMu = calcKMu(basis, spatialStepForNumericalIntegration);
+        DoubleMatrix[] Fkl_j = null;
+
+        DoubleMatrix KKsi = null;
+        DoubleMatrix KMu = null;
+
 
         DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
 
@@ -119,15 +128,15 @@ public class MeshConstructor {
         return new Mesh(triangles);
     }
 
-    private static DoubleMatrix calcMkl(Basis basis, Double spatialStepForNumericalIntegration) {
+    private static DoubleMatrix calcMkl(Double spatialStepForNumericalIntegration) {
         return new DoubleMatrix(new double[]{1.0});
     }
 
-    private static DoubleMatrix calcFkl(Basis basis, Double spatialStepForNumericalIntegration){
+    private static DoubleMatrix calcFkl(Double spatialStepForNumericalIntegration){
         return new DoubleMatrix(new double[]{1.0});
     }
 
-    private static DoubleMatrix [] calcFkl_j(Basis basis, Double spatialStepForNumericalIntegration){
+    private static DoubleMatrix [] calcFkl_j(Double spatialStepForNumericalIntegration){
         DoubleMatrix[] Fkl_j = new DoubleMatrix[3];
         for (int j = 0; j < 3; j++) {
             Fkl_j[j] = new DoubleMatrix(new double[]{1.0});
@@ -136,11 +145,11 @@ public class MeshConstructor {
     }
 
 
-    private static DoubleMatrix calcKKsi(Basis basis, Double spatialStepForNumericalIntegration){
+    private static DoubleMatrix calcKKsi(Double spatialStepForNumericalIntegration){
         return new DoubleMatrix(new double[]{0.0});
     }
 
-    private static DoubleMatrix calcKMu(Basis basis, Double spatialStepForNumericalIntegration){
+    private static DoubleMatrix calcKMu(Double spatialStepForNumericalIntegration){
         return new DoubleMatrix(new double[]{0.0});
     }
 

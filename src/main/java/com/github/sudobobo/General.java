@@ -1,5 +1,7 @@
 package com.github.sudobobo;
 
+import com.github.sudobobo.basis.Basis;
+import com.github.sudobobo.basis.Linear2DBasis;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -38,8 +40,8 @@ public class General {
         double courantTimeStep = calcCourantTimeStep(cP, cS, spatialStep, durability);
         double timeStep = courantTimeStep;
 
-        double spatialStepForNumericalIntegration = 0.00000001;
-        Basis basis = new Basis();
+        double spatialStepForNumericalIntegration = 0.0001;
+        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
 
         System.out.println("dx = " + spatialStep);
         System.out.println("dt = " + timeStep);
@@ -47,7 +49,7 @@ public class General {
         int timeSteps = (int) (realFullTime / timeStep);
 
         Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
+                yMin, yMax, spatialStep, spatialStepForNumericalIntegration);
 
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
 
@@ -63,7 +65,7 @@ public class General {
 
         Mesh orig = initialCondition;
         Mesh next = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
+                yMin, yMax, spatialStep, spatialStepForNumericalIntegration);
 
         for (int t = 0; t < timeSteps; t++) {
 
