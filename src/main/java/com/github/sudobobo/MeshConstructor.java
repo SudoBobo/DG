@@ -1,5 +1,6 @@
 package com.github.sudobobo;
 
+import com.github.sudobobo.basis.Basis;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
@@ -17,7 +18,7 @@ public class MeshConstructor {
 
     public static Mesh constructHomoMesh(double lambda, double mu, double rho,
                                          double xMin, double xMax, double yMin, double yMax, double fine,
-                                         double spatialStepForNumericalIntegration) {
+                                         double spatialStepForNumericalIntegration, Basis basis) {
 
 
         TtoInversedT = new ConcurrentHashMap<>(12);
@@ -54,13 +55,13 @@ public class MeshConstructor {
 //        DoubleMatrix KKsi = calcKKsi(basis, spatialStepForNumericalIntegration);
 //        DoubleMatrix KMu = calcKMu(basis, spatialStepForNumericalIntegration);
 
-        DoubleMatrix Mkl = null;
-        DoubleMatrix Fkl = null;
+        DoubleMatrix Mkl = basis.M();
+        DoubleMatrix [] F0 = basis.F0();
 
-        DoubleMatrix[] Fkl_j = null;
+        DoubleMatrix[][] F = basis.F();
 
-        DoubleMatrix KKsi = null;
-        DoubleMatrix KMu = null;
+        DoubleMatrix KKsi = basis.KKsi();
+        DoubleMatrix KEta = basis.KEta();
 
 
         DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
@@ -118,7 +119,7 @@ public class MeshConstructor {
                     DoubleMatrix u = calcInitialUStep(centerX, centerY, xWidth, yWidth, amplitude, R2, initXCenter, initYCenter);
 
                     triangles.get(currentTriangle).init(currentTriangle, numberInRectangle, A, B, AAbs, AStr, BStr,
-                            S, jacobian, Mkl, Fkl, KKsi, KMu, Fkl_j, T, TInv, u, An);
+                            S, jacobian, Mkl, F0, KKsi, KEta, F, T, TInv, u, An);
 
                     triangles.get(currentTriangle).setNeighbors(uNeib);
                     currentTriangle++;
@@ -359,6 +360,8 @@ public class MeshConstructor {
             nX = borders[j].nX;
             nY = borders[j].nY;
 
+
+            // TODO probably wrong, check this
             double n = nX * 100 + nY;
 
 

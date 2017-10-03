@@ -324,7 +324,7 @@ public class Linear2DBasis implements Basis {
     }
 
     @Override
-    public DoubleMatrix[][] F(int i) {
+    public DoubleMatrix[][] F() {
         return F;
     }
 

@@ -13,7 +13,7 @@ public interface Basis {
     // (25)
     DoubleMatrix[] F0();
     // (26)
-    DoubleMatrix[][] F(int i);
+    DoubleMatrix[][] F();
     // (27)
     DoubleMatrix KKsi();
     // (28)

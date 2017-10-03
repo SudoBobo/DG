@@ -48,8 +48,11 @@ public class General {
 
         int timeSteps = (int) (realFullTime / timeStep);
 
-        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep, spatialStepForNumericalIntegration);
+//        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
+//                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
+
+        Mesh initialCondition = SalomeMeshConstructor.constructHomoMesh(lambda, mu, rho, spatialStep,
+                spatialStepForNumericalIntegration, basis);
 
         Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
 
@@ -63,9 +66,10 @@ public class General {
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
+
         Mesh orig = initialCondition;
         Mesh next = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep, spatialStepForNumericalIntegration);
+                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
 
         for (int t = 0; t < timeSteps; t++) {
 
