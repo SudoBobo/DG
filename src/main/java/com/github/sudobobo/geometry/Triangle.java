@@ -28,4 +28,12 @@ class Triangle {
 
     private Border[] borders;
     private int domain;
+
+    public Point getPoint(int p) {
+        return points[p];
+    }
+
+    public void setPoint(int p, Point newPoint){
+        points[p] = newPoint;
+    }
 }

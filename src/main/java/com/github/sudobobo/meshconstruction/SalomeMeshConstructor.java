@@ -1,10 +1,11 @@
-package com.github.sudobobo;
+package com.github.sudobobo.meshconstruction;
 
 import com.github.sudobobo.IO.MeshFileReader;
-import com.github.sudobobo.basis.Basis;
+import com.github.sudobobo.Mesh;
 import com.github.sudobobo.geometry.Border;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;
+import com.github.sudobobo.geometry.Vector;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
@@ -12,7 +13,7 @@ import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.Map;
 
-import static java.lang.Math.abs;
+import static com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes.*;
 import static java.lang.Math.sqrt;
 
 public class SalomeMeshConstructor {
@@ -20,28 +21,31 @@ public class SalomeMeshConstructor {
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
     private static Map<Double, DoubleMatrix> nToT;
 
-    public Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho, double spatialStep,
-                                  double spatialStepForNumericalIntegration, Basis basis) {
+    public Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
 
         Point[] points = MeshFileReader.readPoints(meshFile);
         Triangle[] triangles = MeshFileReader.readTriangles(meshFile);
 
         double minDistance = 0.00001;
-        Map<Integer, Integer> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
+        Map<Point, Point> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
 
-        removeDuplicatePoints(points, pointToReplacementPoint);
+        points = getPointsWithNoDuplicates(points, pointToReplacementPoint);
         changeDuplicateVertexes(triangles, pointToReplacementPoint);
 
-        changePointsOrderToReverseClock(triangles, points);
+        changePointsOrderToReverseClock(triangles);
         reduceDomains(triangles);
 
         setNeighborsAndBounds(triangles);
         setConstantPhysicalFields(triangles, lambda, mu, rho);
-        setAbsorbingBoundary(triangles);
+//        setAbsorbingBoundary(triangles);
 
         // ltrb if needed
 
-        return new Mesh(triangles, points);
+        Mesh mesh = new Mesh();
+        mesh.setPoints(points);
+        mesh.setTriangles(triangles);
+
+        return mesh;
     }
 
     private void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {
@@ -66,48 +70,37 @@ public class SalomeMeshConstructor {
             t.setA(A);
             t.setB(B);
             t.setAn(An);
+            t.setAAbs(AAbs);
 
-            double jacobian = (v[1][0] - v[0][0]) * (v[2][1] - v[0][1]) -
-                    (v[2][0] - v[0][0]) * (v[1][1] - v[0][1]);
+            double jacobian = calcJacobian(t);
 
-            DoubleMatrix AStr = calcAStr(A, B, jacobian, v);
-            DoubleMatrix BStr = calcBStr(A, B, jacobian, v);
-
-
-        }
-    }
-
-    private void setBasis(Triangle[] triangles, Basis basis) {
-        for (Triangle t : triangles) {
-
-            t
+            t.setJacobian(jacobian);
+            t.setAStr(calcAStr(A, B, jacobian, t.getPoints()));
+            t.setBStr(calcBStr(A, B, jacobian, t.getPoints()));
         }
     }
 
 
-    public static Mesh constructHomoMesh(double lambda, double mu, double rho, double spatialStep, double spatialStepForNumericalIntegration, Basis basis) {
-        return null;
-    }
 
-    public static Map<Integer, Integer> getPointToReplacementPoint(Point[] points, double minDistance) {
-        Map<Integer, Integer> pointToReplacementPoint = new HashMap<>();
+    public static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
+        Map<Point, Point> pointToReplacementPoint = new HashMap<>();
 
         for (Point replacementPoint : points) {
 
             // check if point already should be replaced
-            // in this case it can't be replacement
-            if (pointToReplacementPoint.get(replacementPoint.getId()) != null) {
+            // in this case it can't be a replacement
+            if (pointToReplacementPoint.get(replacementPoint) != null) {
                 continue;
             }
 
             for (Point pointToReplace : points) {
 
-                if (pointToReplace.getId() == replacementPoint.getId()) {
+                if (pointToReplace.equals(replacementPoint)) {
                     continue;
                 }
 
                 // check if point already should be replaced
-                if (pointToReplacementPoint.get(pointToReplace.getId()) != null) {
+                if (pointToReplacementPoint.get(pointToReplace) != null) {
                     continue;
                 }
 
@@ -115,7 +108,7 @@ public class SalomeMeshConstructor {
                 if (Point.distance(
                         replacementPoint, pointToReplace
                 ) < minDistance) {
-                    pointToReplacementPoint.put(pointToReplace.getId(), replacementPoint.getId());
+                    pointToReplacementPoint.put(pointToReplace, replacementPoint);
                 }
 
 
@@ -125,7 +118,26 @@ public class SalomeMeshConstructor {
         return pointToReplacementPoint;
     }
 
-    public static void removeDuplicatePoints(Point[] points, Map<Integer, Integer> pointToReplacementPoint) {
+    public static void reduceDomains(Triangle[] triangles) {
+        assert (false) : "not implemented yet";
+//        t[tIndex].domain = fileData.triangles[tIndex][fileData.triangles[tIndex].length - 1];
+//        domains.add(t[tIndex].domain);
+//    }
+//    //domain to index
+//    Integer[] domainsUnique = domains.toArray(new Integer[domains.size()]);
+//        Arrays.sort(domainsUnique);
+//    // а тут заполняем в треугольниках поле "домен" 0,1,2 (индексами листа доменов)
+//    // то есть были домены {1,33,100}
+//    // а стали {0,1,2}
+//    List<Integer> domainsList = new ArrayList(Arrays.asList(domainsUnique));
+//        for (int tIndex = 0; tIndex < fileData.triangles.length; tIndex++) {
+//        t[tIndex].domain = domainsList.indexOf(t[tIndex].domain);
+//        if (t[tIndex].domain < 0) {
+//            throw new AderException("domain identification problem!");
+//        }
+    }
+
+    public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
 
         int noDuplicateLength = points.length - pointToReplacementPoint.size();
         Point[] pointsWithNoDuplicates = new Point[noDuplicateLength];
@@ -133,7 +145,7 @@ public class SalomeMeshConstructor {
         int pnd = 0;
 
         for (Point point : points) {
-            if (pointToReplacementPoint.get(point.getId()) == null) {
+            if (pointToReplacementPoint.get(point) == null) {
                 pointsWithNoDuplicates[pnd] = point;
                 pnd++;
             }
@@ -143,29 +155,34 @@ public class SalomeMeshConstructor {
         return pointsWithNoDuplicates;
     }
 
-    public static void changeDuplicateVertexes(Triangle[] triangles, Map<Integer, Integer> pointToReplacementPoint) {
+    public static void changeDuplicateVertexes(Triangle[] triangles, Map<Point, Point> pointToReplacementPoint) {
 
-        for (Triangle triangle : triangles) {
-            for (int p = 0; p < triangle.getPointsId().length; p++) {
-
-                int pointId = triangle.getPointsId()[p];
-                if (pointToReplacementPoint.get(pointId) != null) {
-                    triangle.getPointsId()[p] = pointToReplacementPoint.get(pointId);
+        for (Triangle t : triangles){
+            for (int p = 0; p < t.getBorders().length; p++){
+                boolean toReplace = (pointToReplacementPoint.get(t.getPoint(p)) != null);
+                if (toReplace){
+                    t.setPoint(p, pointToReplacementPoint.get(t.getPoint(p)));
                 }
             }
         }
     }
 
-    public static void changePointsOrderToReverseClock(Triangle[] triangles, Point[] points) {
-        assert (false) : "Not implemented yet!";
+    public static void changePointsOrderToReverseClock(Triangle[] triangles) {
 
-//        //check orientation is reverse clock (left)
-//        Vector a = new Vector(ps[tPoints[0]], ps[tPoints[1]]);
-//        Vector b = new Vector(ps[tPoints[0]], ps[tPoints[2]]);
-//        if (a.mult2D(b) < 0) {//cменить порядок точек
-//            int tmp = tPoints[1];
-//            tPoints[1] = tPoints[2];
-//            tPoints[2] = tmp;
+        //check if  orientation is reverse clock
+        for (Triangle t : triangles) {
+
+            // todo optimise this
+            Vector a = new Vector(t.getPoint(0), t.getPoint(1));
+            Vector b = new Vector(t.getPoint(1), t.getPoint(2));
+
+            // todo test this
+            if (Vector.mult2D(a, b) < 0) {
+                Point temp = t.getPoint(1);
+                t.setPoint(1, t.getPoint(2));
+                t.setPoint(2, temp);
+            }
+        }
     }
 
     public static void setNeighborsAndBounds(Triangle[] triangles) {
@@ -251,11 +268,13 @@ public class SalomeMeshConstructor {
 
     }
 
+
+
     private static double calcBorderS(Point beginPoint, Point endPoint) {
         return Math.sqrt(
-                Math.pow((endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[1]), 2)
-                + Math.pow(endPoint.getCoordinates()[1] - beginPoint)
-        )
+                Math.pow((endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]), 2)
+                + Math.pow((endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1]), 2)
+        );
     }
 
     private static double[] calcOuterNormal(Point beginPoint, Point endPoint, Point thirdPoint) {
@@ -264,27 +283,17 @@ public class SalomeMeshConstructor {
         double[] n = new double[2];
         n[0] = endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1];
         n[1] = - (endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]);
+
+        // normalize normal vector
+        double n2 = Math.sqrt(n[0] * n[0] + n[1] * n[1]);
+
+        n[0] /= n2;
+        n[1] /= n2;
+
         return n;
     }
 
-    public static void reduceDomains(Triangle[] triangles) {
-        assert (false) : "not implemented yet";
-//        t[tIndex].domain = fileData.triangles[tIndex][fileData.triangles[tIndex].length - 1];
-//        domains.add(t[tIndex].domain);
-//    }
-//    //domain to index
-//    Integer[] domainsUnique = domains.toArray(new Integer[domains.size()]);
-//        Arrays.sort(domainsUnique);
-//    // а тут заполняем в треугольниках поле "домен" 0,1,2 (индексами листа доменов)
-//    // то есть были домены {1,33,100}
-//    // а стали {0,1,2}
-//    List<Integer> domainsList = new ArrayList(Arrays.asList(domainsUnique));
-//        for (int tIndex = 0; tIndex < fileData.triangles.length; tIndex++) {
-//        t[tIndex].domain = domainsList.indexOf(t[tIndex].domain);
-//        if (t[tIndex].domain < 0) {
-//            throw new AderException("domain identification problem!");
-//        }
-    }
+
 
     private static double calcCS(double mu, double rho) {
         return sqrt(mu / rho);
@@ -294,83 +303,26 @@ public class SalomeMeshConstructor {
         return sqrt((lambda + 2 * mu) / rho);
     }
 
-    private static DoubleMatrix calcAnMatrix(DoubleMatrix a, DoubleMatrix b, Double nXInnerTriangleSystem, Double nYInnerTriangleSystem) {
-        // in homo-mesh case these two matrices are the same for all triangles as they represent
-        // their attributes in inner coordinate system (nX = 1, nY = 0)
-        DoubleMatrix s = b.mul(nYInnerTriangleSystem);
-        DoubleMatrix An = a.mul(nXInnerTriangleSystem).addi(s);
-        return An;
+
+    private double calcJacobian(Triangle t) {
+        Point[] v = t.getPoints();
+
+        return (v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1]) -
+                (v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]);
     }
 
-    private static DoubleMatrix calcAAbs(double cP, double cS, DoubleMatrix rpqn) {
-        DoubleMatrix invRpqn = inverseMatrix(rpqn);
-        DoubleMatrix diagMatrix = DoubleMatrix.diag(new DoubleMatrix(new double[]{
-                abs(cP), abs(cS), 0, abs(cS), abs(cP)
-        }));
 
-        return rpqn.mmul(diagMatrix).mmul(invRpqn);
-    }
-
-    private static DoubleMatrix calcRpqn(double lbd, double mu, double cP, double cS, double nX, double nY) {
-        return new DoubleMatrix(new double[][]{
-                {lbd + 2 * mu * nX * nX, -2 * mu * nX * nY, nY * nY, -2 * mu * nX * nY, lbd + 2 * mu * nX * nX},
-                {lbd + 2 * mu * nY * nY, 2 * mu * nX * nY, nX * nX, 2 * mu * nX * nY, lbd + 2 * mu * nY * nY},
-                {2 * mu * nX * nY, mu * (nX * nX - nY * nY), -nX * nY, mu * (nX * nX - nY * nY), 2 * mu * nX * nY},
-                {nX * cP, -nY * cS, 0, nY * cS, -nX * cP},
-                {nY * cP, nX * cS, 0, -nX * cS, -nY * cP}
-        });
-    }
-
-    private static DoubleMatrix calcAMatrix(double lambda, double mu, double rho) {
-        return new DoubleMatrix(new double[][]{
-                {0, 0, 0, -(lambda + 2 * mu), 0},
-                {0, 0, 0, -lambda, 0},
-                {0, 0, 0, 0, -mu},
-                {-(1 / rho), 0, 0, 0, 0},
-                {0, 0, -(1 / rho), 0, 0}
-        });
-    }
-
-    private static DoubleMatrix calcBMatrix(double lambda, double mu, double rho) {
-        return new DoubleMatrix(new double[][]{
-                {0, 0, 0, 0, -lambda},
-                {0, 0, 0, 0, -(lambda + 2 * mu)},
-                {0, 0, 0, -mu, 0},
-                {0, 0, -(1 / rho), 0, 0},
-                {0, -(1 / rho), 0, 0, 0}
-        });
-    }
-
-    private static DoubleMatrix calcAStr(DoubleMatrix a, DoubleMatrix b, double jacobian, double[][] v) {
-        double dKsidX = (v[2][1] - v[0][1]) / jacobian;
-        double dKsidY = (v[0][0] - v[2][0]) / jacobian;
-
-        DoubleMatrix f = a.mul(dKsidX);
-        DoubleMatrix s = b.mul(dKsidY);
-
-        return f.addi(s);
-    }
-
-    private static DoubleMatrix calcBStr(DoubleMatrix a, DoubleMatrix b, double jacobian, double[][] v) {
-        double dNudX = (v[0][1] - v[1][1]) / jacobian;
-        double dNudY = (v[1][0] - v[0][0]) / jacobian;
-
-        DoubleMatrix f = a.mul(dNudX);
-        DoubleMatrix s = b.mul(dNudY);
-
-        return f.addi(s);
-    }
 
     private static DoubleMatrix calcTInversedMatrix(DoubleMatrix t) {
-        return calcInversed(t);
+
+        if (!TtoInversedT.containsKey(t)) {
+            TtoInversedT.put(t, calcInversed(t));
+        }
+        return TtoInversedT.get(t);
     }
 
-    private static DoubleMatrix calcInversed(DoubleMatrix m) {
-
-        if (!TtoInversedT.containsKey(m)) {
-            TtoInversedT.put(m, Solve.pinv(m));
-        }
-        return TtoInversedT.get(m);
+    public static DoubleMatrix calcInversed(DoubleMatrix m) {
+        return Solve.pinv(m);
     }
 
     private static DoubleMatrix calcTMatrix(double nX, double nY) {

@@ -20,6 +20,9 @@ class Point {
         }
         return Math.sqrt(d);
     }
+
+    public double x(){return coordinates[0];}
+    public double y(){return coordinates[1];}
 }
 
 

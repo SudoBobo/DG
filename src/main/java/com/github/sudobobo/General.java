@@ -3,6 +3,7 @@ package com.github.sudobobo;
 import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
+import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;

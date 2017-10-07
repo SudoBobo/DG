@@ -1,14 +1,17 @@
 package com.github.sudobobo;
 
+import com.github.sudobobo.geometry.Point;
+import com.github.sudobobo.geometry.Triangle;
+import lombok.Data;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Mesh {
-    public List<Triangle> triangles;
+public @Data
+class Mesh {
+    private Triangle[] triangles;
+    private Point[] points;
 
-    public Mesh(List<Triangle> triangles) {
-        this.triangles = triangles;
-    }
 
     public Double[] getFineDataArray() {
         Double[] result = new Double[(triangles.size()) * 5];
