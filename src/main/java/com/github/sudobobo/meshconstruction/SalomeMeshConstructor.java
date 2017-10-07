@@ -11,7 +11,9 @@ import org.jblas.Solve;
 
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes.*;
 import static java.lang.Math.sqrt;
@@ -23,8 +25,11 @@ public class SalomeMeshConstructor {
 
     public Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
 
+
+        // order of functions call here is important!
+
         Point[] points = MeshFileReader.readPoints(meshFile);
-        Triangle[] triangles = MeshFileReader.readTriangles(meshFile);
+        Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points);
 
         double minDistance = 0.00001;
         Map<Point, Point> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
@@ -49,7 +54,6 @@ public class SalomeMeshConstructor {
     }
 
     private void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {
-
 
         Double nXInnerTriangleSystem = 1.0;
         Double nYInnerTriangleSystem = 0.0;
@@ -79,8 +83,6 @@ public class SalomeMeshConstructor {
             t.setBStr(calcBStr(A, B, jacobian, t.getPoints()));
         }
     }
-
-
 
     public static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
         Map<Point, Point> pointToReplacementPoint = new HashMap<>();
@@ -119,22 +121,30 @@ public class SalomeMeshConstructor {
     }
 
     public static void reduceDomains(Triangle[] triangles) {
-        assert (false) : "not implemented yet";
-//        t[tIndex].domain = fileData.triangles[tIndex][fileData.triangles[tIndex].length - 1];
-//        domains.add(t[tIndex].domain);
-//    }
-//    //domain to index
-//    Integer[] domainsUnique = domains.toArray(new Integer[domains.size()]);
-//        Arrays.sort(domainsUnique);
-//    // а тут заполняем в треугольниках поле "домен" 0,1,2 (индексами листа доменов)
-//    // то есть были домены {1,33,100}
-//    // а стали {0,1,2}
-//    List<Integer> domainsList = new ArrayList(Arrays.asList(domainsUnique));
-//        for (int tIndex = 0; tIndex < fileData.triangles.length; tIndex++) {
-//        t[tIndex].domain = domainsList.indexOf(t[tIndex].domain);
-//        if (t[tIndex].domain < 0) {
-//            throw new AderException("domain identification problem!");
-//        }
+
+        Set<Integer> domains = new HashSet();
+
+        for (Triangle t : triangles) {
+            domains.add(t.getDomain());
+        }
+
+        Map<Integer, Integer> oldDomainToNewDomain = new HashMap<>();
+
+        int newDomain = 0;
+
+        for (int oldDomain : domains) {
+
+            if (!oldDomainToNewDomain.containsKey(oldDomain)) {
+                oldDomainToNewDomain.put(oldDomain, newDomain);
+                newDomain++;
+            }
+        }
+
+        for (Triangle t : triangles) {
+            t.setDomain(
+                    oldDomainToNewDomain.get(t.getDomain())
+            );
+        }
     }
 
     public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
@@ -145,7 +155,7 @@ public class SalomeMeshConstructor {
         int pnd = 0;
 
         for (Point point : points) {
-            if (pointToReplacementPoint.get(point) == null) {
+            if (!pointToReplacementPoint.containsKey(point)) {
                 pointsWithNoDuplicates[pnd] = point;
                 pnd++;
             }
@@ -307,8 +317,8 @@ public class SalomeMeshConstructor {
     private double calcJacobian(Triangle t) {
         Point[] v = t.getPoints();
 
-        return (v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1]) -
-                (v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]);
+        return ((v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1])) -
+                ((v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]));
     }
 
 

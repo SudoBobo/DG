@@ -7,7 +7,6 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
 
 // TODO rewrite with streams
 
@@ -30,15 +29,15 @@ public class MeshFileReader {
                 }
             }
 
-
             int numberOfPoints = Integer.parseInt(br.readLine());
             points = new Point[numberOfPoints];
 
-            String pointLine[];
+            String [] pointLine;
             for (int pointNumber = 0; pointNumber < numberOfPoints; pointNumber++) {
 
                 pointLine = br.readLine().split(" ");
-                points[pointNumber] = new Point(pointNumber, new double[]{
+                int pointId = pointNumber + 1;
+                points[pointNumber] = new Point(pointId, new double[]{
                         Double.parseDouble(pointLine[0]),
                         Double.parseDouble(pointLine[1])});
 
@@ -48,20 +47,15 @@ public class MeshFileReader {
         }
 
         return points;
-
     }
 
-
-
-    public static Triangle[] readTriangles(Path meshFile) {
+    public static Triangle[] readTriangles(Path meshFile, Point[] points) {
         // return 'triangles' with vertexes (left-clock) and domains
         // neighbors are null yet
 
         Triangle[] triangles = null;
-        Set<Integer> domains = new HashSet();
 
         try (BufferedReader br = new BufferedReader(new FileReader(meshFile.toFile()))) {
-
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -69,7 +63,6 @@ public class MeshFileReader {
                     break;
                 }
             }
-
 
             int numberOfTriangles = Integer.parseInt(br.readLine());
             triangles = new Triangle[numberOfTriangles];
@@ -83,12 +76,18 @@ public class MeshFileReader {
 
                 assert (triangleLine.length == 4) : "triangle line has size != 4. Check input .mesh file";
 
-                int[] pointsId = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
+                int[] pointsNumber = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
                         Integer.parseInt(triangleLine[2])};
 
                 int domain = Integer.parseInt(triangleLine[3]);
 
-                triangles[triangleNumber] = Triangle.builder().pointsId(pointsId).domain(domain).build();
+                Point[] trianglePoints = new Point[3];
+                trianglePoints[0] = points[pointsNumber[0] - 1];
+                trianglePoints[1] = points[pointsNumber[1] - 1];
+                trianglePoints[2] = points[pointsNumber[2] - 1];
+
+                triangles[triangleNumber] = Triangle.builder().domain(domain).points(trianglePoints).
+                        build();
 
             }
         } catch (IOException e) {
