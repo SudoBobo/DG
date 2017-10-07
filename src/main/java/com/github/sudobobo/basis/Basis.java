@@ -1,5 +1,6 @@
 package com.github.sudobobo.basis;
 
+import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
 public interface Basis {
@@ -11,9 +12,9 @@ public interface Basis {
     // (24)
     DoubleMatrix M();
     // (25)
-    DoubleMatrix[] F0(int j);
+    DoubleMatrix F0(int j);
     // (26)
-    DoubleMatrix[][] F(int j, int i);
+    DoubleMatrix F(int j, int i);
     // (27)
     DoubleMatrix KKsi();
     // (28)
@@ -23,7 +24,7 @@ public interface Basis {
 
 
     // methods to calculate u[p][l] coefficinets from single numerical initial value of u
-    DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn);
+    DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t);
     //
     //
 

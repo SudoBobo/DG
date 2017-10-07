@@ -1,11 +1,14 @@
 package com.github.sudobobo.basis;
 
+import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
 public class Linear2DBasis implements Basis {
 
     private Function zeroFunction;
     private Function[] basisFunctions;
+    private Function[] squaredBasisFunctions;
+
     private int numberOfBasisFunctions;
 
     private double integrationStep;
@@ -15,7 +18,6 @@ public class Linear2DBasis implements Basis {
     DoubleMatrix[][] F;
     DoubleMatrix KKsi;
     DoubleMatrix KEta;
-    double[] D;
 
 
     public Linear2DBasis(double integrationStep) {
@@ -32,20 +34,6 @@ public class Linear2DBasis implements Basis {
         KKsi = calcKKsi();
         KEta = calcKEta();
 
-        // D[l] where l is the number of basis function
-        D = calcD(M);
-    }
-
-    private double[] calcD(DoubleMatrix M) {
-        double [] D = new double[numberOfBasisFunctions];
-
-        // TODO may be totally wrong
-        // TODO only for basis {1, x - 1/3, y - 1/3}
-        D[0] = 1;
-        D[1] = 0;
-        D[2] = 0;
-
-        return D;
     }
 
     private DoubleMatrix[][] caclF() {
@@ -94,19 +82,28 @@ public class Linear2DBasis implements Basis {
 
     // TODO make Basis an abstract class with this method as it implements the same logic for every basis
     @Override
-    public DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn) {
+    public DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t) {
         DoubleMatrix u = new DoubleMatrix(numericalUColumn.rows, numberOfBasisFunctions);
 
         for (int numberOfVariable = 0; numberOfVariable < numericalUColumn.rows; numberOfVariable++) {
             for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++) {
 
-                double value = numericalUColumn.get(numberOfVariable) * D(numberOfCoeff) / M.get(numberOfCoeff, numberOfCoeff);
+//                double value = numericalUColumn.get(numberOfVariable) * D(numberOfCoeff) / M.get(numberOfCoeff, numberOfCoeff);
+                double upperIntgeral = integrateOverTriangle(t, basisFunctions[numberOfCoeff]);
+                double downIntegral = integrateOverTriangle(t, squaredBasisFunctions[numberOfCoeff]);
+                double value = numericalUColumn.get(numberOfVariable) * (upperIntgeral / downIntegral);
+                
                 u.put(numberOfVariable, numberOfCoeff, value);
 
+                // integration here
             }
         }
 
         return u;
+    }
+
+    // todo this is probably wrong
+    private double integrateOverTriangle(Triangle t, Function basisFunction) {
     }
 
     // description of linear2D basis {1; x - 1/3; y - 1/3}
@@ -143,6 +140,21 @@ public class Linear2DBasis implements Basis {
             }
         };
 
+        squaredBasisFunctions[0] = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return 1.0;
+            }
+
+            @Override
+            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
+                if (xOrder == 0 && yOrder == 0) {
+                    return this;
+                }
+                return zeroFunction;
+            }
+        }
+
         basisFunctions[1] = new Function() {
             // x-1/3
             @Override
@@ -161,6 +173,22 @@ public class Linear2DBasis implements Basis {
                 return zeroFunction;
             }
         };
+
+        squaredBasisFunctions[1] = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return Math.pow(x[0], 2) - (2/3) * x[0] + 1/9 ;
+            }
+
+            @Override
+            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
+                assert (false) : "not implemented yet!";
+                return null;
+            }
+
+        };
+
+
         basisFunctions[2] = new Function() {
             // y-1/3
             @Override
@@ -179,6 +207,19 @@ public class Linear2DBasis implements Basis {
                 return zeroFunction;
             }
 
+        };
+
+        squaredBasisFunctions[2] = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return Math.pow(x[1], 2) - (2/3) * x[1] + 1/9 ;
+            }
+
+            @Override
+            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
+                assert (false) : "not implemented yet!";
+                return null;
+            }
         };
     }
 
@@ -308,6 +349,7 @@ public class Linear2DBasis implements Basis {
         return KEta;
     }
 
+
     @Override
     public Function getFunction(int number) {
         return basisFunctions[number];
@@ -319,14 +361,15 @@ public class Linear2DBasis implements Basis {
     }
 
     @Override
-    public DoubleMatrix[] F0() {
-        return F0;
+    public DoubleMatrix F0(int j) {
+        return null;
     }
 
     @Override
-    public DoubleMatrix[][] F() {
-        return F;
+    public DoubleMatrix F(int j, int i) {
+        return null;
     }
+
 
     @Override
     public DoubleMatrix KKsi() {
@@ -338,8 +381,4 @@ public class Linear2DBasis implements Basis {
         return KEta;
     }
 
-    @Override
-    public double D(int l) {
-        return D[l];
-    }
 }
