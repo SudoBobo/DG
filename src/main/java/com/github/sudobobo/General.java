@@ -4,6 +4,7 @@ import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
+import org.jblas.DoubleMatrix;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -11,6 +12,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+
+import static java.lang.Math.cos;
 
 public class General {
     public static void main(String[] args) {
@@ -51,17 +54,23 @@ public class General {
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-        Long[] extent = initialCondition.getRawExtent(xMin, xMax, yMin, yMax, spatialStep);
+        Long[] extent = MeshWriter.getRawExtent(mesh);
+
+
+
+        // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
+//        Value [] values = Value.makeValuesArray(mesh, initialCondition, basis);
+        Value [] values = Value.makeValuesArray(mesh, basis);
 
         dUmethod dU_method = new dUmethod();
-        Solver RK_Solver = new RKSolver(dU_method, initialCondition.size());
+        Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
         // u[idx] corespond with triangle's id
         // u.idx == triangle.number
-        Value [] u = new Value[];
 
+        // todo вот тут та часть, которую непонятно как делать
         for (int t = 0; t < timeSteps; t++) {
 
             try {
@@ -75,6 +84,8 @@ public class General {
         }
 
     }
+
+
 
     private static Configuration getConfigFromYML(Path configFile) {
 

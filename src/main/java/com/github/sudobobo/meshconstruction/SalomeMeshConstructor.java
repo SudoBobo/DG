@@ -75,6 +75,8 @@ public class SalomeMeshConstructor {
             t.setB(B);
             t.setAn(An);
             t.setAAbs(AAbs);
+            t.setRpqn(Rpqn);
+
 
             double jacobian = calcJacobian(t);
 

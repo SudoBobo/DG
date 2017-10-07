@@ -94,5 +94,40 @@ class Mesh {
 
         return minSideLength;
     }
+
+    public Point getLTPoint() {
+
+        double ltX = points[0].x();
+        double ltY = points[0].y();
+
+        for (Point p : points) {
+            if (p.x() <= ltX) {
+                if (p.y() >= ltY) {
+                    ltX = p.x();
+                    ltY = p.y();
+                }
+            }
+        }
+
+        return new Point(-1, new double[]{ltX, ltY});
+    }
+
+
+    public Point getRBPoint() {
+
+        double rbX = points[0].x();
+        double rbY = points[0].y();
+
+        for (Point p : points) {
+            if (p.x() > rbX) {
+                if (p.y() < rbY) {
+                    rbX = p.x();
+                    rbY = p.y();
+                }
+            }
+        }
+
+        return new Point(-1, new double[]{rbX, rbY});
+    }
 }
 

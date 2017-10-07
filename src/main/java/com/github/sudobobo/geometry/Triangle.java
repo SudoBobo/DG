@@ -23,6 +23,7 @@ class Triangle {
 
     private DoubleMatrix[] T;
     private DoubleMatrix[] TInv;
+    private DoubleMatrix Rpqn;
 
     private DoubleMatrix An;
 
@@ -35,5 +36,21 @@ class Triangle {
 
     public void setPoint(int p, Point newPoint){
         points[p] = newPoint;
+    }
+
+    public Point getCenter() {
+
+        double x = 0;
+        double y = 0;
+
+        for (Point p : points){
+            x += p.x();
+            y += p.y();
+        }
+
+        x /= 3;
+        y /= 3;
+
+        return new Point(-1, new double[]{x,y});
     }
 }
