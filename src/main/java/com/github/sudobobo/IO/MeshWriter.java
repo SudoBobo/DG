@@ -1,4 +1,6 @@
-package com.github.sudobobo;
+package com.github.sudobobo.IO;
+
+import com.github.sudobobo.Mesh;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;

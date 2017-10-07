@@ -9,7 +9,7 @@ public
 @Builder
 class Triangle {
     private final int number;
-    private int[] pointsId;
+    private Point[] points;
 
     private DoubleMatrix A;
     private DoubleMatrix B;
@@ -21,17 +21,11 @@ class Triangle {
     private double[] S;
     private double jacobian;
 
-    private DoubleMatrix M;
-    private DoubleMatrix[] F0;
-    private DoubleMatrix KKsi;
-    private DoubleMatrix KMu;
-    private DoubleMatrix[][] F;
-
     private DoubleMatrix[] T;
     private DoubleMatrix[] TInv;
 
     private DoubleMatrix An;
 
-    private Triangle[] uNeib;
+    private Border[] borders;
     private int domain;
 }

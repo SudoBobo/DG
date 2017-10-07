@@ -1,5 +1,6 @@
 package com.github.sudobobo;
 
+import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
 import org.yaml.snakeyaml.Yaml;
@@ -70,6 +71,10 @@ public class General {
         Mesh orig = initialCondition;
         Mesh next = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
                 yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
+
+        // u[idx] corespond with triangle's id
+        // u.idx == triangle.number
+        Value [] u = new Value[];
 
         for (int t = 0; t < timeSteps; t++) {
 

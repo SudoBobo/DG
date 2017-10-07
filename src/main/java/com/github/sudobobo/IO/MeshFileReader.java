@@ -51,102 +51,52 @@ public class MeshFileReader {
 
     }
 
-    public static Map<Integer, Integer> getPointToReplacementPoint(Point[] points, double minDistance) {
-        Map<Integer, Integer> pointToReplacementPoint = new HashMap<>();
 
-        for (Point replacementPoint : points) {
 
-            // check if point already should be replaced
-            // in this case it can't be replacement
-            if (pointToReplacementPoint.get(replacementPoint.getId()) != null) {
-                continue;
+    public static Triangle[] readTriangles(Path meshFile) {
+        // return 'triangles' with vertexes (left-clock) and domains
+        // neighbors are null yet
+
+        Triangle[] triangles = null;
+        Set<Integer> domains = new HashSet();
+
+        try (BufferedReader br = new BufferedReader(new FileReader(meshFile.toFile()))) {
+
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.equals("Triangles\n")) {
+                    break;
+                }
             }
 
-            for (Point pointToReplace : points) {
 
-                if (pointToReplace.getId() == replacementPoint.getId()) {
-                    continue;
-                }
+            int numberOfTriangles = Integer.parseInt(br.readLine());
+            triangles = new Triangle[numberOfTriangles];
 
-                // check if point already should be replaced
-                if (pointToReplacementPoint.get(pointToReplace.getId()) != null) {
-                    continue;
-                }
+            String triangleLine[];
+            for (int triangleNumber = 0; triangleNumber < numberOfTriangles; triangleNumber++) {
 
-                // TODO test 'distance' method
-                if (Point.distance(
-                        replacementPoint, pointToReplace
-                ) < minDistance) {
-                    pointToReplacementPoint.put(pointToReplace.getId(), replacementPoint.getId());
-                }
+                // expect '936 344 1090 1' as 'v1 v2 v3 domain'
 
+                triangleLine = br.readLine().split(" ");
+
+                assert (triangleLine.length == 4) : "triangle line has size != 4. Check input .mesh file";
+
+                int[] pointsId = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
+                        Integer.parseInt(triangleLine[2])};
+
+                int domain = Integer.parseInt(triangleLine[3]);
+
+                triangles[triangleNumber] = Triangle.builder().pointsId(pointsId).domain(domain).build();
 
             }
+        } catch (IOException e) {
+            e.printStackTrace();
         }
 
-        return pointToReplacementPoint;
-    }
-
-    public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Integer, Integer> pointToReplacementPoint) {
-
-        int noDuplicateLength = points.length - pointToReplacementPoint.size();
-        Point[] pointsWithNoDuplicates = new Point[noDuplicateLength];
-
-        int pnd = 0;
-
-        for (Point point : points) {
-            if (pointToReplacementPoint.get(point.getId()) == null) {
-                pointsWithNoDuplicates[pnd] = point;
-                pnd++;
-            }
-        }
-
-        assert (pnd == noDuplicateLength) : "Length on array of points without duplicates was calculated wrong";
-        return pointsWithNoDuplicates;
-    }
-
-    public static void changeDuplicateVertexes(Triangle[] triangles, Map<Integer, Integer> pointToReplacementPoint) {
-
-        for (Triangle triangle : triangles) {
-            for (int p = 0; p < triangle.getPointsId().length; p++) {
-
-                int pointId = triangle.getPointsId()[p];
-                if (pointToReplacementPoint.get(pointId) != null) {
-                    triangle.getPointsId()[p] = pointToReplacementPoint.get(pointId);
-                }
-            }
-        }
-    }
-
-    public static void changePointsOrderToReverseClock(Triangle[] triangles, Point[] points) {
-        assert (false) : "Not implemented yet!";
-
-//        //check orientation is reverse clock (left)
-//        Vector a = new Vector(ps[tPoints[0]], ps[tPoints[1]]);
-//        Vector b = new Vector(ps[tPoints[0]], ps[tPoints[2]]);
-//        if (a.mult2D(b) < 0) {//cменить порядок точек
-//            int tmp = tPoints[1];
-//            tPoints[1] = tPoints[2];
-//            tPoints[2] = tmp;
-    }
-
-    public static void reduceDomains(Triangle[] triangles) {
-        assert (false) : "not implemented yet";
-//        t[tIndex].domain = fileData.triangles[tIndex][fileData.triangles[tIndex].length - 1];
-//        domains.add(t[tIndex].domain);
-//    }
-//    //domain to index
-//    Integer[] domainsUnique = domains.toArray(new Integer[domains.size()]);
-//        Arrays.sort(domainsUnique);
-//    // а тут заполняем в треугольниках поле "домен" 0,1,2 (индексами листа доменов)
-//    // то есть были домены {1,33,100}
-//    // а стали {0,1,2}
-//    List<Integer> domainsList = new ArrayList(Arrays.asList(domainsUnique));
-//        for (int tIndex = 0; tIndex < fileData.triangles.length; tIndex++) {
-//        t[tIndex].domain = domainsList.indexOf(t[tIndex].domain);
-//        if (t[tIndex].domain < 0) {
-//            throw new AderException("domain identification problem!");
-//        }
+        return triangles;
     }
 
 }
+

@@ -7,13 +7,13 @@ public interface Basis {
     // getFunctions[]
     Function getFunction(int number);
 
-    // pre-calculcated matrixes from 24-28
+    // pre-calculcated matrixes from
     // (24)
     DoubleMatrix M();
     // (25)
-    DoubleMatrix[] F0();
+    DoubleMatrix[] F0(int j);
     // (26)
-    DoubleMatrix[][] F();
+    DoubleMatrix[][] F(int j, int i);
     // (27)
     DoubleMatrix KKsi();
     // (28)
