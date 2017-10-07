@@ -23,40 +23,30 @@ public class General {
         double mu = 1.0;
         double rho = 1.0;
 
-        double size = 100;
-
-        double xMin = 0;
-        double yMin = 0;
-
-        double yMax = size;
-        double xMax = size;
-
         double realFullTime = 50;
 
         double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
         double cS = Math.sqrt(mu / rho);
 
-        double spatialStep = 1;
+
+        Path meshFile = Paths.get(config.getPathToMeshFile());
+        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, lambda, mu, rho);
+
+        double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
-        double courantTimeStep = calcCourantTimeStep(cP, cS, spatialStep, durability);
-        double timeStep = courantTimeStep;
+        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
 
         double spatialStepForNumericalIntegration = 0.0001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
 
-        System.out.println("dx = " + spatialStep);
+        System.out.println("min dx = " + minSideLength);
         System.out.println("dt = " + timeStep);
 
         int timeSteps = (int) (realFullTime / timeStep);
 
-//        Mesh initialCondition = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-//                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
 
-        Mesh initialCondition = SalomeMeshConstructor.constructHomoMesh(lambda, mu, rho, spatialStep,
-                spatialStepForNumericalIntegration, basis);
-
-        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), size, spatialStep, timeStep);
+        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), mesh.getTriangles().length, minSideLength, timeStep);
 
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
@@ -67,11 +57,6 @@ public class General {
         Solver RK_Solver = new RKSolver(dU_method, initialCondition.size());
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
-
-
-        Mesh orig = initialCondition;
-        Mesh next = MeshConstructor.constructHomoMesh(lambda, mu, rho, xMin, xMax,
-                yMin, yMax, spatialStep, spatialStepForNumericalIntegration, basis);
 
         // u[idx] corespond with triangle's id
         // u.idx == triangle.number

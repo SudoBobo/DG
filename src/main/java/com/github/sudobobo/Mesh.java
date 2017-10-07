@@ -1,11 +1,14 @@
 package com.github.sudobobo;
 
+import com.github.sudobobo.geometry.Border;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.lang.Double.min;
 
 public @Data
 class Mesh {
@@ -79,6 +82,17 @@ class Mesh {
         }
 
         return newTriangles;
+    }
+
+    public double getMinSideLength() {
+        double minSideLength = 1000000;
+        for (Triangle t : triangles){
+            for (Border b : t.getBorders()){
+                minSideLength = min(b.getS(), minSideLength);
+            }
+        }
+
+        return minSideLength;
     }
 }
 

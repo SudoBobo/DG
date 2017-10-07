@@ -23,7 +23,7 @@ public class SalomeMeshConstructor {
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
     private static Map<Double, DoubleMatrix> nToT;
 
-    public Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
+    public static Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
 
 
         // order of functions call here is important!
@@ -53,7 +53,7 @@ public class SalomeMeshConstructor {
         return mesh;
     }
 
-    private void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {
+    private static void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {
 
         Double nXInnerTriangleSystem = 1.0;
         Double nYInnerTriangleSystem = 0.0;
@@ -84,7 +84,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
+    private static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
         Map<Point, Point> pointToReplacementPoint = new HashMap<>();
 
         for (Point replacementPoint : points) {
@@ -120,9 +120,9 @@ public class SalomeMeshConstructor {
         return pointToReplacementPoint;
     }
 
-    public static void reduceDomains(Triangle[] triangles) {
+    private static void reduceDomains(Triangle[] triangles) {
 
-        Set<Integer> domains = new HashSet();
+        Set<Integer> domains = new HashSet<>();
 
         for (Triangle t : triangles) {
             domains.add(t.getDomain());
@@ -147,7 +147,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
+    private static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
 
         int noDuplicateLength = points.length - pointToReplacementPoint.size();
         Point[] pointsWithNoDuplicates = new Point[noDuplicateLength];
@@ -165,7 +165,7 @@ public class SalomeMeshConstructor {
         return pointsWithNoDuplicates;
     }
 
-    public static void changeDuplicateVertexes(Triangle[] triangles, Map<Point, Point> pointToReplacementPoint) {
+    private static void changeDuplicateVertexes(Triangle[] triangles, Map<Point, Point> pointToReplacementPoint) {
 
         for (Triangle t : triangles){
             for (int p = 0; p < t.getBorders().length; p++){
@@ -177,7 +177,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static void changePointsOrderToReverseClock(Triangle[] triangles) {
+    private static void changePointsOrderToReverseClock(Triangle[] triangles) {
 
         //check if  orientation is reverse clock
         for (Triangle t : triangles) {
@@ -195,7 +195,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static void setNeighborsAndBounds(Triangle[] triangles) {
+    private static void setNeighborsAndBounds(Triangle[] triangles) {
 
 
         Border borderNotSet = Border.builder().build();
@@ -212,7 +212,7 @@ public class SalomeMeshConstructor {
                         .endPoint(t.getPoints()[(b + 1) % 3])
                         .borderNumber(b)
                         .outerNormal(calcOuterNormal(
-                                t.getPoints()[b], t.getPoints()[(b + 1) % 3], t.getPoints()[(b + 2) % 3])
+                                t.getPoints()[b], t.getPoints()[(b + 1) % 3])
                         )
                         .neighborBorder(borderNotSet)
                         .neighborTriangle(triangleNotSet)
@@ -287,7 +287,7 @@ public class SalomeMeshConstructor {
         );
     }
 
-    private static double[] calcOuterNormal(Point beginPoint, Point endPoint, Point thirdPoint) {
+    private static double[] calcOuterNormal(Point beginPoint, Point endPoint) {
 
         // todo hardcodeed Rotation matrix with theta == 90
         double[] n = new double[2];
@@ -314,7 +314,7 @@ public class SalomeMeshConstructor {
     }
 
 
-    private double calcJacobian(Triangle t) {
+    private static double calcJacobian(Triangle t) {
         Point[] v = t.getPoints();
 
         return ((v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1])) -
