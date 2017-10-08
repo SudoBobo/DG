@@ -19,17 +19,10 @@ public interface Basis {
     DoubleMatrix KKsi();
     // (28)
     DoubleMatrix KEta();
-    //
-    double D(int l);
-
 
     // methods to calculate u[p][l] coefficinets from single numerical initial value of u
     DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t);
-    //
-    //
+
 
     // method to calculate u from u[p][l] and spatial coordinate
-    //
-    //
-    //
 }

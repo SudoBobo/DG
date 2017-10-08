@@ -3,7 +3,7 @@ package com.github.sudobobo.basis;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
-public class Linear2DBasis implements Basis {
+public class NewLinear2DBasis implements Basis {
 
     private Function zeroFunction;
     private Function[] basisFunctions;
@@ -96,7 +96,7 @@ public class Linear2DBasis implements Basis {
                 double upperIntgeral = integrateOverTriangle(t, basisFunctions[numberOfCoeff]);
                 double downIntegral = integrateOverTriangle(t, squaredBasisFunctions[numberOfCoeff]);
                 double value = numericalUColumn.get(numberOfVariable) * (upperIntgeral / downIntegral);
-                
+
                 u.put(numberOfVariable, numberOfCoeff, value);
 
                 // integration here
