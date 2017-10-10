@@ -9,71 +9,58 @@ import lombok.Data;
 public class ValuesToWrite {
 
     // should be stored sorted from left bottom to top right
-    private ValueToWrite [] valuesToWrite;
+    private ValueToWrite[] valuesToWrite;
+    // we have 'basis' field here because it is the only place where we calculate numerical vector of values from the matrix of coefficients
+    // in all other places we opearate only with the matrix of coefficients
     private Basis basis;
 
-    public ValuesToWrite (Value [] associatedValues, double rectangleSideLength, double minTriangleSideLength, Point lt,
-                          Point rb, Basis basis){
+    public ValuesToWrite(Value[] associatedValues, double rectangleSideLength, double minTriangleSideLength, Point lt,
+                         Point rb, Basis basis) {
 
-        this.basis = basis;
-        valuesToWrite = createEmptyValuesToWrite(rectangleSideLength, lt, rb);
-        connectValuesToWriteWithValues(valuesToWrite, associatedValues);
-    }
-
-    private ValueToWrite[] createEmptyValuesToWrite(double rectangleSideLength, Point lt, Point rb) {
-
-        // assume square mesh
         boolean isSquare = (Math.abs((rb.x() - lt.x()) - (lt.y() - rb.y())) < 0.001);
         assert (isSquare) : "Mesh expected to be square. It is not";
 
         double meshSideLength = rb.x() - lt.x();
 
-        int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
+        this.basis = basis;
 
-        int numberOfValuesToWrite = numberOfRectanglesOnSide * numberOfRectanglesOnSide;
-        valuesToWrite = new ValueToWrite[numberOfValuesToWrite];
+        int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
+        int valuesToWriteSize = (int) Math.pow(numberOfRectanglesOnSide, 2);
+        valuesToWrite = new ValueToWrite[valuesToWriteSize];
 
         double x = 0;
         double y = 0;
         int v = 0;
 
-        for (int column = 0; column < numberOfRectanglesOnSide; column++){
+        for (int column = 0; column < numberOfRectanglesOnSide; column++) {
 
             y = (rectangleSideLength / 2) * (column + 1);
 
-            for (int row = 0; row < numberOfRectanglesOnSide; row++){
+            for (int row = 0; row < numberOfRectanglesOnSide; row++) {
 
                 x = (rectangleSideLength / 2) * (row + 1);
 
-                Point valueRectangleCenter = new Point(-1, new double[]{x, y});
-                valuesToWrite[v] = ValueToWrite.builder().valueRectangleCenter(valueRectangleCenter).build();
+                valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues));
                 v++;
             }
         }
 
-        return valuesToWrite;
     }
 
-    private void connectValuesToWriteWithValues(ValueToWrite[] valuesToWrite, Value[] associatedValues) {
-
-
-        assert (false) : "Not implemented yet!";
-        //todo rewrite this O(m*n) algorithm (Also may work wrong)
-
-        for (ValueToWrite vtw : valuesToWrite){
-
-            for (Value asv : associatedValues){
-
-                // ???
-                if (true){
-                    break;
-                }
+    private Value FindAssociatedValue(double x, double y, Value[] associatedValues) {
+        for (Value v : associatedValues) {
+            if (v.getAssociatedTriangle().isInTriangle(x, y)) {
+                return v;
             }
         }
 
+
+        assert (false) : "Failed to find triangle for this point";
+        return null;
     }
 
-    public Long [] getExtent(double rectangleSideLength, Point lt, Point rb){
+
+    public Long[] getExtent(double rectangleSideLength, Point lt, Point rb) {
 
         // 0 100 0 100 0 1
         // expect array of 3 values [100, 100, 1]
@@ -94,7 +81,7 @@ public class ValuesToWrite {
 
     }
 
-    public double [] getRawValuesToWrite(){
+    public double[] getRawValuesToWrite() {
 
         // todo rewrite with use of stream api
 
@@ -109,23 +96,25 @@ public class ValuesToWrite {
         assert (numberOfValuesInValueVector == 5);
         int rawSize = valuesToWrite.length * numberOfValuesInValueVector;
 
-        double [] raw = new double[rawSize];
+        double[] raw = new double[rawSize];
 
         for (int v = 0; v < valuesToWrite.length; v++) {
 
-            double [] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].valueRectangleCenter);
+            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].valueRectangleCenter);
 
-            for (int r = 0; r < numberOfValuesInValueVector; r++ ){
-                raw[ numberOfValuesInValueVector * v + r ] = u[r];
+            for (int r = 0; r < numberOfValuesInValueVector; r++) {
+                raw[numberOfValuesInValueVector * v + r] = u[r];
             }
         }
 
         return raw;
     }
 
-    private @Data @Builder class ValueToWrite {
+    private
+    @Data
+    @Builder
+    class ValueToWrite {
         Value associatedValue;
-        Point valueRectangleCenter;
     }
 
 }
