@@ -1,5 +1,6 @@
 package com.github.sudobobo.basis;
 
+import com.github.sudobobo.calculations.InitialConditionPhase;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
@@ -21,8 +22,10 @@ public interface Basis {
     DoubleMatrix KEta();
 
     // methods to calculate u[p][l] coefficinets from single numerical initial value of u
-    DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t);
+    DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude,
+                             Triangle t);
 
 
     // method to calculate u from u[p][l] and spatial coordinate
+    double [] calcUNumerical(DoubleMatrix UCoeffs, Triangle t);
 }

@@ -1,10 +1,11 @@
 package com.github.sudobobo;
 
 import com.github.sudobobo.IO.MeshWriter;
+import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
+import com.github.sudobobo.calculations.SinInitialConditionPhase;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
-import org.jblas.DoubleMatrix;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -12,8 +13,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-
-import static java.lang.Math.cos;
 
 public class General {
     public static void main(String[] args) {
@@ -30,7 +29,6 @@ public class General {
 
         double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
         double cS = Math.sqrt(mu / rho);
-
 
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, lambda, mu, rho);
@@ -54,13 +52,23 @@ public class General {
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
-        Long[] extent = MeshWriter.getRawExtent(mesh);
 
+        double a = -1;
+        double phi = -1;
 
-
+        SinInitialConditionPhase initialCondition = new SinInitialConditionPhase(a, phi);
         // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
-//        Value [] values = Value.makeValuesArray(mesh, initialCondition, basis);
-        Value [] values = Value.makeValuesArray(mesh, basis);
+
+
+        double rectangleSideLength = minSideLength / 10;
+
+        Value [] values = Value.makeValuesArray(mesh, initialCondition, basis);
+        Value [] valuesForCalc = Value.makeNonAssociatedArray(values.length);
+
+        ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
+                mesh.getRBPoint(), basis);
+
+        Long [] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
         dUmethod dU_method = new dUmethod();
         Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
@@ -71,6 +79,8 @@ public class General {
         // u.idx == triangle.number
 
         // todo вот тут та часть, которую непонятно как делать
+        // need to value arrays
+        // one associated with valuesToWrite, another not
         for (int t = 0; t < timeSteps; t++) {
 
             try {

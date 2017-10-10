@@ -53,4 +53,30 @@ class Triangle {
 
         return new Point(-1, new double[]{x,y});
     }
+
+    public double getKsiInLocalSystem(double x, double y) {
+        return
+                ((points[2].x() * points[0].y()  -  points[0].x() * points[2].y()) +
+                x * (points[2].y() - points[0].y()) +
+                y * (points[0].x() - points[2].x())) / jacobian;
+    }
+
+    public double getEtaInLocalSystem(double x, double y) {
+
+        return
+                ((points[0].x() * points[1].y()  -  points[1].x() * points[0].y()) +
+                        x * (points[0].y() - points[1].y()) +
+                        y * (points[1].x() - points[0].x())) / jacobian;
+
+    }
+
+    public double getX(double ksi, double eta) {
+        return points[0].x() + (points[1].x() - points[0].x()) * ksi
+                + (points[2].x() - points[0].x()) * eta;
+    }
+
+    public double getY(double ksi, double eta){
+        return points[0].y() + (points[1].y() - points[0].y()) * ksi
+                + (points[2].y() - points[0].y()) * eta;
+    }
 }

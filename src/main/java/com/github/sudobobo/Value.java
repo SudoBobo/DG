@@ -6,6 +6,8 @@ import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
 
+import java.util.function.BiFunction;
+
 import static java.lang.Math.cos;
 
 public
@@ -19,7 +21,7 @@ class Value {
         this.associatedTriangle = associatedTriangle;
     }
 
-    public static Value[] makeValuesArray(Mesh mesh, Basis basis) {
+    public static Value[] makeValuesArray(Mesh mesh, BiFunction initialCondition, Basis basis) {
         // for all triangles produce associated u matrixes
 
         Value[] values = new Value[mesh.getTriangles().length];
@@ -47,36 +49,22 @@ class Value {
 
             Point triangleCenter = mesh.getTriangles()[t].getCenter();
 
-            DoubleMatrix numericalU = calcInitialU(triangleCenter.x(), triangleCenter.y(), xWidth, yWidth, 1, R2, centerX, centerY);
-            DoubleMatrix U = basis.calcUCoeffs(numericalU);
+            // this part should be re-writed
+//            DoubleMatrix numericalU = calcInitialU(triangleCenter.x(), triangleCenter.y(), xWidth, yWidth, 1, R2, centerX, centerY);
+//            DoubleMatrix U = basis.calcUCoeffs(numericalU, mesh.getTriangles()[t]);
 
-            values[t] = new Value(U, mesh.getTriangles()[t]);
+            DoubleMatrix u = basis.calcUCoeffs(initialCondition, t);
+            values[t] = new Value(u, mesh.getTriangles()[t]);
         }
 
         return values;
     }
 
-    public static DoubleMatrix calcInitialU(double x, double y,
-                                            double xWidth, double yWidth, int amplitude, DoubleMatrix r2, double initialXCenter, double initialYCenter) {
-        // TODO memorize this
-        // TODO will not work on the border
+    public static void copyU(Value [] from, Value [] to){
 
-        boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
-        boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
+        assert (from.length == to.length);
+        for (int v = 0; v < from.length; v++){
 
-        if (is_x_inside && is_y_inside) {
-            DoubleMatrix centerVector = new DoubleMatrix(new double[]{
-                    x / (2 * xWidth), y / (2 * yWidth)
-            });
-
-            DoubleMatrix k = new DoubleMatrix(new double[]{
-                    Math.PI, 0
-            });
-
-            return r2.mmul(cos(k.dot(centerVector))).mul(-1);
-        } else {
-            return DoubleMatrix.zeros(r2.rows, r2.columns);
         }
-
     }
 }

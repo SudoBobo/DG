@@ -1,7 +1,10 @@
 package com.github.sudobobo.basis;
 
+import com.github.sudobobo.calculations.InitialConditionPhase;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
+
+import java.util.Arrays;
 
 public class Linear2DBasis implements Basis {
 
@@ -19,7 +22,6 @@ public class Linear2DBasis implements Basis {
     private DoubleMatrix KKsi;
     private DoubleMatrix KEta;
 
-    private double[] D;
 
 
     public Linear2DBasis(double integrationStep) {
@@ -35,9 +37,6 @@ public class Linear2DBasis implements Basis {
 
         KKsi = calcKKsi();
         KEta = calcKEta();
-
-        D = calcD(M);
-
     }
 
     private DoubleMatrix[][] caclF() {
@@ -84,31 +83,8 @@ public class Linear2DBasis implements Basis {
         return F0;
     }
 
+
     // TODO make Basis an abstract class with this method as it implements the same logic for every basis
-    @Override
-    public DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t) {
-        DoubleMatrix u = new DoubleMatrix(numericalUColumn.rows, numberOfBasisFunctions);
-
-        for (int numberOfVariable = 0; numberOfVariable < numericalUColumn.rows; numberOfVariable++) {
-            for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++) {
-
-//                double value = numericalUColumn.get(numberOfVariable) * D(numberOfCoeff) / M.get(numberOfCoeff, numberOfCoeff);
-                double upperIntgeral = integrateOverTriangle(t, basisFunctions[numberOfCoeff]);
-                double downIntegral = integrateOverTriangle(t, squaredBasisFunctions[numberOfCoeff]);
-                double value = numericalUColumn.get(numberOfVariable) * (upperIntgeral / downIntegral);
-                
-                u.put(numberOfVariable, numberOfCoeff, value);
-
-                // integration here
-            }
-        }
-
-        return u;
-    }
-
-    // todo this is probably wrong
-    private double integrateOverTriangle(Triangle t, Function basisFunction) {
-    }
 
     // description of linear2D basis {1; x - 1/3; y - 1/3}
     private void initBasisFunctions() {
@@ -157,7 +133,7 @@ public class Linear2DBasis implements Basis {
                 }
                 return zeroFunction;
             }
-        }
+        };
 
         basisFunctions[1] = new Function() {
             // x-1/3
@@ -181,7 +157,7 @@ public class Linear2DBasis implements Basis {
         squaredBasisFunctions[1] = new Function() {
             @Override
             public double getValue(double[] x) {
-                return Math.pow(x[0], 2) - (2/3) * x[0] + 1/9 ;
+                return Math.pow(x[0], 2) - (2 / 3) * x[0] + 1 / 9;
             }
 
             @Override
@@ -216,7 +192,7 @@ public class Linear2DBasis implements Basis {
         squaredBasisFunctions[2] = new Function() {
             @Override
             public double getValue(double[] x) {
-                return Math.pow(x[1], 2) - (2/3) * x[1] + 1/9 ;
+                return Math.pow(x[1], 2) - (2 / 3) * x[1] + 1 / 9;
             }
 
             @Override
@@ -246,6 +222,7 @@ public class Linear2DBasis implements Basis {
 
         return numericalValue;
     }
+
 
     private double linearIntegral(int j, int i, Function k, Function l, double integrationStep) {
         double dl = integrationStep;
@@ -385,4 +362,57 @@ public class Linear2DBasis implements Basis {
         return KEta;
     }
 
+    @Override
+    public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
+
+        Function initialConditionPhaseInInnerSystem = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return initialConditionPhase.calc(
+                        t.getX(x[0], x[1]), t.getY(x[0], x[1])
+                );
+            }
+
+            @Override
+            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
+                return null;
+            }
+        };
+
+        DoubleMatrix u = new DoubleMatrix(initialConditionAmplitude.rows, numberOfBasisFunctions);
+
+        for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
+            for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
+
+                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
+                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
+                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
+
+                u.put(numberOfVariable, numberOfCoeff, value);
+            }
+        }
+        return u;
+    }
+
+    @Override
+    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
+
+
+        // todo : don't create an array, use and re-write x`given instead
+
+        double ksi = t.getKsiInLocalSystem(t.getCenter().x(), t.getCenter().y());
+        double eta = t.getEtaInLocalSystem(t.getCenter().x(), t.getCenter().y());
+
+        double [] result = new double[UCoeffs.rows];
+        Arrays.fill(result, 0);
+
+        for (int value = 0; value < UCoeffs.rows; value++){
+            for (int coeff = 0; coeff < UCoeffs.columns; coeff++){
+
+                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
+            }
+        }
+
+        return result;
+    }
 }

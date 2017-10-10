@@ -41,6 +41,7 @@ public class SalomeMeshConstructor {
         reduceDomains(triangles);
 
         setNeighborsAndBounds(triangles);
+        // make use of domains
         setConstantPhysicalFields(triangles, lambda, mu, rho);
 //        setAbsorbingBoundary(triangles);
 
@@ -58,6 +59,7 @@ public class SalomeMeshConstructor {
         Double nXInnerTriangleSystem = 1.0;
         Double nYInnerTriangleSystem = 0.0;
 
+        // domain section
         DoubleMatrix A = calcAMatrix(lambda, mu, rho);
         DoubleMatrix B = calcBMatrix(lambda, mu, rho);
 
