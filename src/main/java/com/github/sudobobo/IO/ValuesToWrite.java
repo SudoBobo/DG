@@ -94,13 +94,15 @@ public class ValuesToWrite {
 
         int numberOfValuesInValueVector = valuesToWrite[0].associatedValue.u.getRows();
         assert (numberOfValuesInValueVector == 5);
+
         int rawSize = valuesToWrite.length * numberOfValuesInValueVector;
 
         double[] raw = new double[rawSize];
 
         for (int v = 0; v < valuesToWrite.length; v++) {
 
-            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].valueRectangleCenter);
+//            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].valueRectangleCenter);
+            double[] u  = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
 
             for (int r = 0; r < numberOfValuesInValueVector; r++) {
                 raw[numberOfValuesInValueVector * v + r] = u[r];
