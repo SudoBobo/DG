@@ -1,6 +1,8 @@
 package com.github.sudobobo;
 
 import com.github.sudobobo.basis.Basis;
+import com.github.sudobobo.calculations.InitialConditionPhase;
+import com.github.sudobobo.calculations.SinInitialConditionPhase;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
@@ -9,6 +11,7 @@ import org.jblas.DoubleMatrix;
 import java.util.function.BiFunction;
 
 import static java.lang.Math.cos;
+import static java.lang.Math.floor;
 
 public
 @Data
@@ -21,16 +24,13 @@ class Value {
         this.associatedTriangle = associatedTriangle;
     }
 
-    public static Value[] makeValuesArray(Mesh mesh, BiFunction initialCondition, Basis basis) {
-        // for all triangles produce associated u matrixes
+    // This is the actual place, were we apply 'initialCondition' function and 'basis'
+    // to calculate initial coefficients of all cells (triangles)
 
+    // 'initialCondition' is expected to be a simple f(x,y) 'physics' function
+    public static Value[] makeValuesArray(Mesh mesh, String initialCondition, Basis basis) {
+        // for all triangles produce associated 'U' matrices
         Value[] values = new Value[mesh.getTriangles().length];
-
-        Point lt = mesh.getLTPoint();
-        Point rb = mesh.getRBPoint();
-
-        double centerX = (lt.x() + rb.x()) / 2;
-        double centerY = (lt.y() + rb.y()) / 2;
 
         // 0.5 - will make initial condition all along the axis
         // 0.25 - on a half
@@ -38,33 +38,47 @@ class Value {
         // 0.0625 - 1/8
 
         double xWidthCoef = 0.00625;
-        double xWidth = (rb.x() - lt.x()) * xWidthCoef;
-
         double yWidthCoef = 0.5;
-        double yWidth = (lt.y() - rb.y()) * yWidthCoef;
 
+        assert (initialCondition.equals("sin"));
+        InitialConditionPhase initialConditionPhase =
+                buildSampleInitialConditionPhaseFunction(mesh.getLTPoint(), mesh.getRBPoint(), xWidthCoef, yWidthCoef);
+
+        // initialConditionAmplitude
         DoubleMatrix R2 = mesh.getTriangles()[0].getRpqn().getColumn(1);
 
+        // u_p = R2_p * initialConditionPhase(x, y)
+        // where initialConditionPhase is scalar function
         for (int t = 0; t < mesh.getTriangles().length; t++) {
 
-            Point triangleCenter = mesh.getTriangles()[t].getCenter();
-
-            // this part should be re-writed
-//            DoubleMatrix numericalU = calcInitialU(triangleCenter.x(), triangleCenter.y(), xWidth, yWidth, 1, R2, centerX, centerY);
-//            DoubleMatrix U = basis.calcUCoeffs(numericalU, mesh.getTriangles()[t]);
-
-            DoubleMatrix u = basis.calcUCoeffs(initialCondition, t);
+            DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
             values[t] = new Value(u, mesh.getTriangles()[t]);
         }
 
         return values;
     }
 
-    public static void copyU(Value [] from, Value [] to){
+    private static InitialConditionPhase buildSampleInitialConditionPhaseFunction(Point lt, Point rb, double xWidthCoef,
+                                                                                  double yWidthCoef) {
+        double centerX = (lt.x() + rb.x()) / 2;
+        double centerY = (lt.y() + rb.y()) / 2;
 
-        assert (from.length == to.length);
-        for (int v = 0; v < from.length; v++){
+        double xWidth = (rb.x() - lt.x()) * xWidthCoef;
+        double yWidth = (lt.y() - rb.y()) * yWidthCoef;
 
-        }
+
+        assert (false) : "a and phi are not properly set"
+        double a = 1;
+        double phi = 1;
+
+        return new SinInitialConditionPhase(a, phi, xWidth,yWidth,centerX, centerY);
     }
+
+//    public static void copyU(Value [] from, Value [] to){
+//
+//        assert (from.length == to.length);
+//        for (int v = 0; v < from.length; v++){
+//
+//        }
+//    }
 }
