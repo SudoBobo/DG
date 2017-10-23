@@ -8,11 +8,6 @@ import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
 
-import java.util.function.BiFunction;
-
-import static java.lang.Math.cos;
-import static java.lang.Math.floor;
-
 public
 @Data
 class Value {
@@ -60,6 +55,10 @@ class Value {
 
     private static InitialConditionPhase buildSampleInitialConditionPhaseFunction(Point lt, Point rb, double xWidthCoef,
                                                                                   double yWidthCoef) {
+
+        // todo remove hardcode : f(x,y) = cos(a * x + phi)
+        // where f(x=xCenter) = 1
+        //       f(x=xCenter +/- xWidth = 0
         double centerX = (lt.x() + rb.x()) / 2;
         double centerY = (lt.y() + rb.y()) / 2;
 
@@ -67,11 +66,11 @@ class Value {
         double yWidth = (lt.y() - rb.y()) * yWidthCoef;
 
 
-        assert (false) : "a and phi are not properly set"
-        double a = 1;
-        double phi = 1;
-
-        return new SinInitialConditionPhase(a, phi, xWidth,yWidth,centerX, centerY);
+        double a = Math.PI / (2.0 * xWidth);
+        double phi = -(Math.PI / 2) * (centerX / xWidth);
+//
+//      return Math.cos(a * x + phi);
+        return new SinInitialConditionPhase(a, phi, xWidth, yWidth, centerX, centerY);
     }
 
 //    public static void copyU(Value [] from, Value [] to){
