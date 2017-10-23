@@ -22,8 +22,6 @@ public class Linear2DBasis implements Basis {
     private DoubleMatrix KKsi;
     private DoubleMatrix KEta;
 
-
-
     public Linear2DBasis(double integrationStep) {
         this.integrationStep = integrationStep;
 
@@ -33,60 +31,187 @@ public class Linear2DBasis implements Basis {
         M = calcM();
 
         F0 = calcF0();
-        F = caclF();
+        F = calcF();
 
         KKsi = calcKKsi();
         KEta = calcKEta();
     }
 
-    private DoubleMatrix[][] caclF() {
-        int numberOfTriangleSides = 3;
-        DoubleMatrix[][] F = new DoubleMatrix[numberOfTriangleSides][numberOfTriangleSides];
-
-        for (int i = 0; i < numberOfTriangleSides; i++) {
-            for (int j = 0; j < numberOfTriangleSides; j++) {
-
-                DoubleMatrix Fij = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
-
-                for (int k = 0; k < numberOfBasisFunctions; k++) {
-                    for (int l = 0; l < numberOfBasisFunctions; l++) {
-                        Fij.put(k, l,
-                                linearIntegral(j, i, basisFunctions[k], basisFunctions[l], integrationStep));
-                    }
-                }
-
-                F[i][j] = Fij;
-            }
-        }
-
-        return F;
-    }
-
-    private DoubleMatrix[] calcF0() {
-        int numberOfTriangleSides = 3;
-        DoubleMatrix[] F0 = new DoubleMatrix[numberOfTriangleSides];
-
-        for (int j = 0; j < numberOfTriangleSides; j++) {
-
-            DoubleMatrix Fj = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
-
-            for (int k = 0; k < numberOfBasisFunctions; k++) {
-                for (int l = 0; l < numberOfBasisFunctions; l++) {
-                    Fj.put(k, l,
-                            linearIntegral(j, -1, basisFunctions[k], basisFunctions[l], integrationStep));
-                }
-            }
-
-            F0[j] = Fj;
-        }
-
-        return F0;
-    }
 
 
     // TODO make Basis an abstract class with this method as it implements the same logic for every basis
+    public DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t) {
+        DoubleMatrix u = new DoubleMatrix(numericalUColumn.rows, numberOfBasisFunctions);
+
+        for (int numberOfVariable = 0; numberOfVariable < numericalUColumn.rows; numberOfVariable++) {
+            for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++) {
+
+//                double value = numericalUColumn.get(numberOfVariable) * D(numberOfCoeff) / M.get(numberOfCoeff, numberOfCoeff);
+                double upperIntgeral = integrateOverTriangle(t, basisFunctions[numberOfCoeff]);
+                double downIntegral = integrateOverTriangle(t, squaredBasisFunctions[numberOfCoeff]);
+                double value = numericalUColumn.get(numberOfVariable) * (upperIntgeral / downIntegral);
+
+                u.put(numberOfVariable, numberOfCoeff, value);
+
+                // integration here
+            }
+        }
+
+        return u;
+    }
+
+    // todo this is probably wrong
+    private double integrateOverTriangle(Triangle t, Function basisFunction) {
+        assert (false) : "not implemented yet assertion";
+        return 666;
+    }
 
     // description of linear2D basis {1; x - 1/3; y - 1/3}
+
+    private double squareIntegral(Function f1, Function f2, double integrationStep) {
+
+        double dl = integrationStep;
+        double numericalValue = 0;
+
+        double[] x = new double[]{0, 0};
+        for (x[0] = 0; x[0] < 1; x[0] += dl) {
+            for (x[1] = 0; x[1] < (1 - x[0]); x[1] += dl) {
+                numericalValue += f1.getValue(x) * f2.getValue(x);
+            }
+        }
+        numericalValue *= dl * dl;
+
+        if (Math.abs(numericalValue) < integrationStep) {
+            numericalValue = 0.0f;
+        }
+
+        return numericalValue;
+    }
+
+    private double linearIntegral(int j, int i, Function k, Function l, double integrationStep) {
+        double dl = integrationStep;
+        double numericalValue = 0;
+        if (j < 0 || j > 2) {
+            throw new RuntimeException("not implemented yet for j=" + j);
+        }
+        if (i < -1 || i > 2) {
+            throw new RuntimeException("not implemented yet for i=" + i);
+        }
+        double[] x1 = new double[]{0, 0};
+        double[] x2 = new double[]{0, 0};
+
+        for (double t = 0; t < 1; t += dl) {
+            switch (j) {
+                case 0: {
+                    x1[0] = t;
+                    x1[1] = 0;
+                    break;
+                }
+                case 1: {
+                    x1[0] = 1 - t;
+                    x1[1] = t;
+                    break;
+                }
+                case 2: {
+                    x1[0] = 0;
+                    x1[1] = 1 - t;
+                    break;
+                }
+            }
+            switch (i) {
+                case -1: {
+                    x2[0] = x1[0];
+                    x2[1] = x1[1];
+                    break;
+                }
+                case 0: {
+                    x2[0] = 1 - t;
+                    x2[1] = 0;
+                    break;
+                }
+                case 1: {
+                    x2[0] = t;
+                    x2[1] = 1 - t;
+                    break;
+                }
+                case 2: {
+                    x2[0] = 0;
+                    x2[1] = t;
+                    break;
+                }
+            }
+            numericalValue += k.getValue(x1) * l.getValue(x2);
+        }
+
+        numericalValue *= dl;
+
+        if (Math.abs(numericalValue) < integrationStep) {
+            numericalValue = 0.0f;
+        }
+        return numericalValue;
+    }
+
+
+
+
+    @Override
+    public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
+
+        Function initialConditionPhaseInInnerSystem = new Function() {
+            @Override
+            public double getValue(double[] x) {
+                return initialConditionPhase.calc(
+                        t.getX(x[0], x[1]), t.getY(x[0], x[1])
+                );
+            }
+
+            @Override
+            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
+                return null;
+            }
+        };
+
+        DoubleMatrix u = new DoubleMatrix(initialConditionAmplitude.rows, numberOfBasisFunctions);
+
+        for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
+            for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
+
+                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
+                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
+                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
+
+                u.put(numberOfVariable, numberOfCoeff, value);
+            }
+        }
+        return u;
+    }
+
+
+    @Override
+    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
+
+
+        // todo : don't create an array, use and re-write x`given instead
+
+        double ksi = t.getKsiInLocalSystem(t.getCenter().x(), t.getCenter().y());
+        double eta = t.getEtaInLocalSystem(t.getCenter().x(), t.getCenter().y());
+
+        double [] result = new double[UCoeffs.rows];
+        Arrays.fill(result, 0);
+
+        for (int value = 0; value < UCoeffs.rows; value++){
+            for (int coeff = 0; coeff < UCoeffs.columns; coeff++){
+
+                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
+            }
+        }
+
+        return result;
+    }
+
+
+
+
     private void initBasisFunctions() {
 
         basisFunctions = new Function[3];
@@ -203,90 +328,6 @@ public class Linear2DBasis implements Basis {
         };
     }
 
-    private double squareIntegral(Function f1, Function f2, double integrationStep) {
-
-        double dl = integrationStep;
-        double numericalValue = 0;
-
-        double[] x = new double[]{0, 0};
-        for (x[0] = 0; x[0] < 1; x[0] += dl) {
-            for (x[1] = 0; x[1] < (1 - x[0]); x[1] += dl) {
-                numericalValue += f1.getValue(x) * f2.getValue(x);
-            }
-        }
-        numericalValue *= dl * dl;
-
-        if (Math.abs(numericalValue) < integrationStep) {
-            numericalValue = 0.0f;
-        }
-
-        return numericalValue;
-    }
-
-
-    private double linearIntegral(int j, int i, Function k, Function l, double integrationStep) {
-        double dl = integrationStep;
-        double numericalValue = 0;
-        if (j < 0 || j > 2) {
-            throw new RuntimeException("not implemented yet for j=" + j);
-        }
-        if (i < -1 || i > 2) {
-            throw new RuntimeException("not implemented yet for i=" + i);
-        }
-        double[] x1 = new double[]{0, 0};
-        double[] x2 = new double[]{0, 0};
-
-        for (double t = 0; t < 1; t += dl) {
-            switch (j) {
-                case 0: {
-                    x1[0] = t;
-                    x1[1] = 0;
-                    break;
-                }
-                case 1: {
-                    x1[0] = 1 - t;
-                    x1[1] = t;
-                    break;
-                }
-                case 2: {
-                    x1[0] = 0;
-                    x1[1] = 1 - t;
-                    break;
-                }
-            }
-            switch (i) {
-                case -1: {
-                    x2[0] = x1[0];
-                    x2[1] = x1[1];
-                    break;
-                }
-                case 0: {
-                    x2[0] = 1 - t;
-                    x2[1] = 0;
-                    break;
-                }
-                case 1: {
-                    x2[0] = t;
-                    x2[1] = 1 - t;
-                    break;
-                }
-                case 2: {
-                    x2[0] = 0;
-                    x2[1] = t;
-                    break;
-                }
-            }
-            numericalValue += k.getValue(x1) * l.getValue(x2);
-        }
-
-        numericalValue *= dl;
-
-        if (Math.abs(numericalValue) < integrationStep) {
-            numericalValue = 0.0f;
-        }
-        return numericalValue;
-    }
-
     private DoubleMatrix calcM() {
         // tested
         DoubleMatrix M = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
@@ -330,6 +371,49 @@ public class Linear2DBasis implements Basis {
         return KEta;
     }
 
+    private DoubleMatrix[][] calcF() {
+        int numberOfTriangleSides = 3;
+        DoubleMatrix[][] F = new DoubleMatrix[numberOfTriangleSides][numberOfTriangleSides];
+
+        for (int i = 0; i < numberOfTriangleSides; i++) {
+            for (int j = 0; j < numberOfTriangleSides; j++) {
+
+                DoubleMatrix Fij = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
+
+                for (int k = 0; k < numberOfBasisFunctions; k++) {
+                    for (int l = 0; l < numberOfBasisFunctions; l++) {
+                        Fij.put(k, l,
+                                linearIntegral(j, i, basisFunctions[k], basisFunctions[l], integrationStep));
+                    }
+                }
+
+                F[i][j] = Fij;
+            }
+        }
+
+        return F;
+    }
+
+    private DoubleMatrix[] calcF0() {
+        int numberOfTriangleSides = 3;
+        DoubleMatrix[] F0 = new DoubleMatrix[numberOfTriangleSides];
+
+        for (int j = 0; j < numberOfTriangleSides; j++) {
+
+            DoubleMatrix Fj = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
+
+            for (int k = 0; k < numberOfBasisFunctions; k++) {
+                for (int l = 0; l < numberOfBasisFunctions; l++) {
+                    Fj.put(k, l,
+                            linearIntegral(j, -1, basisFunctions[k], basisFunctions[l], integrationStep));
+                }
+            }
+
+            F0[j] = Fj;
+        }
+
+        return F0;
+    }
 
     @Override
     public Function getFunction(int number) {
@@ -343,14 +427,13 @@ public class Linear2DBasis implements Basis {
 
     @Override
     public DoubleMatrix F0(int j) {
-        return null;
+        return F0[j];
     }
 
     @Override
     public DoubleMatrix F(int j, int i) {
-        return null;
+        return F[i][j];
     }
-
 
     @Override
     public DoubleMatrix KKsi() {
@@ -360,59 +443,5 @@ public class Linear2DBasis implements Basis {
     @Override
     public DoubleMatrix KEta() {
         return KEta;
-    }
-
-    @Override
-    public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
-
-        Function initialConditionPhaseInInnerSystem = new Function() {
-            @Override
-            public double getValue(double[] x) {
-                return initialConditionPhase.calc(
-                        t.getX(x[0], x[1]), t.getY(x[0], x[1])
-                );
-            }
-
-            @Override
-            public Function getDerivative(int xOrder, int yOrder, int zOrder) {
-                return null;
-            }
-        };
-
-        DoubleMatrix u = new DoubleMatrix(initialConditionAmplitude.rows, numberOfBasisFunctions);
-
-        for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
-            for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
-
-                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
-                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
-                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
-
-                u.put(numberOfVariable, numberOfCoeff, value);
-            }
-        }
-        return u;
-    }
-
-    @Override
-    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
-
-
-        // todo : don't create an array, use and re-write x`given instead
-
-        double ksi = t.getKsiInLocalSystem(t.getCenter().x(), t.getCenter().y());
-        double eta = t.getEtaInLocalSystem(t.getCenter().x(), t.getCenter().y());
-
-        double [] result = new double[UCoeffs.rows];
-        Arrays.fill(result, 0);
-
-        for (int value = 0; value < UCoeffs.rows; value++){
-            for (int coeff = 0; coeff < UCoeffs.columns; coeff++){
-
-                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
-            }
-        }
-
-        return result;
     }
 }
