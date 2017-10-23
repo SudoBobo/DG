@@ -38,34 +38,6 @@ public class Linear2DBasis implements Basis {
     }
 
 
-
-    // TODO make Basis an abstract class with this method as it implements the same logic for every basis
-    public DoubleMatrix calcUCoeffs(DoubleMatrix numericalUColumn, Triangle t) {
-        DoubleMatrix u = new DoubleMatrix(numericalUColumn.rows, numberOfBasisFunctions);
-
-        for (int numberOfVariable = 0; numberOfVariable < numericalUColumn.rows; numberOfVariable++) {
-            for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++) {
-
-//                double value = numericalUColumn.get(numberOfVariable) * D(numberOfCoeff) / M.get(numberOfCoeff, numberOfCoeff);
-                double upperIntgeral = integrateOverTriangle(t, basisFunctions[numberOfCoeff]);
-                double downIntegral = integrateOverTriangle(t, squaredBasisFunctions[numberOfCoeff]);
-                double value = numericalUColumn.get(numberOfVariable) * (upperIntgeral / downIntegral);
-
-                u.put(numberOfVariable, numberOfCoeff, value);
-
-                // integration here
-            }
-        }
-
-        return u;
-    }
-
-    // todo this is probably wrong
-    private double integrateOverTriangle(Triangle t, Function basisFunction) {
-        assert (false) : "not implemented yet assertion";
-        return 666;
-    }
-
     // description of linear2D basis {1; x - 1/3; y - 1/3}
 
     private double squareIntegral(Function f1, Function f2, double integrationStep) {
@@ -152,13 +124,13 @@ public class Linear2DBasis implements Basis {
     }
 
 
-
-
+    // TODO make Basis an abstract class with this method as it implements the same logic for every basis
     @Override
     public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
 
         Function initialConditionPhaseInInnerSystem = new Function() {
             @Override
+            // todo this change of variables should be discused
             public double getValue(double[] x) {
                 return initialConditionPhase.calc(
                         t.getX(x[0], x[1]), t.getY(x[0], x[1])
@@ -176,6 +148,7 @@ public class Linear2DBasis implements Basis {
         for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
             for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
 
+                // todo using squareIntegral should be discussed
                 double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
                 double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
                 double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
@@ -185,7 +158,6 @@ public class Linear2DBasis implements Basis {
         }
         return u;
     }
-
 
     @Override
     public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
@@ -202,6 +174,7 @@ public class Linear2DBasis implements Basis {
         for (int value = 0; value < UCoeffs.rows; value++){
             for (int coeff = 0; coeff < UCoeffs.columns; coeff++){
 
+                // todo should be discussed
                 result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
             }
         }
