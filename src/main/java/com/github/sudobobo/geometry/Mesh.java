@@ -1,8 +1,5 @@
-package com.github.sudobobo;
+package com.github.sudobobo.geometry;
 
-import com.github.sudobobo.geometry.Border;
-import com.github.sudobobo.geometry.Point;
-import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
 
 import static java.lang.Double.min;

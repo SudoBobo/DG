@@ -4,6 +4,8 @@ import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
+import com.github.sudobobo.calculations.Value;
+import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
 
@@ -59,7 +61,7 @@ public class General {
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
-        Value [] values = Value.makeValuesArray(mesh, config.initialCondition, basis);
+        Value[] values = Value.makeValuesArray(mesh, config.initialCondition, basis);
         Value [] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),

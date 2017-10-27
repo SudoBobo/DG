@@ -1,6 +1,6 @@
 package com.github.sudobobo.IO;
 
-import com.github.sudobobo.Value;
+import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.geometry.Point;
 import lombok.Builder;

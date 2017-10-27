@@ -1,6 +1,6 @@
 package com.github.sudobobo.geometry;
 
-import com.github.sudobobo.Value;
+import com.github.sudobobo.calculations.Value;
 import lombok.Builder;
 import lombok.Data;
 import org.jblas.DoubleMatrix;

@@ -1,8 +1,7 @@
-package com.github.sudobobo;
+package com.github.sudobobo.calculations;
 
 import com.github.sudobobo.basis.Basis;
-import com.github.sudobobo.calculations.InitialConditionPhase;
-import com.github.sudobobo.calculations.SinInitialConditionPhase;
+import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;

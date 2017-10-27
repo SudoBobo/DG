@@ -1,7 +1,7 @@
 package com.github.sudobobo.meshconstruction;
 
 import com.github.sudobobo.IO.MeshFileReader;
-import com.github.sudobobo.Mesh;
+import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.geometry.Border;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;

@@ -1,6 +1,7 @@
 package com.github.sudobobo;
 
 import com.github.sudobobo.basis.Basis;
+import com.github.sudobobo.calculations.Value;
 
 interface Solver {
 
