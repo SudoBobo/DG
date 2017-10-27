@@ -48,9 +48,26 @@ class Value {
 
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
             values[t] = new Value(u, mesh.getTriangles()[t]);
+            mesh.getTriangles()[t].setValue(values[t]);
         }
 
         return values;
+    }
+
+    public static Value[] makeBufferValuesArray(Mesh mesh, Basis basis) {
+
+        int rows = mesh.getTriangles()[0].getRpqn().rows;
+        int columns = basis.getNumberOfBasisFunctions();
+
+        Value[] values = new Value[mesh.getTriangles().length];
+        for (int t = 0; t < mesh.getTriangles().length; t++) {
+
+            DoubleMatrix u = DoubleMatrix.zeros(rows, columns);
+            values[t] = new Value(u, mesh.getTriangles()[t]);
+        }
+
+        return values;
+
     }
 
     private static InitialConditionPhase buildSampleInitialConditionPhaseFunction(Point lt, Point rb, double xWidthCoef,
@@ -73,11 +90,17 @@ class Value {
         return new SinInitialConditionPhase(a, phi, xWidth, yWidth, centerX, centerY);
     }
 
-//    public static void copyU(Value [] from, Value [] to){
-//
-//        assert (from.length == to.length);
-//        for (int v = 0; v < from.length; v++){
-//
-//        }
-//    }
+    // method expects 'to' to have 'U' DoubleMatrixes
+    public static void copyU(Value [] from, Value [] to){
+
+        assert (from.length == to.length);
+        for (int v = 0; v < from.length; v++){
+
+            to[v].getU().copy(
+                    from[v].getU()
+            );
+        }
+    }
+
+
 }

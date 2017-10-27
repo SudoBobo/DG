@@ -41,6 +41,7 @@ public class SalomeMeshConstructor {
         reduceDomains(triangles);
 
         setNeighborsAndBounds(triangles);
+        setIJ(triangles);
         // make use of domains
         setConstantPhysicalFields(triangles, lambda, mu, rho);
 //        setAbsorbingBoundary(triangles);
@@ -52,6 +53,12 @@ public class SalomeMeshConstructor {
         mesh.setTriangles(triangles);
 
         return mesh;
+    }
+
+    private static void setIJ(Triangle[] triangles) {
+        for (Triangle triangle : triangles){
+            triangle.setIJ();
+        }
     }
 
     private static void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {

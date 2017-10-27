@@ -389,6 +389,11 @@ public class Linear2DBasis implements Basis {
     }
 
     @Override
+    public int getNumberOfBasisFunctions() {
+        return numberOfBasisFunctions;
+    }
+
+    @Override
     public Function getFunction(int number) {
         return basisFunctions[number];
     }

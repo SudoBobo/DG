@@ -6,6 +6,8 @@ import org.jblas.DoubleMatrix;
 
 public interface Basis {
 
+    int getNumberOfBasisFunctions();
+
     Function getFunction(int number);
 
     // pre-calculcated matrixes from

@@ -32,13 +32,13 @@ public class ValuesToWrite {
         double y = 0;
         int v = 0;
 
-        for (int column = 0; column < numberOfRectanglesOnSide; column++) {
+        for (int row = 0; row < numberOfRectanglesOnSide; row++) {
 
-            y = (rectangleSideLength / 2) * (column + 1);
+            y = (rectangleSideLength / 2) * (row + 1);
 
-            for (int row = 0; row < numberOfRectanglesOnSide; row++) {
+            for (int column = 0; column < numberOfRectanglesOnSide; column++) {
 
-                x = (rectangleSideLength / 2) * (row + 1);
+                x = (rectangleSideLength / 2) * (column + 1);
 
                 valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues));
                 v++;
@@ -48,6 +48,8 @@ public class ValuesToWrite {
     }
 
     private Value FindAssociatedValue(double x, double y, Value[] associatedValues) {
+        // for each triangle we translate a point (x, y) into a inner triangle coordinate system and see if
+        // in this system point(ksi, eta) is inside the triangle
         for (Value v : associatedValues) {
             if (v.getAssociatedTriangle().isInTriangle(x, y)) {
                 return v;
@@ -83,9 +85,7 @@ public class ValuesToWrite {
 
     public double[] getRawValuesToWrite() {
 
-        // todo rewrite with use of stream api
-
-        // expect them to be in order of creation in createEmptyValuesToWrite()
+        // todo rewrite with use of stream api (creating all these array are not nessesary)
 
         // paraview expect input data to be like:
         // u11 u12 u13 u14 u15 u21 u22 u23 u24 u25
@@ -101,8 +101,7 @@ public class ValuesToWrite {
 
         for (int v = 0; v < valuesToWrite.length; v++) {
 
-//            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].valueRectangleCenter);
-            double[] u  = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
+            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
 
             for (int r = 0; r < numberOfValuesInValueVector; r++) {
                 raw[numberOfValuesInValueVector * v + r] = u[r];
@@ -111,13 +110,13 @@ public class ValuesToWrite {
 
         return raw;
     }
-
-    private
-    @Data
-    @Builder
-    class ValueToWrite {
-        Value associatedValue;
-    }
-
 }
+
+
+@Data
+@Builder
+class ValueToWrite {
+    Value associatedValue;
+}
+
 

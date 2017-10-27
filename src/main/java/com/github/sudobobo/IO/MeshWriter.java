@@ -1,7 +1,5 @@
 package com.github.sudobobo.IO;
 
-import com.github.sudobobo.Mesh;
-
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -30,7 +28,7 @@ public class MeshWriter {
 
     }
 
-    public void writeMeshVTR(Mesh mesh, Long[] wholeExtent, int meshNum) throws IOException {
+    public void writeMeshVTR(ValuesToWrite valuesToWrite, Long[] wholeExtent, int meshNum) throws IOException {
 
         assert wholeExtent.length == 3;
 
@@ -44,7 +42,7 @@ public class MeshWriter {
             e.printStackTrace();
         }
 
-        createVTR(wholeExtent, mesh.getDataArray(), meshNum, apperTemplate, lowerTemplate);
+        createVTR(wholeExtent, valuesToWrite.getRawValuesToWrite(), meshNum, apperTemplate, lowerTemplate);
 
 
     }
@@ -110,7 +108,7 @@ public class MeshWriter {
     }
 
 
-    private void createVTR(Long[] wholeExtent, Double[] dataArray, int number,
+    private void createVTR(Long[] wholeExtent, double[] dataArray, int number,
                            Path apperTemplate, Path lowerTemplate) throws IOException {
 
         Path vtrFile = Paths.get(directoryForOutPut.toString() + String.format("/part0_%d.vtr", number));

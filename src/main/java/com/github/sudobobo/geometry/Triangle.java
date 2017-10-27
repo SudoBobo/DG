@@ -1,5 +1,6 @@
 package com.github.sudobobo.geometry;
 
+import com.github.sudobobo.Value;
 import lombok.Builder;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
@@ -8,6 +9,9 @@ public
 @Data
 @Builder
 class Triangle {
+
+    private Value value;
+
     private final int number;
     private Point[] points;
 
@@ -29,6 +33,12 @@ class Triangle {
 
     private Border[] borders;
     private int domain;
+
+    // borders of triangle are indexed by j {0, 1, 2}
+    // and each of this border contact with neighbour triangle's border
+    // which also has an index in {0, 1, 2} - i
+    // I[j] is the index of neighbour triangle's border which contact with j's border of the current triangle
+    private int[] I;
 
     public Point getPoint(int p) {
         return points[p];
@@ -93,6 +103,12 @@ class Triangle {
     public double y2() { return p(2).y();}
 
     // todo add test
+    // todo to discus : why should we check if the triangle is inside IN INNER
+    // triangle system, while I can be done in lab system as well ?
+
+
+    // Translate a point (x, y) into a inner triangle coordinate system and see if
+    // in this system the point(ksi, eta) is inside the triangle
     public boolean isInTriangle(double x, double y) {
 
         double f = (x0() - x) * (y1() - y0()) - (x1() - x0()) * (y0() - y);
@@ -113,4 +129,15 @@ class Triangle {
         return false;
     }
 
+    public int getIForFijFormula(int j) {
+        return I[j];
+    }
+
+    public void setIJ() {
+        I = new int[3];
+
+        for (int j = 0; j < 3; j ++){
+            I[j] = borders[j].getNeighborBorder().getBorderNumber();
+        }
+    }
 }

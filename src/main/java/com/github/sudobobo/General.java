@@ -4,7 +4,6 @@ import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
-import com.github.sudobobo.calculations.SinInitialConditionPhase;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
 
@@ -25,7 +24,7 @@ public class General {
         double mu = 1.0;
         double rho = 1.0;
 
-        double realFullTime = 50;
+        double realFullTime = 1;
 
         double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
         double cS = Math.sqrt(mu / rho);
@@ -53,17 +52,15 @@ public class General {
                 Paths.get("VtrLowerTemplate"));
 
 
-        double a = -1;
-        double phi = -1;
-
-        SinInitialConditionPhase initialCondition = new SinInitialConditionPhase(a, phi);
         // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
 
 
         double rectangleSideLength = minSideLength / 10;
 
-        Value [] values = Value.makeValuesArray(mesh, initialCondition, basis);
-        Value [] valuesForCalc = Value.makeNonAssociatedArray(values.length);
+        // associate values with mesh triangles and triangles with values
+        // change appropriate fields
+        Value [] values = Value.makeValuesArray(mesh, config.initialCondition, basis);
+        Value [] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
@@ -75,22 +72,23 @@ public class General {
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
-        // u[idx] corespond with triangle's id
-        // u.idx == triangle.number
+        // We have:
+        // 1 triangle array
+        // 1 valueToWrite array, associated with 'values' value vector
+        // 2 value vectors, one 'values' is associated with valueToWrite, another 'bufferValues is not associated with
+        // any valueToWriteValue
+        // and USED ONLY FOR CALCULATIONS
 
-        // todo вот тут та часть, которую непонятно как делать
-        // need to value arrays
-        // one associated with valuesToWrite, another not
+
         for (int t = 0; t < timeSteps; t++) {
 
             try {
-                meshWriter.writeMeshVTR(orig, extent, t);
+                meshWriter.writeMeshVTR(valuesToWrite, extent, t);
             } catch (IOException e) {
                 e.printStackTrace();
             }
 
-            RK_Solver.solveOneStep(orig, next, timeStep);
-            orig = next;
+            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
         }
 
     }

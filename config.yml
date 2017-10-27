@@ -1,3 +1,4 @@
 realFullTime : 100
 spatialStep : 1
 pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes
+initialCondition : sin

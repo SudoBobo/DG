@@ -37,12 +37,3 @@ public class SinInitialConditionPhase implements InitialConditionPhase {
         }
     }
 }
-
-
-//    DoubleMatrix centerVector = new DoubleMatrix(new double[]{
-//            x / (2 * xWidth), y / (2 * yWidth)
-//    });
-//
-//    DoubleMatrix k = new DoubleMatrix(new double[]{
-//            Math.PI, 0
-//    });
