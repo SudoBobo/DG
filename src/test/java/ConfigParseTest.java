@@ -26,7 +26,7 @@ public class ConfigParseTest {
 
         double spatialStep = 1.0;
         double realFullTime = 100.0;
-        String pathToMeshFile = "/home/bobo/IdeaProjects/galerkin_1/meshes/Test2D_2142.mesh";
+        String pathToMeshFile = "/home/bobo/IdeaProjects/galerkin_1/meshes/Mesh_1.mesh";
         String initialCondition = "sin";
         double spatialStepForNumericalIntegration = 0.0001;
 

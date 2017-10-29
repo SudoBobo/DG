@@ -61,7 +61,7 @@ public class General {
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
-        Value[] values = Value.makeValuesArray(mesh, config.initialCondition, basis);
+        Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
         Value [] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
@@ -97,7 +97,7 @@ public class General {
 
 
 
-    private static Configuration getConfigFromYML(Path configFile) {
+    public static Configuration getConfigFromYML(Path configFile) {
 
         Yaml yaml = new Yaml();
         try (InputStream in = Files.newInputStream(configFile)) {

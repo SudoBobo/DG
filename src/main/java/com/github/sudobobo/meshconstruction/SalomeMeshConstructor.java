@@ -26,7 +26,7 @@ public class SalomeMeshConstructor {
     public static Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
 
 
-        // order of functions call here is important!
+        // order of functions call here is important! (as these functions have output params)
 
         Point[] points = MeshFileReader.readPoints(meshFile);
         Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points);
@@ -95,7 +95,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
+    public static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
         Map<Point, Point> pointToReplacementPoint = new HashMap<>();
 
         for (Point replacementPoint : points) {
@@ -131,7 +131,7 @@ public class SalomeMeshConstructor {
         return pointToReplacementPoint;
     }
 
-    private static void reduceDomains(Triangle[] triangles) {
+    public static void reduceDomains(Triangle[] triangles) {
 
         Set<Integer> domains = new HashSet<>();
 
@@ -158,7 +158,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
+    public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
 
         int noDuplicateLength = points.length - pointToReplacementPoint.size();
         Point[] pointsWithNoDuplicates = new Point[noDuplicateLength];
@@ -176,10 +176,12 @@ public class SalomeMeshConstructor {
         return pointsWithNoDuplicates;
     }
 
-    private static void changeDuplicateVertexes(Triangle[] triangles, Map<Point, Point> pointToReplacementPoint) {
+    public static void changeDuplicateVertexes(Triangle[] triangles, Map<Point, Point> pointToReplacementPoint) {
+
+        int numberOfVertexInTriangle = 3;
 
         for (Triangle t : triangles){
-            for (int p = 0; p < t.getBorders().length; p++){
+            for (int p = 0; p < numberOfVertexInTriangle; p++){
                 boolean toReplace = (pointToReplacementPoint.get(t.getPoint(p)) != null);
                 if (toReplace){
                     t.setPoint(p, pointToReplacementPoint.get(t.getPoint(p)));
@@ -188,7 +190,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static void changePointsOrderToReverseClock(Triangle[] triangles) {
+    public static void changePointsOrderToReverseClock(Triangle[] triangles) {
 
         //check if  orientation is reverse clock
         for (Triangle t : triangles) {
@@ -206,8 +208,15 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static void setNeighborsAndBounds(Triangle[] triangles) {
+    public static void setNeighborsAndBounds(Triangle[] triangles) {
 
+        if (TtoInversedT == null){
+            TtoInversedT = new HashMap<DoubleMatrix, DoubleMatrix>();
+        }
+
+        if (nToT == null){
+            nToT = new HashMap<Double, DoubleMatrix>();
+        }
 
         Border borderNotSet = Border.builder().build();
         Triangle triangleNotSet = Triangle.builder().build();

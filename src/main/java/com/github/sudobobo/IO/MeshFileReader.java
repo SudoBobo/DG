@@ -15,6 +15,8 @@ import java.nio.file.Path;
 // using this one can obtain O(n) complexity of Neighbor-Find instead of current O(n^2)
 // one should use separate class PointWithTriangles
 
+// really nice comments I wrote
+
 public class MeshFileReader {
     public static Point[] readPoints(Path meshFile) {
 
@@ -24,7 +26,7 @@ public class MeshFileReader {
 
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.equals("Vertices\n")) {
+                if (line.equals("Vertices")) {
                     break;
                 }
             }
@@ -49,17 +51,23 @@ public class MeshFileReader {
         return points;
     }
 
+    // expect certain constraint point[idx].Id == idx + 1
     public static Triangle[] readTriangles(Path meshFile, Point[] points) {
         // return 'triangles' with vertexes (left-clock) and domains
         // neighbors are null yet
 
+        // check constraint point[idx].Id == idx + 1
+
+        for (int pointIdx = 0; pointIdx < points.length; pointIdx++){
+            assert (points[pointIdx].getId() == (pointIdx + 1)) : "constraint violated : point[idx].Id == idx + 1";
+        }
         Triangle[] triangles = null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(meshFile.toFile()))) {
 
             String line;
             while ((line = br.readLine()) != null) {
-                if (line.equals("Triangles\n")) {
+                if (line.equals("Triangles")) {
                     break;
                 }
             }
@@ -74,17 +82,18 @@ public class MeshFileReader {
 
                 triangleLine = br.readLine().split(" ");
 
-                assert (triangleLine.length == 4) : "triangle line has size != 4. Check input .mesh file";
+                assert (triangleLine.length == 4) : String.format("triangle line has size != 4. Check input %s file", meshFile.toString());
 
-                int[] pointsNumber = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
+                int[] pointsNumbers = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
                         Integer.parseInt(triangleLine[2])};
 
                 int domain = Integer.parseInt(triangleLine[3]);
 
                 Point[] trianglePoints = new Point[3];
-                trianglePoints[0] = points[pointsNumber[0] - 1];
-                trianglePoints[1] = points[pointsNumber[1] - 1];
-                trianglePoints[2] = points[pointsNumber[2] - 1];
+
+                trianglePoints[0] = points[pointsNumbers[0] - 1];
+                trianglePoints[1] = points[pointsNumbers[1] - 1];
+                trianglePoints[2] = points[pointsNumbers[2] - 1];
 
                 triangles[triangleNumber] = Triangle.builder().domain(domain).points(trianglePoints).
                         build();

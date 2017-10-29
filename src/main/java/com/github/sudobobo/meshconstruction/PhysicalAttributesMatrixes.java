@@ -25,8 +25,6 @@ public class PhysicalAttributesMatrixes {
         return rpqn.mmul(diagMatrix).mmul(invRpqn);
     }
 
-
-
     public static DoubleMatrix calcRpqn(double lbd, double mu, double cP, double cS, double nX, double nY) {
         return new DoubleMatrix(new double[][]{
                 {lbd + 2 * mu * nX * nX, -2 * mu * nX * nY, nY * nY, -2 * mu * nX * nY, lbd + 2 * mu * nX * nX},
