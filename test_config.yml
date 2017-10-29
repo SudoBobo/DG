@@ -1,8 +1,8 @@
 realFullTime : 100.0
 spatialStep : 1.0
-pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes
+pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/Test2D_2142.mesh
 initialCondition : sin
-
+spatialStepForNumericalIntegration : 0.0001
 
 #
 #		<domains>
