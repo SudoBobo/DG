@@ -56,7 +56,7 @@ public class SalomeMeshConstructor {
     }
 
     private static void setIJ(Triangle[] triangles) {
-        for (Triangle triangle : triangles){
+        for (Triangle triangle : triangles) {
             triangle.setIJ();
         }
     }
@@ -180,10 +180,10 @@ public class SalomeMeshConstructor {
 
         int numberOfVertexInTriangle = 3;
 
-        for (Triangle t : triangles){
-            for (int p = 0; p < numberOfVertexInTriangle; p++){
+        for (Triangle t : triangles) {
+            for (int p = 0; p < numberOfVertexInTriangle; p++) {
                 boolean toReplace = (pointToReplacementPoint.get(t.getPoint(p)) != null);
-                if (toReplace){
+                if (toReplace) {
                     t.setPoint(p, pointToReplacementPoint.get(t.getPoint(p)));
                 }
             }
@@ -210,11 +210,11 @@ public class SalomeMeshConstructor {
 
     public static void setNeighborsAndBounds(Triangle[] triangles) {
 
-        if (TtoInversedT == null){
+        if (TtoInversedT == null) {
             TtoInversedT = new HashMap<DoubleMatrix, DoubleMatrix>();
         }
 
-        if (nToT == null){
+        if (nToT == null) {
             nToT = new HashMap<Double, DoubleMatrix>();
         }
 
@@ -248,62 +248,65 @@ public class SalomeMeshConstructor {
 
         for (Triangle t : triangles) {
             for (Border b : t.getBorders()) {
+                findNeibAndSetBorder(t, triangles, b, borderNotSet);
+            }
 
-                // check if neibghor border is already set for this border
-                if (b.getNeighborBorder() != borderNotSet) {
+        }
+    }
+
+    private static void findNeibAndSetBorder(Triangle t, Triangle[] triangles, Border b, Border borderNotSet) {
+
+        // check if neighbor border is already set for this border
+        if (b.getNeighborBorder() != borderNotSet) {
+            return;
+        }
+
+        // try to find neighbor border among triangles' borders
+        for (Triangle potentialNeib : triangles) {
+
+            if (potentialNeib == t) {
+                continue;
+            }
+
+
+            for (Border potentialNeibBorder : potentialNeib.getBorders()) {
+
+                // we don't consider neighbor borders which already have neighbors because neighbor borders
+                // are set in pairs
+
+                if (potentialNeibBorder.getNeighborBorder() != borderNotSet) {
                     continue;
                 }
 
-                // try to find neighbor border among triangles' borders
-                for (Triangle potentialNeib : triangles) {
 
-                    if (potentialNeib == t) {
-                        continue;
-                    }
+                if (Border.doBordersPointsMatch(b, potentialNeibBorder)) {
+                    b.setNeighborBorder(potentialNeibBorder);
+                    b.setNeighborTriangle(potentialNeib);
 
+                    potentialNeibBorder.setNeighborBorder(b);
+                    potentialNeibBorder.setNeighborTriangle(t);
 
-                    for (Border potentialNeibBorder : potentialNeib.getBorders()) {
+                    b.setEdgeOfMesh(false);
+                    potentialNeibBorder.setEdgeOfMesh(false);
 
-                        if (potentialNeibBorder.getNeighborBorder() != borderNotSet) {
-                            continue;
-                        }
-
-
-                        if (Border.doBordersPointsMatch(b, potentialNeibBorder)) {
-                            b.setNeighborBorder(potentialNeibBorder);
-                            b.setNeighborTriangle(potentialNeib);
-
-                            potentialNeibBorder.setNeighborBorder(b);
-                            potentialNeibBorder.setNeighborTriangle(t);
-
-                            b.setEdgeOfMesh(false);
-                            potentialNeibBorder.setEdgeOfMesh(false);
-
-                            break;
-                        }
-                    }
-
-
-                    if (b.getNeighborBorder() != borderNotSet) {
-                        break;
-                    }
+                   return;
                 }
-
-                // todo remove hardcoded ABSORBING_BOUNDARY
-                // if there is no such neigbhor border that our border is on the edge of mesh
-
-                b.setEdgeOfMesh(true);
             }
         }
 
-    }
+        // todo remove hardcoded ABSORBING_BOUNDARY
 
+        // if there is no such neigbhor border that our border is on the edge of mesh
+        b.setEdgeOfMesh(true);
+        b.setNeighborTriangle(null);
+        b.setNeighborBorder(null);
+    }
 
 
     private static double calcBorderS(Point beginPoint, Point endPoint) {
         return Math.sqrt(
                 Math.pow((endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]), 2)
-                + Math.pow((endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1]), 2)
+                        + Math.pow((endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1]), 2)
         );
     }
 
@@ -312,7 +315,7 @@ public class SalomeMeshConstructor {
         // todo hardcodeed Rotation matrix with theta == 90
         double[] n = new double[2];
         n[0] = endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1];
-        n[1] = - (endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]);
+        n[1] = -(endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]);
 
         // normalize normal vector
         double n2 = Math.sqrt(n[0] * n[0] + n[1] * n[1]);
@@ -322,7 +325,6 @@ public class SalomeMeshConstructor {
 
         return n;
     }
-
 
 
     private static double calcCS(double mu, double rho) {
@@ -340,7 +342,6 @@ public class SalomeMeshConstructor {
         return ((v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1])) -
                 ((v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]));
     }
-
 
 
     private static DoubleMatrix calcTInversedMatrix(DoubleMatrix t) {
