@@ -1,6 +1,6 @@
 package com.github.sudobobo.calculations;
 
-public class SinInitialConditionPhase implements InitialConditionPhase {
+public class CosInitialConditionPhase implements InitialConditionPhase {
 
     private double a;
     private double phi;
@@ -12,7 +12,7 @@ public class SinInitialConditionPhase implements InitialConditionPhase {
     private double initialYCenter;
 
 
-    public SinInitialConditionPhase(double a, double phi, double xWidth, double yWidth, double initialXCenter, double initialYCenter) {
+    public CosInitialConditionPhase(double a, double phi, double xWidth, double yWidth, double initialXCenter, double initialYCenter) {
         this.a = a;
         this.phi = phi;
         this.xWidth = xWidth;

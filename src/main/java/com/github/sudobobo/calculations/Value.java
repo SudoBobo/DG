@@ -31,7 +31,7 @@ class Value {
         // 0.125 - on quarter
         // 0.0625 - 1/8
 
-        double xWidthCoef = 0.00625;
+        double xWidthCoef = 0.0625;
         double yWidthCoef = 0.5;
 
         assert (initialCondition.equals("sin"));
@@ -46,6 +46,7 @@ class Value {
         for (int t = 0; t < mesh.getTriangles().length; t++) {
 
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
+
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);
         }
@@ -86,7 +87,7 @@ class Value {
         double phi = -(Math.PI / 2) * (centerX / xWidth);
 //
 //      return Math.cos(a * x + phi);
-        return new SinInitialConditionPhase(a, phi, xWidth, yWidth, centerX, centerY);
+        return new CosInitialConditionPhase(a, phi, xWidth, yWidth, centerX, centerY);
     }
 
     // method expects 'to' to have 'U' DoubleMatrixes

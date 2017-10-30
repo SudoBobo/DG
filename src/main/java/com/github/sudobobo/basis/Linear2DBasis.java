@@ -188,6 +188,7 @@ public class Linear2DBasis implements Basis {
     private void initBasisFunctions() {
 
         basisFunctions = new Function[3];
+        squaredBasisFunctions = new Function[3];
 
         zeroFunction = new Function() {
             @Override

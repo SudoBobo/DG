@@ -37,9 +37,10 @@ public class General {
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
-        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
+//        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
+        double timeStep = realFullTime;
 
-        double spatialStepForNumericalIntegration = 0.0001;
+        double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
 
         System.out.println("min dx = " + minSideLength);
@@ -48,7 +49,7 @@ public class General {
         int timeSteps = (int) (realFullTime / timeStep);
 
 
-        Path outputDir = getOutputPath(Paths.get("/home/bobo/AData/"), mesh.getTriangles().length, minSideLength, timeStep);
+        Path outputDir = getOutputPath(Paths.get("/home/bobo/IdeaProjects/galerkin_1/results"), mesh.getTriangles().length, minSideLength, timeStep);
 
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
@@ -82,16 +83,28 @@ public class General {
         // and USED ONLY FOR CALCULATIONS
 
 
-        for (int t = 0; t < timeSteps; t++) {
-
-            try {
-                meshWriter.writeMeshVTR(valuesToWrite, extent, t);
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
+        for (Value v : values){
+            String s = v.getU().toString();
+            System.out.println(s);
+            System.out.println("\n");
         }
+        try {
+            meshWriter.writeMeshVTR(valuesToWrite, extent, 0);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+//        for (int t = 0; t < timeSteps; t++) {
+//
+//            try {
+//                meshWriter.writeMeshVTR(valuesToWrite, extent, t);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
+//        }
 
     }
 
@@ -109,11 +122,11 @@ public class General {
         return null;
     }
 
-    private static double calcCourantTimeStep(double cP, double cS, double spatialStep, double durability) {
+    public static double calcCourantTimeStep(double cP, double cS, double spatialStep, double durability) {
         return durability * spatialStep / Math.max(cP, cS);
     }
 
-    private static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {
+    public static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {
         Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f_and_time_step_%.3f", size, size, fine, timeStep));
 
         if (Files.exists(outputDir)) {

@@ -43,8 +43,8 @@ class Mesh {
         double rbY = points[0].y();
 
         for (Point p : points) {
-            if (p.x() > rbX) {
-                if (p.y() < rbY) {
+            if (p.x() >= rbX) {
+                if (p.y() <= rbY) {
                     rbX = p.x();
                     rbY = p.y();
                 }
