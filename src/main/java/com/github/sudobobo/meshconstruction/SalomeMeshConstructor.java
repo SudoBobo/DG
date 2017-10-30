@@ -55,7 +55,7 @@ public class SalomeMeshConstructor {
         return mesh;
     }
 
-    private static void setIJ(Triangle[] triangles) {
+    public static void setIJ(Triangle[] triangles) {
         for (Triangle triangle : triangles) {
             triangle.setIJ();
         }

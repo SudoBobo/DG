@@ -12,7 +12,7 @@ class Triangle {
 
     private Value value;
 
-//    private final int number;
+    //    private final int number;
     private Point[] points;
 
     private DoubleMatrix A;
@@ -22,10 +22,10 @@ class Triangle {
     private DoubleMatrix AStr;
     private DoubleMatrix BStr;
 
-//    private double[] S;
+    //    private double[] S;
     private double jacobian;
 
-//    private DoubleMatrix[] T;
+    //    private DoubleMatrix[] T;
 //    private DoubleMatrix[] TInv;
     private DoubleMatrix Rpqn;
 
@@ -94,13 +94,29 @@ class Triangle {
                 + (points[2].y() - points[0].y()) * eta;
     }
 
-    public double x0(){ return p(0).x();}
-    public double x1(){ return p(1).x();}
-    public double x2(){ return p(2).x();}
+    public double x0() {
+        return p(0).x();
+    }
 
-    public double y0() { return p(0).y();}
-    public double y1() { return p(1).y();}
-    public double y2() { return p(2).y();}
+    public double x1() {
+        return p(1).x();
+    }
+
+    public double x2() {
+        return p(2).x();
+    }
+
+    public double y0() {
+        return p(0).y();
+    }
+
+    public double y1() {
+        return p(1).y();
+    }
+
+    public double y2() {
+        return p(2).y();
+    }
 
     // todo add test
     // todo to discus : why should we check if the triangle is inside IN INNER
@@ -136,8 +152,16 @@ class Triangle {
     public void setIJ() {
         I = new int[3];
 
-        for (int j = 0; j < 3; j ++){
-            I[j] = borders[j].getNeighborBorder().getBorderNumber();
+        for (int j = 0; j < 3; j++) {
+
+            Border neighborBorder = borders[j].getNeighborBorder();
+
+            if (neighborBorder == null) {
+                I[j] = -1;
+            } else {
+                I[j] = neighborBorder.getBorderNumber();
+            }
+
         }
     }
 

@@ -79,7 +79,6 @@ public class MeshConstructingTest {
         changeDuplicateVertexes(triangles, pointToReplacementPoint);
     }
 
-
     @Test
     public void checkSetNeighborsAndBounds() {
 
@@ -111,6 +110,29 @@ public class MeshConstructingTest {
         System.out.println("It is for manual testing with debuger");
 
 
+    }
+
+    @Test
+    public void checkIJSetting(){
+
+        Path meshFile = Paths.get(config.getPathToMeshFile());
+
+        Point[] points = MeshFileReader.readPoints(meshFile);
+        Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points);
+
+        double minDistance = 0.00001;
+        Map<Point, Point> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
+
+        points = getPointsWithNoDuplicates(points, pointToReplacementPoint);
+        changeDuplicateVertexes(triangles, pointToReplacementPoint);
+
+        changePointsOrderToReverseClock(triangles);
+        reduceDomains(triangles);
+
+        setNeighborsAndBounds(triangles);
+        setIJ(triangles);
+
+        System.out.println("Break point for manual test with debuger");
     }
 
     @AfterClass
