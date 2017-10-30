@@ -12,7 +12,7 @@ class Triangle {
 
     private Value value;
 
-    private final int number;
+//    private final int number;
     private Point[] points;
 
     private DoubleMatrix A;
@@ -22,11 +22,11 @@ class Triangle {
     private DoubleMatrix AStr;
     private DoubleMatrix BStr;
 
-    private double[] S;
+//    private double[] S;
     private double jacobian;
 
-    private DoubleMatrix[] T;
-    private DoubleMatrix[] TInv;
+//    private DoubleMatrix[] T;
+//    private DoubleMatrix[] TInv;
     private DoubleMatrix Rpqn;
 
     private DoubleMatrix An;
@@ -139,5 +139,17 @@ class Triangle {
         for (int j = 0; j < 3; j ++){
             I[j] = borders[j].getNeighborBorder().getBorderNumber();
         }
+    }
+
+    public DoubleMatrix getT(int j) {
+        return borders[j].getT();
+    }
+
+    public DoubleMatrix getTInv(int j) {
+        return borders[j].getTInv();
+    }
+
+    public double getS(int j) {
+        return borders[j].getS();
     }
 }

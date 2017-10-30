@@ -101,6 +101,16 @@ public class MeshConstructingTest {
 
         // take some random triangles (both in the center of the mesh and on the borders) and check them
 
+        // in the simple test mesh it is left top triangle with points:
+        // Point(id=2, coordinates=[-50.0, 50.0])
+        // Point(id=5, coordinates=[-50.0, 0.0])
+        // Point(id=9, coordinates=[-35.8947035460992, 20.6066448534294])
+        Triangle t = triangles[0];
+
+        // check its' borders
+        System.out.println("It is for manual testing with debuger");
+
+
     }
 
     @AfterClass

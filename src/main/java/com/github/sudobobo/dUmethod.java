@@ -27,8 +27,8 @@ public class dUmethod {
 //                    mmul(tr.Fkl()));
 
             first.addi(
-                    t.getT()[j].mul(0.5).mmul(t.getAn().add(t.getAAbs())).
-                            mmul(t.getTInv()[j].mmul(u).mul(t.getS()[j])).
+                    t.getT(j).mul(0.5).mmul(t.getAn().add(t.getAAbs())).
+                            mmul(t.getTInv(j)).mmul(u).mul(t.getS(j)).
                             mmul(b.F0(j))
             );
 
@@ -41,9 +41,9 @@ public class dUmethod {
             int i = t.getIForFijFormula(j);
 
             second.addi(
-                    t.getT()[j]).mul(0.5).mmul((t.getAn().sub(t.getAAbs()))).
-                    mmul(t.getTInv()[j]).mmul(t.getBorders()[j].getNeighborTriangle().getValue().getU()).
-                    mul(t.getS()[j]).
+                    t.getT(j)).mul(0.5).mmul((t.getAn().sub(t.getAAbs()))).
+                    mmul(t.getTInv(j)).mmul(t.getBorders()[j].getNeighborTriangle().getValue().getU()).
+                    mul(t.getS(j)).
                     mmul(b.F(j, i));
 
         }
