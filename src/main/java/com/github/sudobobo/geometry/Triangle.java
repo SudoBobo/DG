@@ -136,7 +136,7 @@ class Triangle {
         double fine = 0.000001;
 
         // one of them is nought
-        if ((f < fine) || (s < fine) || (t < fine)) return true;
+        if ((Math.abs(f) < fine) || (Math.abs(s) < fine) || (Math.abs(t) < fine)) return true;
 
         // all of them have the same sign
         if ((f > 0 && s > 0 && t > 0) || (f < 0 && s < 0 && t < 0)) return true;

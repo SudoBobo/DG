@@ -82,12 +82,13 @@ public class General {
         // any valueToWriteValue
         // and USED ONLY FOR CALCULATIONS
 
+//
+//        for (Value v : values){
+//            String s = v.getU().toString();
+//            System.out.println(s);
+//            System.out.println("\n");
+//        }
 
-        for (Value v : values){
-            String s = v.getU().toString();
-            System.out.println(s);
-            System.out.println("\n");
-        }
         try {
             meshWriter.writeMeshVTR(valuesToWrite, extent, 0);
         } catch (IOException e) {
