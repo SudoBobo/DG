@@ -48,9 +48,12 @@ public class General {
 
         int timeSteps = (int) (realFullTime / timeStep);
 
+        String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
+        meshName = meshName.substring(0, meshName.indexOf("."));
 
-        Path outputDir = getOutputPath(Paths.get("/home/bobo/IdeaProjects/galerkin_1/results"), mesh.getTriangles().length, minSideLength, timeStep);
 
+        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/galerkin_1/results/", meshName, realFullTime, timeStep);
+        System.out.println("Results are at " + outputDir.toString());
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
 
@@ -63,12 +66,12 @@ public class General {
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
-        Value [] bufferValues = Value.makeBufferValuesArray(mesh, basis);
+        Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
 
-        Long [] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
+        Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
         dUmethod dU_method = new dUmethod();
         Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
@@ -110,7 +113,6 @@ public class General {
     }
 
 
-
     public static Configuration getConfigFromYML(Path configFile) {
 
         Yaml yaml = new Yaml();
@@ -127,14 +129,17 @@ public class General {
         return durability * spatialStep / Math.max(cP, cS);
     }
 
-    public static Path getOutputPath(Path generalOutputPath, double size, double fine, double timeStep) {
-        Path outputDir = Paths.get(String.format(generalOutputPath.toString() + "%.3f_%.3f_with_fine_%.3f_and_time_step_%.3f", size, size, fine, timeStep));
+    public static Path getOutputPath(String generalOutputPath, String meshName, double realTime, double timeStep) {
+        String dirName = String.format(generalOutputPath + "mesh_%s_real_time_%.3f_time_step_%.3f", meshName, realTime, timeStep);
+        Path outputDir = Paths.get(dirName);
 
         if (Files.exists(outputDir)) {
             deleteDirectory(outputDir.toFile());
         }
 
-        outputDir.toFile().mkdir();
+        if (!outputDir.toFile().mkdir()) {
+            System.out.println(String.format("Output directoru %s was not created", dirName));
+        }
         return outputDir;
     }
 
