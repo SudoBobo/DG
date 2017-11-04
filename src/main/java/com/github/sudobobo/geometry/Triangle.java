@@ -40,6 +40,20 @@ class Triangle {
     // I[j] is the index of neighbour triangle's border which contact with j's border of the current triangle
     private int[] I;
 
+    private double x1_x0;
+    private double x2_x0;
+
+    private double y1_y0;
+    private double y2_y0;
+
+    private double y2_y1;
+    private double x2_x1;
+
+    private double ksiTranslationCoef;
+    private double etaTranslationCoef;
+
+    private Point center;
+
     public Point getPoint(int p) {
         return points[p];
     }
@@ -52,8 +66,26 @@ class Triangle {
         points[p] = newPoint;
     }
 
-    public Point getCenter() {
+    public void setTranslationCoefs(){
+        x1_x0 = points[1].x - points[0].x;
+        x2_x0 = points[2].x - points[0].x;
+        x2_x1 = points[2].x - points[1].x;
 
+        y1_y0 = points[1].y - points[0].y;
+        y2_y0 = points[2].y - points[0].y;
+        y2_y1 = points[2].y - points[1].y;
+
+
+
+        ksiTranslationCoef = points[2].x * points[0].y - points[0].x * points[2].y;
+        etaTranslationCoef = points[0].x * points[1].y - points[1].x * points[0].y;
+    }
+
+    public Point getCenter() {
+        return center;
+    }
+
+    public void setCenter() {
         double x = 0;
         double y = 0;
 
@@ -65,34 +97,50 @@ class Triangle {
         x /= 3;
         y /= 3;
 
-        return new Point(-1, new double[]{x, y});
+        center = new Point(-1, new double[]{x, y});
     }
 
     public double getKsiInLocalSystem(double x, double y) {
-        return
-                ((points[2].x * points[0].y - points[0].x * points[2].y) +
-                        x * (points[2].y - points[0].y) +
-                        y * (points[0].x - points[2].x)) / jacobian;
+//        return
+//                ((points[2].x * points[0].y - points[0].x * points[2].y) +
+//                        x * (points[2].y - points[0].y) +
+//                        y * (points[0].x - points[2].x)) / jacobian;
+
+                return
+                ((ksiTranslationCoef) +
+                        x * (y2_y0) +
+                        y * (-x2_x0)) / jacobian;
+
     }
 
     public double getEtaInLocalSystem(double x, double y) {
 
+//        return
+//                ((points[0].x * points[1].y - points[1].x * points[0].y) +
+//                        x * (points[0].y - points[1].y) +
+//                        y * (points[1].x - points[0].x)) / jacobian;
+
         return
-                ((points[0].x * points[1].y - points[1].x * points[0].y) +
-                        x * (points[0].y - points[1].y) +
-                        y * (points[1].x - points[0].x)) / jacobian;
+                ((etaTranslationCoef) +
+                        x * (-y1_y0) +
+                        y * (x1_x0)) / jacobian;
 
     }
 
     // return points in global system
     public double getX(double ksi, double eta) {
-        return points[0].x + (points[1].x - points[0].x) * ksi
-                + (points[2].x - points[0].x) * eta;
+//        return points[0].x + (points[1].x - points[0].x) * ksi
+//                + (points[2].x - points[0].x) * eta;
+        return points[0].x + x1_x0 * ksi
+                + x2_x0 * eta;
     }
 
     public double getY(double ksi, double eta) {
-        return points[0].y + (points[1].y - points[0].y) * ksi
-                + (points[2].y - points[0].y) * eta;
+//        return points[0].y + (points[1].y - points[0].y) * ksi
+//                + (points[2].y - points[0].y) * eta;
+
+        return points[0].y + y1_y0 * ksi
+                + y2_y0 * eta;
     }
 
     public double x0() {
@@ -128,9 +176,13 @@ class Triangle {
     // in this system the point(ksi, eta) is inside the triangle
     public boolean isInTriangle(double x, double y) {
 
-        double f = (x0() - x) * (y1() - y0()) - (x1() - x0()) * (y0() - y);
-        double s = (x1() - x) * (y2() - y1()) - (x2() - x1()) * (y1() - y);
-        double t = (x2() - x) * (y0() - y2()) - (x0() - x2()) * (y2() - y);
+//        double f = (x0() - x) * (y1() - y0()) - (x1() - x0()) * (y0() - y);
+//        double s = (x1() - x) * (y2() - y1()) - (x2() - x1()) * (y1() - y);
+//        double t = (x2() - x) * (y0() - y2()) - (x0() - x2()) * (y2() - y);
+
+        double f = (x0() - x) * (y1_y0) - (x1_x0) * (y0() - y);
+        double s = (x1() - x) * (y2_y1) - (x2_x1) * (y1() - y);
+        double t = (x2() - x) * (-y2_y0) - (-x2_x0) * (y2() - y);
 
         // if the point (x, y) is inside, than f, s, t should have the same sign
         // (or one of them should be nought, it is the case when point(x,y) lies on the edge

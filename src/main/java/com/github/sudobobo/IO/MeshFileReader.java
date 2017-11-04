@@ -98,6 +98,9 @@ public class MeshFileReader {
                 triangles[triangleNumber] = Triangle.builder().domain(domain).points(trianglePoints).
                         build();
 
+                triangles[triangleNumber].setTranslationCoefs();
+                triangles[triangleNumber].setCenter();
+
             }
         } catch (IOException e) {
             e.printStackTrace();
