@@ -145,21 +145,28 @@ public class Linear2DBasis implements Basis {
 
         DoubleMatrix u = new DoubleMatrix(initialConditionAmplitude.rows, numberOfBasisFunctions);
 
-        for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
-            for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
+        for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++){
 
-                // todo using squareIntegral should be discussed
+            double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
+            double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
+
+            DoubleMatrix column = initialConditionAmplitude.mul(upperIntegral / downIntegral);
+            u.putColumn(numberOfCoeff, column);
+        }
+
+//        for (int numberOfVariable = 0; numberOfVariable < u.rows; numberOfVariable++) {
+//            for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
+//
+//                // todo using squareIntegral should be discussed
+//
 //                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
 //                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
 //                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
-
-                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
-                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
-                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
-
-                u.put(numberOfVariable, numberOfCoeff, value);
-            }
-        }
+//
+//                u.put(numberOfVariable, numberOfCoeff, value);
+//            }
+//        }
+//
         return u;
     }
 
