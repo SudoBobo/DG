@@ -126,7 +126,7 @@ public class General {
 
         long endTime   = System.currentTimeMillis();
         long totalTime = endTime - startTime;
-        System.out.println(totalTime);
+        System.out.println(String.format("Total time %d", totalTime / 1000));
 
     }
 
