@@ -7,8 +7,6 @@ import com.github.sudobobo.geometry.Triangle;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
 
-import java.util.Arrays;
-
 public
 @Data
 class Value {
@@ -52,33 +50,33 @@ class Value {
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);
 
-            if (t == (mesh.getTriangles().length - 3)){
+//            if (t == (mesh.getTriangles().length - 3)){
 
+//
+//                Triangle tr = mesh.getTriangles()[t];
+//
+//                System.out.println("In middle triangle section beigins");
+//                System.out.println("Center coordinates");
+//                System.out.println(tr.getCenter().x);
+//                System.out.println(tr.getCenter().y);
+//
+//                double phase = initialConditionPhase.calc(tr.getCenter().x, tr.getCenter().y);
+//                DoubleMatrix calcU = R2.mul(phase);
 
-                Triangle tr = mesh.getTriangles()[t];
+//                System.out.println("phase");
+//                System.out.println(phase);
+//                System.out.println("numericalv value");
+//                System.out.println(calcU);
 
-                System.out.println("In middle triangle section beigins");
-                System.out.println("Center coordinates");
-                System.out.println(tr.getCenter().x);
-                System.out.println(tr.getCenter().y);
+//                System.out.println("coef value");
+//                System.out.println(u.toString());
+//                double [] refinedU = basis.calcUNumerical(u, tr);
+//                System.out.println("refined from coef numerical value");
+//                System.out.println(Arrays.toString(refinedU));
+//
+//                System.out.println("In middle triangle section ends");
 
-                double phase = initialConditionPhase.calc(tr.getCenter().x, tr.getCenter().y);
-                DoubleMatrix calcU = R2.mul(phase);
-
-                System.out.println("phase");
-                System.out.println(phase);
-                System.out.println("numericalv value");
-                System.out.println(calcU);
-
-                System.out.println("coef value");
-                System.out.println(u.toString());
-                double [] refinedU = basis.calcUNumerical(u, tr);
-                System.out.println("refined from coef numerical value");
-                System.out.println(Arrays.toString(refinedU));
-
-                System.out.println("In middle triangle section ends");
-
-            }
+//            }
         }
 
         return values;

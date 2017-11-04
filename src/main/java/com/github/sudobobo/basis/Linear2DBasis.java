@@ -128,7 +128,6 @@ public class Linear2DBasis implements Basis {
     @Override
     public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
 
-//         todo unnecessary creation of functional objects on every calc
         Function initialConditionPhaseInInnerSystem = new Function() {
             @Override
             // todo this change of variables should be discused
@@ -137,16 +136,6 @@ public class Linear2DBasis implements Basis {
                         t.getX(x[0], x[1]), t.getY(x[0], x[1])
                 );
             }
-
-//        Function initialConditionPhaseInInnerSystem = new Function() {
-//            @Override
-//            // todo this change of variables should be discused
-//            public double getValue(double[] x) {
-//                return initialConditionPhase.calc(
-//                        x[0], x[1]
-//                );
-//            }
-
 
             @Override
             public Function getDerivative(int xOrder, int yOrder, int zOrder) {
@@ -160,6 +149,10 @@ public class Linear2DBasis implements Basis {
             for (int numberOfCoeff = 0; numberOfCoeff < u.columns; numberOfCoeff++) {
 
                 // todo using squareIntegral should be discussed
+//                double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
+//                double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
+//                double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
+
                 double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
                 double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
                 double value = initialConditionAmplitude.get(numberOfVariable) * (upperIntegral / downIntegral);
