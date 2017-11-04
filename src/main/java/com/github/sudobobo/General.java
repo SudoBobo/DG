@@ -74,6 +74,7 @@ public class General {
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
         Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
+        writeSimpleValues(values, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
@@ -107,9 +108,8 @@ public class General {
             e.printStackTrace();
         }
 
-        writeSimpleValues(values, basis);
-        System.out.println("Values to write print");
-        writeValuesToWriteSorted(valuesToWrite, basis);
+//        System.out.println("Values to write print");
+//        writeValuesToWriteSorted(valuesToWrite, basis);
 
 
 
@@ -196,11 +196,11 @@ public class General {
 
         Arrays.sort(values, new valuesComp());
 
-        for (Value v : values) {
-            String r = Arrays.toString(v.getAssociatedTriangle().getCenter().coordinates());
-//            System.out.println(r);
-            System.out.println(Arrays.toString(basis.calcUNumerical(v.getU(), v.getAssociatedTriangle())));
-        }
+//        for (Value v : values) {
+//            String r = Arrays.toString(v.getAssociatedTriangle().getCenter().coordinates());
+////            System.out.println(r);
+//            System.out.println(Arrays.toString(basis.calcUNumerical(v.getU(), v.getAssociatedTriangle())));
+//        }
     }
 
     private static void writeValuesToWriteSorted(ValuesToWrite valuesToWrite, Basis basis) {
