@@ -84,6 +84,7 @@ class Triangle {
 
     }
 
+    // return points in global system
     public double getX(double ksi, double eta) {
         return points[0].x() + (points[1].x() - points[0].x()) * ksi
                 + (points[2].x() - points[0].x()) * eta;

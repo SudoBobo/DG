@@ -1,6 +1,7 @@
 package com.github.sudobobo;
 
 import com.github.sudobobo.IO.MeshWriter;
+import com.github.sudobobo.IO.ValueToWrite;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
@@ -14,6 +15,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.Arrays;
+import java.util.Comparator;
 
 public class General {
     public static void main(String[] args) {
@@ -68,8 +71,11 @@ public class General {
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
         Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
+
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
+
+
 
         Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
@@ -97,6 +103,11 @@ public class General {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        writeSimpleValues(values, basis);
+        System.out.println("Values to write print");
+        writeValuesToWriteSorted(valuesToWrite, basis);
+
 
 
 //        for (int t = 0; t < timeSteps; t++) {
@@ -163,6 +174,48 @@ public class General {
             });
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private static void writeSimpleValues(Value[] values, Basis basis) {
+
+        class valuesComp implements Comparator<Value> {
+            // Used for sorting in ascending order of
+            // roll number
+            public int compare(Value a, Value b) {
+                return (int) (a.getAssociatedTriangle().getCenter().x() - b.getAssociatedTriangle().getCenter().x());
+            }
+        }
+
+        Arrays.sort(values, new valuesComp());
+
+        for (Value v : values) {
+            String r = Arrays.toString(v.getAssociatedTriangle().getCenter().coordinates);
+//            System.out.println(r);
+            System.out.println(Arrays.toString(basis.calcUNumerical(v.getU(), v.getAssociatedTriangle())));
+        }
+    }
+
+    private static void writeValuesToWriteSorted(ValuesToWrite valuesToWrite, Basis basis) {
+
+
+        class vComp implements Comparator<ValueToWrite> {
+            // Used for sorting in ascending order of
+            // roll number
+            public int compare(ValueToWrite a, ValueToWrite b) {
+                return (int) (a.getAssociatedValue().getAssociatedTriangle().getCenter().x()
+                        - b.getAssociatedValue().getAssociatedTriangle().getCenter().x());
+            }
+        }
+
+        Arrays.sort(valuesToWrite.getValuesToWrite(), new vComp());
+        for (ValueToWrite v : valuesToWrite.getValuesToWrite()) {
+            String r = Arrays.toString(v.getAssociatedValue().getAssociatedTriangle().getCenter().coordinates);
+            System.out.println(r);
+
+            System.out.println(Arrays.toString(basis.calcUNumerical(v.getAssociatedValue().getU(), v.getAssociatedValue().getAssociatedTriangle())));
+
+
         }
     }
 }

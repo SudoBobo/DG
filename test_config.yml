@@ -1,6 +1,6 @@
 realFullTime : 100.0
 spatialStep : 1.0
-pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/Mesh_1.mesh
+pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 initialCondition : sin
 spatialStepForNumericalIntegration : 0.0001
 

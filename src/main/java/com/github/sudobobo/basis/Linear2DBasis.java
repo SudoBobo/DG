@@ -128,6 +128,7 @@ public class Linear2DBasis implements Basis {
     @Override
     public DoubleMatrix calcUCoeffs(InitialConditionPhase initialConditionPhase, DoubleMatrix initialConditionAmplitude, Triangle t) {
 
+//         todo unnecessary creation of functional objects on every calc
         Function initialConditionPhaseInInnerSystem = new Function() {
             @Override
             // todo this change of variables should be discused
@@ -136,6 +137,16 @@ public class Linear2DBasis implements Basis {
                         t.getX(x[0], x[1]), t.getY(x[0], x[1])
                 );
             }
+
+//        Function initialConditionPhaseInInnerSystem = new Function() {
+//            @Override
+//            // todo this change of variables should be discused
+//            public double getValue(double[] x) {
+//                return initialConditionPhase.calc(
+//                        x[0], x[1]
+//                );
+//            }
+
 
             @Override
             public Function getDerivative(int xOrder, int yOrder, int zOrder) {
@@ -168,11 +179,11 @@ public class Linear2DBasis implements Basis {
         double ksi = t.getKsiInLocalSystem(t.getCenter().x(), t.getCenter().y());
         double eta = t.getEtaInLocalSystem(t.getCenter().x(), t.getCenter().y());
 
-        double [] result = new double[UCoeffs.rows];
+        double[] result = new double[UCoeffs.rows];
         Arrays.fill(result, 0);
 
-        for (int value = 0; value < UCoeffs.rows; value++){
-            for (int coeff = 0; coeff < UCoeffs.columns; coeff++){
+        for (int value = 0; value < UCoeffs.rows; value++) {
+            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
 
                 // todo should be discussed
                 result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
@@ -181,8 +192,6 @@ public class Linear2DBasis implements Basis {
 
         return result;
     }
-
-
 
 
     private void initBasisFunctions() {

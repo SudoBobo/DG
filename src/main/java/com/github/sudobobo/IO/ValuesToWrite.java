@@ -1,11 +1,11 @@
 package com.github.sudobobo.IO;
 
-import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.basis.Basis;
+import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Point;
-import lombok.Builder;
 import lombok.Data;
 
+@Data
 public class ValuesToWrite {
 
     // should be stored sorted from left bottom to top right
@@ -25,26 +25,26 @@ public class ValuesToWrite {
         this.basis = basis;
 
         int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
-        int valuesToWriteSize = (int) Math.pow(numberOfRectanglesOnSide, 2);
+        int valuesToWriteSize = (int) (Math.pow(numberOfRectanglesOnSide - 1, 2));
         valuesToWrite = new ValueToWrite[valuesToWriteSize];
 
         double x = 0;
-        double y = 0;
+        double y = rb.y() + (rectangleSideLength / 2);
         int v = 0;
 
-        for (int row = 0; row < numberOfRectanglesOnSide; row++) {
+        for (int row = 0; row < numberOfRectanglesOnSide - 1; row++) {
 
-            y = (rectangleSideLength / 2) * (row + 1);
+            y += rectangleSideLength;
+            x = lt.x() + (rectangleSideLength / 2);
 
-            for (int column = 0; column < numberOfRectanglesOnSide; column++) {
+            for (int column = 0; column < numberOfRectanglesOnSide - 1; column++) {
 
-                x = (rectangleSideLength / 2) * (column + 1);
+                x += rectangleSideLength;
 
                 valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues));
                 v++;
             }
         }
-
     }
 
     private Value FindAssociatedValue(double x, double y, Value[] associatedValues) {
@@ -71,12 +71,17 @@ public class ValuesToWrite {
         boolean isSquare = (Math.abs((rb.x() - lt.x()) - (lt.y() - rb.y())) < 0.001);
         assert (isSquare) : "Mesh expected to be square. It is not";
 
-        double meshSideLength = rb.x() - lt.x();
+//        double meshSideLength = rb.x() - lt.x();
+//
+//        int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
 
-        int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
+//        long xExtent = (long) numberOfRectanglesOnSide;
+//        long yExtent = (long) numberOfRectanglesOnSide;
+//        long zExtent = 1L;
 
-        long xExtent = (long) numberOfRectanglesOnSide;
-        long yExtent = (long) numberOfRectanglesOnSide;
+        long extent = (long) Math.sqrt(valuesToWrite.length);
+        long xExtent = extent;
+        long yExtent = extent;
         long zExtent = 1L;
 
         return new Long[]{xExtent, yExtent, zExtent};
@@ -112,11 +117,5 @@ public class ValuesToWrite {
     }
 }
 
-
-@Data
-@Builder
-class ValueToWrite {
-    Value associatedValue;
-}
 
 

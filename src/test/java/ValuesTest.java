@@ -3,6 +3,7 @@ import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Mesh;
+import com.github.sudobobo.geometry.Triangle;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -51,7 +52,13 @@ public class ValuesTest {
     public void checkValues() {
 
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
+        Triangle tInTheMiddle = mesh.getTriangles()[51];
+        Value valueOfTriangleInTheMiddle = tInTheMiddle.getValue();
 
+
+
+//        System.out.println(tInTheMiddle.getCenter().x());
+//        System.out.println( tInTheMiddle.getCenter().y());
         System.out.println("stop point for manual testing");
     }
 

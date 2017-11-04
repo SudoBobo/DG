@@ -18,7 +18,7 @@ public class CalcNumericalTest {
                 {0.039630, 0.357480, -0.156804}
         });
 
-//        double[] uNumerical = basis.calcUNumerical(uCoeff)
+//        double[] uNumerical = basis.calcUNumer/ical(uCoeff)
     }
 
 }
