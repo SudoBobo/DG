@@ -15,7 +15,7 @@ class Vector {
     }
 
     public Vector(Point a, Point b) {
-        this(b.x() - a.x(), b.y() - a.y(), 0);
+        this(b.x - a.x, b.y - a.y, 0);
     }
 
     public static double mult2D(Vector a, Vector b) {

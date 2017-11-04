@@ -176,8 +176,8 @@ public class Linear2DBasis implements Basis {
 
         // todo : don't create an array, use and re-write x`given instead
 
-        double ksi = t.getKsiInLocalSystem(t.getCenter().x(), t.getCenter().y());
-        double eta = t.getEtaInLocalSystem(t.getCenter().x(), t.getCenter().y());
+        double ksi = t.getKsiInLocalSystem(t.getCenter().x, t.getCenter().y);
+        double eta = t.getEtaInLocalSystem(t.getCenter().x, t.getCenter().y);
 
         double[] result = new double[UCoeffs.rows];
         Arrays.fill(result, 0);

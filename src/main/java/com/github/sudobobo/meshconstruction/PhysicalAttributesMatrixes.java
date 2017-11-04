@@ -56,8 +56,11 @@ public class PhysicalAttributesMatrixes {
     }
 
     public static DoubleMatrix calcAStr(DoubleMatrix a, DoubleMatrix b, double jacobian, Point[] v) {
-        double dKsidX = (v[2].getCoordinates()[1] - v[0].getCoordinates()[1]) / jacobian;
-        double dKsidY = (v[0].getCoordinates()[0] - v[2].getCoordinates()[0]) / jacobian;
+//        double dKsidX = (v[2].getCoordinates()[1] - v[0].getCoordinates()[1]) / jacobian;
+//        double dKsidY = (v[0].getCoordinates()[0] - v[2].getCoordinates()[0]) / jacobian;
+
+        double dKsidX = (v[2].y - v[0].y) / jacobian;
+        double dKsidY = (v[0].x - v[2].x) / jacobian;
 
         DoubleMatrix f = a.mul(dKsidX);
         DoubleMatrix s = b.mul(dKsidY);
@@ -66,8 +69,11 @@ public class PhysicalAttributesMatrixes {
     }
 
     public static DoubleMatrix calcBStr(DoubleMatrix a, DoubleMatrix b, double jacobian, Point[] v) {
-        double dNudX = (v[0].getCoordinates()[1] - v[1].getCoordinates()[1]) / jacobian;
-        double dNudY = (v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) / jacobian;
+//        double dNudX = (v[0].getCoordinates()[1] - v[1].getCoordinates()[1]) / jacobian;
+//        double dNudY = (v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) / jacobian;
+
+        double dNudX = (v[0].y - v[1].y) / jacobian;
+        double dNudY = (v[1].x - v[0].x) / jacobian;
 
         DoubleMatrix f = a.mul(dNudX);
         DoubleMatrix s = b.mul(dNudY);

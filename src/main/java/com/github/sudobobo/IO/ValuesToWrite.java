@@ -17,10 +17,10 @@ public class ValuesToWrite {
     public ValuesToWrite(Value[] associatedValues, double rectangleSideLength, double minTriangleSideLength, Point lt,
                          Point rb, Basis basis) {
 
-        boolean isSquare = (Math.abs((rb.x() - lt.x()) - (lt.y() - rb.y())) < 0.001);
+        boolean isSquare = (Math.abs((rb.x - lt.x) - (lt.y - rb.y)) < 0.001);
         assert (isSquare) : "Mesh expected to be square. It is not";
 
-        double meshSideLength = rb.x() - lt.x();
+        double meshSideLength = rb.x - lt.x;
 
         this.basis = basis;
 
@@ -29,13 +29,13 @@ public class ValuesToWrite {
         valuesToWrite = new ValueToWrite[valuesToWriteSize];
 
         double x = 0;
-        double y = rb.y() + (rectangleSideLength / 2);
+        double y = rb.y + (rectangleSideLength / 2);
         int v = 0;
 
         for (int row = 0; row < numberOfRectanglesOnSide - 1; row++) {
 
             y += rectangleSideLength;
-            x = lt.x() + (rectangleSideLength / 2);
+            x = lt.x + (rectangleSideLength / 2);
 
             for (int column = 0; column < numberOfRectanglesOnSide - 1; column++) {
 
@@ -68,7 +68,7 @@ public class ValuesToWrite {
         // expect array of 3 values [100, 100, 1]
         // these values are numbers of dots/rectangles in final vtk mesh
 
-        boolean isSquare = (Math.abs((rb.x() - lt.x()) - (lt.y() - rb.y())) < 0.001);
+        boolean isSquare = (Math.abs((rb.x - lt.x) - (lt.y - rb.y)) < 0.001);
         assert (isSquare) : "Mesh expected to be square. It is not";
 
 //        double meshSideLength = rb.x() - lt.x();

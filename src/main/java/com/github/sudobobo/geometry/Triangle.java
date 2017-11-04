@@ -58,8 +58,8 @@ class Triangle {
         double y = 0;
 
         for (Point p : points) {
-            x += p.x();
-            y += p.y();
+            x += p.x;
+            y += p.y;
         }
 
         x /= 3;
@@ -70,53 +70,53 @@ class Triangle {
 
     public double getKsiInLocalSystem(double x, double y) {
         return
-                ((points[2].x() * points[0].y() - points[0].x() * points[2].y()) +
-                        x * (points[2].y() - points[0].y()) +
-                        y * (points[0].x() - points[2].x())) / jacobian;
+                ((points[2].x * points[0].y - points[0].x * points[2].y) +
+                        x * (points[2].y - points[0].y) +
+                        y * (points[0].x - points[2].x)) / jacobian;
     }
 
     public double getEtaInLocalSystem(double x, double y) {
 
         return
-                ((points[0].x() * points[1].y() - points[1].x() * points[0].y()) +
-                        x * (points[0].y() - points[1].y()) +
-                        y * (points[1].x() - points[0].x())) / jacobian;
+                ((points[0].x * points[1].y - points[1].x * points[0].y) +
+                        x * (points[0].y - points[1].y) +
+                        y * (points[1].x - points[0].x)) / jacobian;
 
     }
 
     // return points in global system
     public double getX(double ksi, double eta) {
-        return points[0].x() + (points[1].x() - points[0].x()) * ksi
-                + (points[2].x() - points[0].x()) * eta;
+        return points[0].x + (points[1].x - points[0].x) * ksi
+                + (points[2].x - points[0].x) * eta;
     }
 
     public double getY(double ksi, double eta) {
-        return points[0].y() + (points[1].y() - points[0].y()) * ksi
-                + (points[2].y() - points[0].y()) * eta;
+        return points[0].y + (points[1].y - points[0].y) * ksi
+                + (points[2].y - points[0].y) * eta;
     }
 
     public double x0() {
-        return p(0).x();
+        return p(0).x;
     }
 
     public double x1() {
-        return p(1).x();
+        return p(1).x;
     }
 
     public double x2() {
-        return p(2).x();
+        return p(2).x;
     }
 
     public double y0() {
-        return p(0).y();
+        return p(0).y;
     }
 
     public double y1() {
-        return p(1).y();
+        return p(1).y;
     }
 
     public double y2() {
-        return p(2).y();
+        return p(2).y;
     }
 
     // todo add test

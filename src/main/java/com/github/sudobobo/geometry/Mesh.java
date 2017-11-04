@@ -22,14 +22,14 @@ class Mesh {
 
     public Point getLTPoint() {
 
-        double ltX = points[0].x();
-        double ltY = points[0].y();
+        double ltX = points[0].x;
+        double ltY = points[0].y;
 
         for (Point p : points) {
-            if (p.x() <= ltX) {
-                if (p.y() >= ltY) {
-                    ltX = p.x();
-                    ltY = p.y();
+            if (p.x <= ltX) {
+                if (p.y >= ltY) {
+                    ltX = p.x;
+                    ltY = p.y;
                 }
             }
         }
@@ -39,14 +39,14 @@ class Mesh {
 
     public Point getRBPoint() {
 
-        double rbX = points[0].x();
-        double rbY = points[0].y();
+        double rbX = points[0].x;
+        double rbY = points[0].y;
 
         for (Point p : points) {
-            if (p.x() >= rbX) {
-                if (p.y() <= rbY) {
-                    rbX = p.x();
-                    rbY = p.y();
+            if (p.x >= rbX) {
+                if (p.y <= rbY) {
+                    rbX = p.x;
+                    rbY = p.y;
                 }
             }
         }

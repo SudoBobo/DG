@@ -304,9 +304,14 @@ public class SalomeMeshConstructor {
 
 
     private static double calcBorderS(Point beginPoint, Point endPoint) {
+//        return Math.sqrt(
+//                Math.pow((endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]), 2)
+//                        + Math.pow((endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1]), 2)
+//        );
+
         return Math.sqrt(
-                Math.pow((endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]), 2)
-                        + Math.pow((endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1]), 2)
+                Math.pow((endPoint.x - beginPoint.x), 2)
+                        + Math.pow((endPoint.y - beginPoint.y), 2)
         );
     }
 
@@ -314,8 +319,12 @@ public class SalomeMeshConstructor {
 
         // todo hardcodeed Rotation matrix with theta == 90
         double[] n = new double[2];
-        n[0] = endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1];
-        n[1] = -(endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]);
+//        n[0] = endPoint.getCoordinates()[1] - beginPoint.getCoordinates()[1];
+//        n[1] = -(endPoint.getCoordinates()[0] - beginPoint.getCoordinates()[0]);
+
+        n[0] = endPoint.y - beginPoint.y;
+        n[1] = -(endPoint.x - beginPoint.x);
+
 
         // normalize normal vector
         double n2 = Math.sqrt(n[0] * n[0] + n[1] * n[1]);
@@ -339,8 +348,11 @@ public class SalomeMeshConstructor {
     private static double calcJacobian(Triangle t) {
         Point[] v = t.getPoints();
 
-        return ((v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1])) -
-                ((v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]));
+//        return ((v[1].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[2].getCoordinates()[1] - v[0].getCoordinates()[1])) -
+//                ((v[2].getCoordinates()[0] - v[0].getCoordinates()[0]) * (v[1].getCoordinates()[1] - v[0].getCoordinates()[1]));
+
+        return ((v[1].x - v[0].x) * (v[2].y - v[0].y)) -
+                ((v[2].x - v[0].x) * (v[1].y - v[0].y));
     }
 
 

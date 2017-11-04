@@ -5,24 +5,39 @@ import lombok.Data;
 public @Data
 class Point {
     private final int id;
-    public final double [] coordinates;
+
+    public double x;
+    public double y;
 
     public Point(int id, double[] coordinates){
         assert coordinates.length == 2 : "only 2D case is implemented ";
         this.id = id;
-        this.coordinates = coordinates;
+        this.x = coordinates[0];
+        this.y = coordinates[1];
 
     }
     public static double distance(Point a, Point b) {
         double d = 0;
-        for (int i = 0; i < a.coordinates.length; i++) {
-            d += (a.coordinates[i] - b.coordinates[i]) * (a.coordinates[i] - b.coordinates[i]);
-        }
+//        for (int i = 0; i < a.coordinates.length; i++) {
+//            d += (a.coordinates[i] - b.coordinates[i]) * (a.coordinates[i] - b.coordinates[i]);
+//        }
+//        return Math.sqrt(d);
+
+//        for (int i = 0; i < a.coordinates.length; i++) {
+//            d += (a.coordinates[i] - b.coordinates[i]) * (a.coordinates[i] - b.coordinates[i]);
+//        }
+//
+        d = Math.pow((a.x - b.x), 2) + Math.pow((a.y - b.y), 2);
         return Math.sqrt(d);
     }
 
-    public double x(){return coordinates[0];}
-    public double y(){return coordinates[1];}
+
+    public long[] coordinates() {
+        long [] c = new long[2];
+        c[0] = (long)x;
+        c[1] = (long)y;
+        return c;
+    }
 }
 
 

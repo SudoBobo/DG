@@ -21,6 +21,9 @@ import java.util.Comparator;
 public class General {
     public static void main(String[] args) {
 
+
+        long startTime = System.currentTimeMillis();
+
         Path configFile = Paths.get(args[0]);
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
@@ -121,6 +124,10 @@ public class General {
 //            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
 //        }
 
+        long endTime   = System.currentTimeMillis();
+        long totalTime = endTime - startTime;
+        System.out.println(totalTime);
+
     }
 
 
@@ -183,14 +190,14 @@ public class General {
             // Used for sorting in ascending order of
             // roll number
             public int compare(Value a, Value b) {
-                return (int) (a.getAssociatedTriangle().getCenter().x() - b.getAssociatedTriangle().getCenter().x());
+                return (int) (a.getAssociatedTriangle().getCenter().x - b.getAssociatedTriangle().getCenter().x);
             }
         }
 
         Arrays.sort(values, new valuesComp());
 
         for (Value v : values) {
-            String r = Arrays.toString(v.getAssociatedTriangle().getCenter().coordinates);
+            String r = Arrays.toString(v.getAssociatedTriangle().getCenter().coordinates());
 //            System.out.println(r);
             System.out.println(Arrays.toString(basis.calcUNumerical(v.getU(), v.getAssociatedTriangle())));
         }
@@ -203,14 +210,14 @@ public class General {
             // Used for sorting in ascending order of
             // roll number
             public int compare(ValueToWrite a, ValueToWrite b) {
-                return (int) (a.getAssociatedValue().getAssociatedTriangle().getCenter().x()
-                        - b.getAssociatedValue().getAssociatedTriangle().getCenter().x());
+                return (int) (a.getAssociatedValue().getAssociatedTriangle().getCenter().x
+                        - b.getAssociatedValue().getAssociatedTriangle().getCenter().x);
             }
         }
 
         Arrays.sort(valuesToWrite.getValuesToWrite(), new vComp());
         for (ValueToWrite v : valuesToWrite.getValuesToWrite()) {
-            String r = Arrays.toString(v.getAssociatedValue().getAssociatedTriangle().getCenter().coordinates);
+            String r = Arrays.toString(v.getAssociatedValue().getAssociatedTriangle().getCenter().coordinates());
             System.out.println(r);
 
             System.out.println(Arrays.toString(basis.calcUNumerical(v.getAssociatedValue().getU(), v.getAssociatedValue().getAssociatedTriangle())));

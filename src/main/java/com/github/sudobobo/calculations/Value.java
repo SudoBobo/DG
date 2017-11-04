@@ -59,10 +59,10 @@ class Value {
 
                 System.out.println("In middle triangle section beigins");
                 System.out.println("Center coordinates");
-                System.out.println(tr.getCenter().x());
-                System.out.println(tr.getCenter().y());
+                System.out.println(tr.getCenter().x);
+                System.out.println(tr.getCenter().y);
 
-                double phase = initialConditionPhase.calc(tr.getCenter().x(), tr.getCenter().y());
+                double phase = initialConditionPhase.calc(tr.getCenter().x, tr.getCenter().y);
                 DoubleMatrix calcU = R2.mul(phase);
 
                 System.out.println("phase");
@@ -106,11 +106,11 @@ class Value {
         // todo remove hardcode : f(x,y) = cos(a * x + phi)
         // where f(x=xCenter) = 1
         //       f(x=xCenter +/- xWidth = 0
-        double centerX = (lt.x() + rb.x()) / 2;
-        double centerY = (lt.y() + rb.y()) / 2;
+        double centerX = (lt.x + rb.x) / 2;
+        double centerY = (lt.y + rb.y) / 2;
 
-        double xWidth = (rb.x() - lt.x()) * xWidthCoef;
-        double yWidth = (lt.y() - rb.y()) * yWidthCoef;
+        double xWidth = (rb.x - lt.x) * xWidthCoef;
+        double yWidth = (lt.y - rb.y) * yWidthCoef;
 
 
         double a = Math.PI / (2.0 * xWidth);
