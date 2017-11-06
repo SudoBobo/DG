@@ -176,20 +176,21 @@ class Triangle {
     // in this system the point(ksi, eta) is inside the triangle
     public boolean isInTriangle(double x, double y) {
 
-//        double f = (x0() - x) * (y1() - y0()) - (x1() - x0()) * (y0() - y);
-//        double s = (x1() - x) * (y2() - y1()) - (x2() - x1()) * (y1() - y);
-//        double t = (x2() - x) * (y0() - y2()) - (x0() - x2()) * (y2() - y);
-
         double f = (x0() - x) * (y1_y0) - (x1_x0) * (y0() - y);
         double s = (x1() - x) * (y2_y1) - (x2_x1) * (y1() - y);
         double t = (x2() - x) * (-y2_y0) - (-x2_x0) * (y2() - y);
 
         // if the point (x, y) is inside, than f, s, t should have the same sign
         // (or one of them should be nought, it is the case when point(x,y) lies on the edge
-        double fine = 0.000001;
+        double fine = 0.00000000000000000001;
+
+
 
         // one of them is nought
         if ((Math.abs(f) < fine) || (Math.abs(s) < fine) || (Math.abs(t) < fine)) return true;
+
+
+
 
         // all of them have the same sign
         if ((f > 0 && s > 0 && t > 0) || (f < 0 && s < 0 && t < 0)) return true;

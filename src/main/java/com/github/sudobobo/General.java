@@ -40,6 +40,8 @@ public class General {
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, lambda, mu, rho);
 
+        System.out.println("Mesh is built");
+
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
@@ -49,8 +51,10 @@ public class General {
         double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
 
-        System.out.println("min dx = " + minSideLength);
-        System.out.println("dt = " + timeStep);
+        System.out.println("Basis functions are calculated");
+
+//        System.out.println("min dx = " + minSideLength);
+//        System.out.println("dt = " + timeStep);
 
         int timeSteps = (int) (realFullTime / timeStep);
 
@@ -74,10 +78,14 @@ public class General {
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
         Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
+        System.out.println("Values are calculated");
+
         writeSimpleValues(values, basis);
 
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
+
+        System.out.println("ValuesToWrite are ready");
 
 
 

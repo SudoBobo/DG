@@ -4,6 +4,7 @@ import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Point;
 import lombok.Data;
+import org.jblas.DoubleMatrix;
 
 @Data
 public class ValuesToWrite {
@@ -41,15 +42,27 @@ public class ValuesToWrite {
 
                 x += rectangleSideLength;
 
-                valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues));
+
+
+
+                valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues, v));
+
+                Value mockAssociatedValue = new Value(DoubleMatrix.zeros(associatedValues[0].getU().rows,
+                                                                         associatedValues[0].getU().columns),
+                        associatedValues[0].getAssociatedTriangle());
+
+                if (valuesToWrite[v].getAssociatedValue() == null){
+                    valuesToWrite[v].setAssociatedValue(mockAssociatedValue);
+                }
                 v++;
             }
         }
     }
 
-    private Value FindAssociatedValue(double x, double y, Value[] associatedValues) {
+    private Value FindAssociatedValue(double x, double y, Value[] associatedValues, int valueNumber) {
         // for each triangle we translate a point (x, y) into a inner triangle coordinate system and see if
         // in this system point(ksi, eta) is inside the triangle
+
         for (Value v : associatedValues) {
             if (v.getAssociatedTriangle().isInTriangle(x, y)) {
                 return v;
@@ -104,7 +117,21 @@ public class ValuesToWrite {
 
         double[] raw = new double[rawSize];
 
+
         for (int v = 0; v < valuesToWrite.length; v++) {
+
+
+
+            if (valuesToWrite[v] == null){
+                assert (false) : "valueToWrite " + Integer.toString(v) + " is null";
+            }
+            if (valuesToWrite[v].associatedValue == null){
+                assert (false) : "one of values to write is not associated with any value";
+            }
+
+            if (valuesToWrite[v].associatedValue.getAssociatedTriangle() == null){
+                assert (false) : "one of values is not associated with any triangle";
+            }
 
             double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
 
