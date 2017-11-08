@@ -32,7 +32,7 @@ class Triangle {
     private DoubleMatrix An;
 
     private Border[] borders;
-    private int domain;
+    private Domain domain;
 
     // borders of triangle are indexed by j {0, 1, 2}
     // and each of this border contact with neighbour triangle's border

@@ -1,19 +1,13 @@
 package com.github.sudobobo.meshconstruction;
 
 import com.github.sudobobo.IO.MeshFileReader;
-import com.github.sudobobo.geometry.Mesh;
-import com.github.sudobobo.geometry.Border;
-import com.github.sudobobo.geometry.Point;
-import com.github.sudobobo.geometry.Triangle;
-import com.github.sudobobo.geometry.Vector;
+import com.github.sudobobo.geometry.*;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 import static com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes.*;
 import static java.lang.Math.sqrt;
@@ -23,13 +17,13 @@ public class SalomeMeshConstructor {
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
     private static Map<Double, DoubleMatrix> nToT;
 
-    public static Mesh constructHomoMesh(Path meshFile, double lambda, double mu, double rho) {
+    public static Mesh constructHomoMesh(Path meshFile, Domain[] domains) {
 
 
         // order of functions call here is important! (as these functions have output params)
 
         Point[] points = MeshFileReader.readPoints(meshFile);
-        Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points);
+        Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points, domains);
 
         double minDistance = 0.00001;
         Map<Point, Point> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
@@ -38,12 +32,11 @@ public class SalomeMeshConstructor {
         changeDuplicateVertexes(triangles, pointToReplacementPoint);
 
         changePointsOrderToReverseClock(triangles);
-        reduceDomains(triangles);
 
         setNeighborsAndBounds(triangles);
         setIJ(triangles);
         // make use of domains
-        setConstantPhysicalFields(triangles, lambda, mu, rho);
+        setConstantPhysicalFields(triangles, domains);
 //        setAbsorbingBoundary(triangles);
 
         // ltrb if needed
@@ -61,38 +54,62 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static void setConstantPhysicalFields(Triangle[] triangles, double lambda, double mu, double rho) {
+    private static void setConstantPhysicalFields(Triangle[] triangles, Domain[] domains) {
 
         Double nXInnerTriangleSystem = 1.0;
         Double nYInnerTriangleSystem = 0.0;
 
-        // domain section
-        DoubleMatrix A = calcAMatrix(lambda, mu, rho);
-        DoubleMatrix B = calcBMatrix(lambda, mu, rho);
-
-        DoubleMatrix An = calcAnMatrix(A, B, nXInnerTriangleSystem, nYInnerTriangleSystem);
-
-        double cP = calcCP(lambda, mu, rho);
-        double cS = calcCS(mu, rho);
-
-        DoubleMatrix Rpqn = calcRpqn(lambda, mu, cP, cS, nXInnerTriangleSystem, nYInnerTriangleSystem);
-        DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
+        // domain section - create matrices for all domains
+        Map<Domain, Map<String, DoubleMatrix>> domainToMatricesSet = calcDomainToMatricesSet(domains, nXInnerTriangleSystem,
+                nYInnerTriangleSystem);
 
 
         for (Triangle t : triangles) {
-            t.setA(A);
-            t.setB(B);
-            t.setAn(An);
-            t.setAAbs(AAbs);
-            t.setRpqn(Rpqn);
+
+            Map<String, DoubleMatrix> set = domainToMatricesSet.get(t.getDomain());
+            t.setA(set.get("A"));
+            t.setB(set.get("B"));
+            t.setAn(set.get("An"));
+            t.setAAbs(set.get("AAbs"));
+            t.setRpqn(set.get("Rpqn"));
 
 
             double jacobian = calcJacobian(t);
 
             t.setJacobian(jacobian);
-            t.setAStr(calcAStr(A, B, jacobian, t.getPoints()));
-            t.setBStr(calcBStr(A, B, jacobian, t.getPoints()));
+            t.setAStr(calcAStr(t.getA(), t.getB(), jacobian, t.getPoints()));
+            t.setBStr(calcBStr(t.getA(), t.getB(), jacobian, t.getPoints()));
         }
+    }
+
+    private static Map<Domain, Map<String, DoubleMatrix>> calcDomainToMatricesSet(Domain[] domains, Double nXInnerTriangleSystem, Double nYInnerTriangleSystem) {
+
+        Map<Domain, Map<String, DoubleMatrix>> domainToMatricesSet = new HashMap<>();
+
+        for (Domain d : domains) {
+
+            Map<String, DoubleMatrix> set = new HashMap<>();
+            domainToMatricesSet.put(d, set);
+
+            DoubleMatrix A = calcAMatrix(d.getLambda(), d.getMu(), d.getRho());
+            DoubleMatrix B = calcBMatrix(d.getLambda(), d.getMu(), d.getRho());
+
+            set.put("A", A);
+            set.put("B", B);
+
+            DoubleMatrix An = calcAnMatrix(A, B, nXInnerTriangleSystem, nYInnerTriangleSystem);
+            set.put("An", An);
+
+            double cP = calcCP(d.getLambda(), d.getMu(), d.getRho());
+            double cS = calcCS(d.getMu(), d.getRho());
+
+            DoubleMatrix Rpqn = calcRpqn(d.getLambda(), d.getMu(), cP, cS, nXInnerTriangleSystem, nYInnerTriangleSystem);
+            DoubleMatrix AAbs = calcAAbs(cP, cS, Rpqn);
+
+            set.put("Rpqn", Rpqn);
+            set.put("AAbs", AAbs);
+        }
+        return domainToMatricesSet;
     }
 
     public static Map<Point, Point> getPointToReplacementPoint(Point[] points, double minDistance) {
@@ -129,33 +146,6 @@ public class SalomeMeshConstructor {
         }
 
         return pointToReplacementPoint;
-    }
-
-    public static void reduceDomains(Triangle[] triangles) {
-
-        Set<Integer> domains = new HashSet<>();
-
-        for (Triangle t : triangles) {
-            domains.add(t.getDomain());
-        }
-
-        Map<Integer, Integer> oldDomainToNewDomain = new HashMap<>();
-
-        int newDomain = 0;
-
-        for (int oldDomain : domains) {
-
-            if (!oldDomainToNewDomain.containsKey(oldDomain)) {
-                oldDomainToNewDomain.put(oldDomain, newDomain);
-                newDomain++;
-            }
-        }
-
-        for (Triangle t : triangles) {
-            t.setDomain(
-                    oldDomainToNewDomain.get(t.getDomain())
-            );
-        }
     }
 
     public static Point[] getPointsWithNoDuplicates(Point[] points, Map<Point, Point> pointToReplacementPoint) {
@@ -289,7 +279,7 @@ public class SalomeMeshConstructor {
                     b.setEdgeOfMesh(false);
                     potentialNeibBorder.setEdgeOfMesh(false);
 
-                   return;
+                    return;
                 }
             }
         }
@@ -336,11 +326,11 @@ public class SalomeMeshConstructor {
     }
 
 
-    private static double calcCS(double mu, double rho) {
+    public static double calcCS(double mu, double rho) {
         return sqrt(mu / rho);
     }
 
-    private static double calcCP(double lambda, double mu, double rho) {
+    public static double calcCP(double lambda, double mu, double rho) {
         return sqrt((lambda + 2 * mu) / rho);
     }
 

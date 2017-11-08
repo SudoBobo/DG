@@ -1,5 +1,6 @@
 package com.github.sudobobo.IO;
 
+import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Point;
 import com.github.sudobobo.geometry.Triangle;
 
@@ -7,6 +8,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.*;
 
 // TODO rewrite with streams
 
@@ -52,7 +54,7 @@ public class MeshFileReader {
     }
 
     // expect certain constraint point[idx].Id == idx + 1
-    public static Triangle[] readTriangles(Path meshFile, Point[] points) {
+    public static Triangle[] readTriangles(Path meshFile, Point[] points, Domain[] domains) {
         // return 'triangles' with vertexes (left-clock) and domains
         // neighbors are null yet
 
@@ -62,6 +64,7 @@ public class MeshFileReader {
             assert (points[pointIdx].getId() == (pointIdx + 1)) : "constraint violated : point[idx].Id == idx + 1";
         }
         Triangle[] triangles = null;
+        int [] triangleDomains = null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(meshFile.toFile()))) {
 
@@ -74,6 +77,7 @@ public class MeshFileReader {
 
             int numberOfTriangles = Integer.parseInt(br.readLine());
             triangles = new Triangle[numberOfTriangles];
+            triangleDomains = new int[numberOfTriangles];
 
             String triangleLine[];
             for (int triangleNumber = 0; triangleNumber < numberOfTriangles; triangleNumber++) {
@@ -87,7 +91,7 @@ public class MeshFileReader {
                 int[] pointsNumbers = new int[]{Integer.parseInt(triangleLine[0]), Integer.parseInt(triangleLine[1]),
                         Integer.parseInt(triangleLine[2])};
 
-                int domain = Integer.parseInt(triangleLine[3]);
+                triangleDomains[triangleNumber] = Integer.parseInt(triangleLine[3]);
 
                 Point[] trianglePoints = new Point[3];
 
@@ -95,7 +99,7 @@ public class MeshFileReader {
                 trianglePoints[1] = points[pointsNumbers[1] - 1];
                 trianglePoints[2] = points[pointsNumbers[2] - 1];
 
-                triangles[triangleNumber] = Triangle.builder().domain(domain).points(trianglePoints).
+                triangles[triangleNumber] = Triangle.builder().points(trianglePoints).
                         build();
 
                 triangles[triangleNumber].setTranslationCoefs();
@@ -106,7 +110,54 @@ public class MeshFileReader {
             e.printStackTrace();
         }
 
+        reduceDomains(triangleDomains);
+        setDomains(triangles, triangleDomains, domains);
+
         return triangles;
+    }
+
+    private static void setDomains(Triangle[] triangles, int[] triangleDomains, Domain[] domains) {
+
+        assert (triangles.length == triangleDomains.length);
+
+        // проверка, совпадает ли число доменов в .mesh файле и в конфиге
+        Set<Integer> uniqueDomains = new HashSet<>();
+        Integer[] allDomains = Arrays.stream( triangleDomains ).boxed().toArray( Integer[]::new );
+        Collections.addAll(uniqueDomains, allDomains);
+
+        assert (uniqueDomains.size() == domains.length);
+
+
+
+        for (int i = 0; i < triangles.length; i++){
+            Domain domain = domains[triangleDomains[i]];
+            triangles[i].setDomain(domain);
+        }
+    }
+
+    private static void reduceDomains(int[] triangleDomains) {
+
+        Set<Integer> domains = new HashSet<>();
+
+        for (int d : triangleDomains) {
+            domains.add(d);
+        }
+
+        Map<Integer, Integer> oldDomainToNewDomain = new HashMap<>();
+
+        int newDomain = 0;
+
+        for (int oldDomain : domains) {
+
+            if (!oldDomainToNewDomain.containsKey(oldDomain)) {
+                oldDomainToNewDomain.put(oldDomain, newDomain);
+                newDomain++;
+            }
+        }
+
+        for (int i = 0; i < triangleDomains.length; i ++) {
+            triangleDomains[i] = oldDomainToNewDomain.get(triangleDomains[i]);
+        }
     }
 
 }

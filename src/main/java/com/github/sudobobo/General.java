@@ -6,6 +6,7 @@ import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
 import com.github.sudobobo.calculations.Value;
+import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
@@ -17,6 +18,11 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+
+import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCP;
+import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCS;
 
 public class General {
     public static void main(String[] args) {
@@ -28,25 +34,26 @@ public class General {
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
 
-        double lambda = 2.0;
-        double mu = 1.0;
-        double rho = 1.0;
+//        double lambda = 2.0;
+//        double mu = 1.0;
+//        double rho = 1.0;
 
-        double realFullTime = 1;
-
-        double cP = Math.sqrt((lambda + 2.0 * mu) / rho);
-        double cS = Math.sqrt(mu / rho);
+//        double realFullTime = 1;
 
         Path meshFile = Paths.get(config.getPathToMeshFile());
-        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, lambda, mu, rho);
+        Domain[] domains = Domain.createDomains(config.getDomains());
+        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
 
         System.out.println("Mesh is built");
 
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
+        double maxCP = calcMaxCP(config.getDomains());
+        double maxCS = calcMaxCS(config.getDomains());
 //        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
-        double timeStep = realFullTime;
+
+        double timeStep = config.getRealFullTime();
 
         double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
@@ -56,13 +63,13 @@ public class General {
 //        System.out.println("min dx = " + minSideLength);
 //        System.out.println("dt = " + timeStep);
 
-        int timeSteps = (int) (realFullTime / timeStep);
+        int timeSteps = (int) (config.getRealFullTime() / timeStep);
 
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
 
 
-        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/galerkin_1/results/", meshName, realFullTime, timeStep);
+        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/galerkin_1/results/", meshName, config.getRealFullTime(), timeStep);
         System.out.println("Results are at " + outputDir.toString());
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
                 Paths.get("VtrLowerTemplate"));
@@ -136,6 +143,30 @@ public class General {
         long totalTime = endTime - startTime;
         System.out.println(String.format("Total time %d", totalTime / 1000));
 
+    }
+
+    private static double calcMaxCP(List<Map<String, Double>> domains) {
+        double maxCP = 0;
+        double CP;
+
+        for (Map <String, Double> domain : domains){
+            CP = calcCS(domain.get("mu"), domain.get("rho"));
+            maxCP = (CP > maxCP) ? CP : maxCP;
+        }
+
+        return maxCP;
+    }
+
+    private static double calcMaxCS(List<Map<String, Double>> domains) {
+        double maxCS = 0;
+        double CS;
+
+        for (Map <String, Double> domain : domains){
+            CS = calcCP(domain.get("lambda"), domain.get("mu"), domain.get("rho"));
+            maxCS = (CS > maxCS) ? CS : maxCS;
+        }
+
+        return maxCS;
     }
 
 

@@ -2,6 +2,15 @@ realFullTime : 100.0
 spatialStep : 1.0
 pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/500_2.mesh
 initialCondition : sin
+domains:
+-   index: 0
+    lambda: 2.0
+    rho: 1.0
+    mu: 1.0
+-   index: 1
+    lambda: 2.0
+    rho: 1.0
+    mu: 1.0
 
 
 #
