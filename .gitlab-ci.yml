@@ -15,4 +15,4 @@ defprev-check:
   image: docker
   stage: check
   script:
-    - curl -s ${SIBYL_SCRIPT} | bash -s -- --project-dir=target --token=${TOKEN}
+    - docker run --rm ${SIBYL_IMAGE} --project-dir=target --token=${TOKEN}
