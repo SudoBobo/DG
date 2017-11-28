@@ -1,6 +1,14 @@
+stages:
+  - build
+  - check
+
+build:
+  script:
+    - mkdir target
+
 check:
-  image: registry.gitlab.com/defects-prediction-examples/ci_usage_example
   script:
     - echo kek
     - ls
     - ls target
+    - rm target
