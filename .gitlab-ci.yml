@@ -12,8 +12,8 @@ maven-build:
       - target
 
 defprev-check:
-  image: sudobobo/gitlab-client
   stage: check
   script:
     - ls
-    - python -m client predict --project-dir="target" --token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTIzMjYwNDQsImlhdCI6MTUxMTg5NDA0NCwic3ViIjoxNH0.JkvzIqh4BL9lPlPvJz7qzX7WAuw8xJWgpnJ2VMcku1k"
+    - pip freeze
+    - docker --rm run sudobobo/gitlab-client -- target eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTIzMjYwNDQsImlhdCI6MTUxMTg5NDA0NCwic3ViIjoxNH0.JkvzIqh4BL9lPlPvJz7qzX7WAuw8xJWgpnJ2VMcku1k
