@@ -12,6 +12,7 @@ maven-build:
       - target
 
 defprev-check:
+  image: docker
   stage: check
   script:
-    - docker --rm run sudobobo/gitlab-client -- target eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MTIzMjYwNDQsImlhdCI6MTUxMTg5NDA0NCwic3ViIjoxNH0.JkvzIqh4BL9lPlPvJz7qzX7WAuw8xJWgpnJ2VMcku1k
+    - curl -s ${SIBYL_SCRIPT} | bash -s -- --project-dir=target --token=${TOKEN}
