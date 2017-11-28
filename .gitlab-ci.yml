@@ -2,3 +2,4 @@ check:
   image: registry.gitlab.com/defects-prediction-examples/ci_usage_example
   script:
     - echo kek
+    -ls target
