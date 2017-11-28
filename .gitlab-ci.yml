@@ -6,6 +6,7 @@ build:
   stage: build
   script:
     - mkdir target
+    - ls
 
 check:
   stage: check
