@@ -3,10 +3,12 @@ stages:
   - check
 
 build:
+  stage: build
   script:
     - mkdir target
 
 check:
+  stage: check
   script:
     - echo kek
     - ls
