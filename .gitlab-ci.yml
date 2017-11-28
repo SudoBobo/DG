@@ -1,13 +1,3 @@
-
-
-
-
-
-#image: registry.gitlab.com/defects-prediction-examples/ci_usage_example
-#
-#stages:
-#  - test
-#
-#test:
-#  script:
-#    - pytest
+rspec:
+  script:
+    - echo kek
