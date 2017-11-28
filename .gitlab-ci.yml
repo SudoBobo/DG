@@ -8,7 +8,7 @@ maven-build:
   script: "mvn compile"
   artifacts:
     paths:
-      -target/*
+      - target
 
 defprev-check:
   stage: check
