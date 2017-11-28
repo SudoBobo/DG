@@ -2,16 +2,14 @@ stages:
   - build
   - check
 
-build1:
-  type: build
-  script:
-    - mkdir target
-    - ls
+maven-build:
+  image: maven:3-jdk-8
+  stage: build
+  script: "mvn compile"
+  artifacts:
+    paths:
+      -target/*
 
-check1:
-  type: check
-  script:
-    - echo kek
-    - ls
-    - ls target
-    - rm target
+defprev-check:
+  stage: check
+  script: "ls"
