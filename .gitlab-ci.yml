@@ -13,6 +13,9 @@ maven-build:
 
 defprev-check:
   image: docker
+  services:
+    - docker:dind
+
   stage: check
   script:
     - docker run --rm ${SIBYL_IMAGE} --project-dir=target --token=${TOKEN}
