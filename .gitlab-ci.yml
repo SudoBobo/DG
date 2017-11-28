@@ -5,11 +5,14 @@ stages:
 maven-build:
   image: maven:3-jdk-8
   stage: build
-  script: "mvn compile"
+  script:
+    - mvn compile
   artifacts:
     paths:
       - target
 
 defprev-check:
+  image: sudobobo/gitlab-client
   stage: check
-  script: "ls"
+  script:
+    - ls
