@@ -2,14 +2,14 @@ stages:
   - build
   - check
 
-build:
-  stage: build
+build1:
+  type: build
   script:
     - mkdir target
     - ls
 
-check:
-  stage: check
+check1:
+  type: check
   script:
     - echo kek
     - ls
