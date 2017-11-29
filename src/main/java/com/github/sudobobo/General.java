@@ -32,7 +32,10 @@ public class General {
 
         Path configFile = Paths.get(args[0]);
         Configuration config = getConfigFromYML(configFile);
+
+
         System.out.println(config.toString());
+
 
 //        double lambda = 2.0;
 //        double mu = 1.0;
