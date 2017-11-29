@@ -18,5 +18,5 @@ defprev-check:
 
   stage: check
   script:
-    - tree
+    - ls
     - wget -qO- ${DPC} | sh -s -- --project-dir=target --token=${TOKEN}
