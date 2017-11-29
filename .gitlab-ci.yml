@@ -18,4 +18,4 @@ defprev-check:
 
   stage: check
   script:
-    - wget -q ${DPC} | sh -s -- --project-dir=target --token=${TOKEN}
+    - wget -qO- ${DPC} | sh -s -- --project-dir=target --token=${TOKEN}
