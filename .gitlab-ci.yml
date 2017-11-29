@@ -18,5 +18,5 @@ defprev-check:
 
   stage: check
   script:
-    - ls
+    - tree target
     - docker run --rm -v $(pwd):/opt/dpc ${SIBYL_IMAGE} --project-dir=target --token=${TOKEN}
