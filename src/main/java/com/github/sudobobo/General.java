@@ -30,7 +30,6 @@ public class General {
 
         long startTime = System.currentTimeMillis();
 
-
         Path configFile = Paths.get(args[0]);
 
         Configuration config = getConfigFromYML(configFile);
