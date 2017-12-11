@@ -1,0 +1,1 @@
+find ${TARGET} -name '*.class' -print | java -jar ckjm-1.9/build/ckjm-1.9.jar
