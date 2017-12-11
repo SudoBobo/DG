@@ -32,6 +32,7 @@ public class General {
 
         Path configFile = Paths.get(args[0]);
 
+
         Configuration config = getConfigFromYML(configFile);
 
 
