@@ -4,7 +4,6 @@ import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Point;
 import lombok.Data;
-import org.jblas.DoubleMatrix;
 
 @Data
 public class ValuesToWrite {
@@ -29,51 +28,38 @@ public class ValuesToWrite {
         int valuesToWriteSize = (int) (Math.pow(numberOfRectanglesOnSide - 1, 2));
         valuesToWrite = new ValueToWrite[valuesToWriteSize];
 
-        double x = 0;
+        double x = lt.x + (rectangleSideLength / 2);
         double y = rb.y + (rectangleSideLength / 2);
         int v = 0;
 
         for (int row = 0; row < numberOfRectanglesOnSide - 1; row++) {
-
-            y += rectangleSideLength;
-            x = lt.x + (rectangleSideLength / 2);
-
             for (int column = 0; column < numberOfRectanglesOnSide - 1; column++) {
+                Value associatedValue = FindAssociatedValue(x, y, associatedValues, v);
 
-                x += rectangleSideLength;
-
-
-
+                if (associatedValue == null) {
+                    throw new NullPointerException(
+                            String.format("Can't find associated value for valueToWrite with coordinates x= %f , y= %f", x, y));
+                }
 
                 valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues, v));
-
-                Value mockAssociatedValue = new Value(DoubleMatrix.zeros(associatedValues[0].getU().rows,
-                                                                         associatedValues[0].getU().columns),
-                        associatedValues[0].getAssociatedTriangle());
-
-                if (valuesToWrite[v].getAssociatedValue() == null){
-                    valuesToWrite[v].setAssociatedValue(mockAssociatedValue);
-                }
                 v++;
+                x += rectangleSideLength;
             }
+            y += rectangleSideLength;
+            x = lt.x + (rectangleSideLength / 2);
         }
     }
 
+    // for each triangle we translate a point (x, y) into a inner triangle coordinate system and see if
+    // in this system point(ksi, eta) is inside the triangle
     private Value FindAssociatedValue(double x, double y, Value[] associatedValues, int valueNumber) {
-        // for each triangle we translate a point (x, y) into a inner triangle coordinate system and see if
-        // in this system point(ksi, eta) is inside the triangle
-
         for (Value v : associatedValues) {
             if (v.getAssociatedTriangle().isInTriangle(x, y)) {
                 return v;
             }
         }
-
-
-        assert (false) : "Failed to find triangle for this point";
         return null;
     }
-
 
     public Long[] getExtent(double rectangleSideLength, Point lt, Point rb) {
 

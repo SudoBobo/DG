@@ -122,8 +122,8 @@ public class MeshFileReader {
 
         // проверка, совпадает ли число доменов в .mesh файле и в конфиге
         Set<Integer> uniqueDomains = new HashSet<>();
-//        Integer[] allDomains = Arrays.stream( triangleDomains ).boxed().toArray( Integer[]::new );
-        Integer [] allDomains = null;
+        Integer[] allDomains = Arrays.stream( triangleDomains ).boxed().toArray( Integer[]::new );
+//        Integer [] allDomains = null;
         Collections.addAll(uniqueDomains, allDomains);
 
         assert (uniqueDomains.size() == domains.length);

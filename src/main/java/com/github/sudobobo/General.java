@@ -86,6 +86,7 @@ public class General {
 
 
         double rectangleSideLength = minSideLength / 10;
+        rectangleSideLength = Math.floor(rectangleSideLength);
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields

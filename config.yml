@@ -1,6 +1,6 @@
 realFullTime : 100.0
 spatialStep : 1.0
-pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/500_2.mesh
+pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 initialCondition : sin
 domains:
 -   index: 0
