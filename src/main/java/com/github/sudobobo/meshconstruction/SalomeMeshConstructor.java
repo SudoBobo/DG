@@ -18,12 +18,14 @@ public class SalomeMeshConstructor {
     private static Map<Double, DoubleMatrix> nToT;
 
     public static Mesh constructHomoMesh(Path meshFile, Domain[] domains) {
-
-
         // order of functions call here is important! (as these functions have output params)
 
         Point[] points = MeshFileReader.readPoints(meshFile);
         Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points, domains);
+
+        Mesh mesh = new Mesh();
+        mesh.setPoints(points);
+        mesh.setTriangles(triangles);
 
         double minDistance = 0.00001;
         Map<Point, Point> pointToReplacementPoint = getPointToReplacementPoint(points, minDistance);
@@ -33,17 +35,13 @@ public class SalomeMeshConstructor {
 
         changePointsOrderToReverseClock(triangles);
 
-        setNeighborsAndBounds(triangles);
+
+        setNeighborsAndBounds(mesh);
         setIJ(triangles);
         // make use of domains
         setConstantPhysicalFields(triangles, domains);
 //        setAbsorbingBoundary(triangles);
 
-        // ltrb if needed
-
-        Mesh mesh = new Mesh();
-        mesh.setPoints(points);
-        mesh.setTriangles(triangles);
 
         return mesh;
     }
@@ -198,7 +196,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static void setNeighborsAndBounds(Triangle[] triangles) {
+    public static void setNeighborsAndBounds(Mesh mesh) {
 
         if (TtoInversedT == null) {
             TtoInversedT = new HashMap<DoubleMatrix, DoubleMatrix>();
@@ -211,7 +209,7 @@ public class SalomeMeshConstructor {
         Border borderNotSet = Border.builder().build();
         Triangle triangleNotSet = Triangle.builder().build();
 
-        for (Triangle t : triangles) {
+        for (Triangle t : mesh.getTriangles()) {
 
             Border[] borders = new Border[3];
 
@@ -231,20 +229,22 @@ public class SalomeMeshConstructor {
                 borders[b].setS(calcBorderS(borders[b].getBeginPoint(), borders[b].getEndPoint()));
                 borders[b].setT(calcTMatrix(borders[b].getOuterNormal()[0], borders[b].getOuterNormal()[1]));
                 borders[b].setTInv(calcTInversedMatrix(borders[b].getT()));
+                borders[b].setTriangle(t);
 
             }
             t.setBorders(borders);
         }
 
-        for (Triangle t : triangles) {
+        for (Triangle t : mesh.getTriangles()) {
             for (Border b : t.getBorders()) {
-                findNeibAndSetBorder(t, triangles, b, borderNotSet);
+                findNeibAndSetBorder(t, mesh, b, borderNotSet);
             }
-
         }
     }
 
-    private static void findNeibAndSetBorder(Triangle t, Triangle[] triangles, Border b, Border borderNotSet) {
+    private static void findNeibAndSetBorder(Triangle t, Mesh mesh,
+                                             Border b, Border borderNotSet) {
+        //@ todo optimize this
 
         // check if neighbor border is already set for this border
         if (b.getNeighborBorder() != borderNotSet) {
@@ -252,22 +252,19 @@ public class SalomeMeshConstructor {
         }
 
         // try to find neighbor border among triangles' borders
-        for (Triangle potentialNeib : triangles) {
+        for (Triangle potentialNeib : mesh.getTriangles()) {
 
             if (potentialNeib == t) {
                 continue;
             }
 
-
             for (Border potentialNeibBorder : potentialNeib.getBorders()) {
-
-                // we don't consider neighbor borders which already have neighbors because neighbor borders
-                // are set in pairs
+                // we don't consider neighbor borders which already have neighbors
+                // because neighbor borders are set in pairs
 
                 if (potentialNeibBorder.getNeighborBorder() != borderNotSet) {
                     continue;
                 }
-
 
                 if (Border.doBordersPointsMatch(b, potentialNeibBorder)) {
                     b.setNeighborBorder(potentialNeibBorder);
@@ -284,12 +281,64 @@ public class SalomeMeshConstructor {
             }
         }
 
-        // todo remove hardcoded ABSORBING_BOUNDARY
-
-        // if there is no such neigbhor border that our border is on the edge of mesh
+        // if there is no such neighbor border that our border is on the edge of mesh
         b.setEdgeOfMesh(true);
         b.setNeighborTriangle(null);
         b.setNeighborBorder(null);
+
+        if (t.getDomain().getBorderType().equals("enclosed")) {
+
+            Border enclosedBorder = findEnclosedBorder(b, mesh);
+//            System.out.println(enclosedBorder);
+            Triangle enclosedTriangle = enclosedBorder.getTriangle();
+
+            b.setNeighborBorder( enclosedBorder);
+            b.setNeighborTriangle(enclosedTriangle);
+
+            enclosedBorder.setNeighborBorder(b);
+            enclosedBorder.setNeighborTriangle(t);
+        }
+        // no special fields must be set in case of absorbing/free boundary
+    }
+
+    // assume square mesh
+    private static Border findEnclosedBorder(Border border, Mesh mesh) {
+        Point b = border.getBeginPoint();
+        Point e = border.getEndPoint();
+        Point rb = mesh.getRBPoint();
+        Point lt = mesh.getLTPoint();
+
+        // border lies on the horizontal edge
+        if (b.y == e.y){
+            // border lies on the bottom edge
+            if (b.y == rb.y){
+                return mesh.findBorder(b.x, lt.y, e.x, lt.y);
+            }
+            //border lies on the top edge
+            if (b.y == lt.y){
+                return mesh.findBorder(b.x, rb.y, e.x, rb.y);
+            }
+        }
+
+        // border lies on the vertical edge
+        if (b.x == e.x){
+            //border lies on the left edge
+            if (b.x == lt.x){
+                return mesh.findBorder(rb.x, b.y, rb.x, e.y);
+            }
+            //border lies on the right edge
+            if (b.x == rb.x){
+                return mesh.findBorder(lt.x, b.y, lt.x, e.y);
+            }
+        }
+
+        System.out.println("findEnclosedBorder() failed to find enclosed border" +
+            "enclosed border elements must lie on the edge of square mesh");
+
+        assert false : "findEnclosedBorder() failed to find enclosed border" +
+            "enclosed border elements must lie on the edge of square mesh";
+
+        return null;
     }
 
 

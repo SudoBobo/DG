@@ -105,9 +105,6 @@ public class ValuesToWrite {
 
 
         for (int v = 0; v < valuesToWrite.length; v++) {
-
-
-
             if (valuesToWrite[v] == null){
                 assert (false) : "valueToWrite " + Integer.toString(v) + " is null";
             }
@@ -128,7 +125,16 @@ public class ValuesToWrite {
 
         return raw;
     }
+
+    public double[] getRawTrianglesToDomains() {
+        int rawSize = valuesToWrite.length;
+        double[] raw = new double[rawSize];
+
+        for (int v = 0; v < valuesToWrite.length; v++) {
+            raw[v] = valuesToWrite[v].associatedValue.getAssociatedTriangle().
+                getDomain().getIndex();
+        }
+
+        return raw;
+    }
 }
-
-
-

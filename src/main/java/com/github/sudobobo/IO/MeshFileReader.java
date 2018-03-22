@@ -136,20 +136,37 @@ public class MeshFileReader {
         }
     }
 
+    // given following triangles:
+    // 1 2 3 1
+    // 4 5 6 33
+    // 7 8 9 21
+    //
+    // they may be translated to:
+    // 1 2 3 0
+    // 4 5 6 1
+    // 7 8 9 2
+    //
+    // as well to:
+    // 1 2 3 2
+    // 4 5 6 0
+    // 7 8 9 1
+    //
+    // It is deterministic, but not predictable
+    //
+    // So the only way to properly connect Salome domains and DG domains is
+    // manual way, looking at result via Paraview
     private static void reduceDomains(int[] triangleDomains) {
 
-        Set<Integer> domains = new HashSet<>();
-
+        Set<Integer> uniqueOldDomains = new HashSet<>();
         for (int d : triangleDomains) {
-            domains.add(d);
+            uniqueOldDomains.add(d);
         }
 
         Map<Integer, Integer> oldDomainToNewDomain = new HashMap<>();
 
         int newDomain = 0;
 
-        for (int oldDomain : domains) {
-
+        for (int oldDomain : uniqueOldDomains) {
             if (!oldDomainToNewDomain.containsKey(oldDomain)) {
                 oldDomainToNewDomain.put(oldDomain, newDomain);
                 newDomain++;
@@ -160,6 +177,4 @@ public class MeshFileReader {
             triangleDomains[i] = oldDomainToNewDomain.get(triangleDomains[i]);
         }
     }
-
 }
-

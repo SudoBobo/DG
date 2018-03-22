@@ -25,6 +25,8 @@ class Border {
     private Triangle neighborTriangle;
     private Border neighborBorder;
 
+    private Triangle triangle;
+
     public static boolean doBordersPointsMatch(Border b, Border potentialNeibBorder) {
 
         return ((b.getBeginPoint().equals(potentialNeibBorder.getBeginPoint()) &&

@@ -15,23 +15,18 @@ public class MeshWriter {
     private Path directoryForOutPut;
 
     private Path pvtrTemplate;
-    private Path vtrApperTemplate;
-    private Path vtrLowerTemplate;
 
-
-    public MeshWriter(Path outputDir, Path pvtrTemplate, Path vtrApperTemplate, Path vtrLowerTemplate) {
-
+    public MeshWriter(Path outputDir, Path pvtrTemplate) {
         directoryForOutPut = outputDir;
         this.pvtrTemplate = pvtrTemplate;
-        this.vtrApperTemplate = vtrApperTemplate;
-        this.vtrLowerTemplate = vtrLowerTemplate;
-
     }
 
-    public void writeMeshVTR(ValuesToWrite valuesToWrite, Long[] wholeExtent, int meshNum) throws IOException {
-
+    public void writeMeshVTR(double [] rawValuesToWrite, Long[] wholeExtent,
+                             int meshNum, String fileNameTemplate,
+                             Path vtrApperTemplate, Path vtrLowerTemplate) throws IOException {
         assert wholeExtent.length == 3;
 
+        System.out.println(rawValuesToWrite.length);
         Path apperTemplate = null;
         Path lowerTemplate = null;
 
@@ -42,9 +37,7 @@ public class MeshWriter {
             e.printStackTrace();
         }
 
-        createVTR(wholeExtent, valuesToWrite.getRawValuesToWrite(), meshNum, apperTemplate, lowerTemplate);
-
-
+        createVTR(wholeExtent, rawValuesToWrite, meshNum, apperTemplate, lowerTemplate, fileNameTemplate);
     }
 
     public void writeAllPVTR(Long[] wholeExtent, int numberOfMeshes) {
@@ -109,9 +102,9 @@ public class MeshWriter {
 
 
     private void createVTR(Long[] wholeExtent, double[] dataArray, int number,
-                           Path apperTemplate, Path lowerTemplate) throws IOException {
+                           Path apperTemplate, Path lowerTemplate, String fileNameTemplate) throws IOException {
 
-        Path vtrFile = Paths.get(directoryForOutPut.toString() + String.format("/part0_%d.vtr", number));
+        Path vtrFile = Paths.get(directoryForOutPut.toString() + String.format(fileNameTemplate, number));
         boolean is_exist = Files.exists(vtrFile);
         if (!is_exist) {
             vtrFile.toFile().createNewFile();
@@ -135,8 +128,6 @@ public class MeshWriter {
 
         mergeFiles(files, finalTemp);
         Files.copy(Paths.get("FinalTemp"), vtrFile, REPLACE_EXISTING);
-
-
     }
 
     private void createPVTRs(Long[] wholeExtent, String vtrSourceNameTemplate, int number) throws IOException {

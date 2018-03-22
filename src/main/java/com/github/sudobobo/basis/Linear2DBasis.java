@@ -45,6 +45,9 @@ public class Linear2DBasis implements Basis {
         double dl = integrationStep;
         double numericalValue = 0;
 
+        // @todo is it correct in the case of Fklj0 ?
+        // @todo is it clockwise?
+        // @todo it should be changed as linear integral in original ader
         double[] x = new double[]{0, 0};
         for (x[0] = 0; x[0] < 1; x[0] += dl) {
             for (x[1] = 0; x[1] < (1 - x[0]); x[1] += dl) {

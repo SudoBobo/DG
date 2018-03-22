@@ -1,0 +1,16 @@
+</DataArray>
+        </CellData>
+<Coordinates>
+    <DataArray NumberOfComponents="1" type="Float32">
+x
+    </DataArray>
+    <DataArray NumberOfComponents="1" type="Float32">
+y
+    </DataArray>
+    <DataArray NumberOfComponents="1" type="Float32">
+z
+    </DataArray>
+</Coordinates>
+        </Piece>
+        </RectilinearGrid>
+        </VTKFile>

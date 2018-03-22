@@ -1,16 +1,26 @@
 realFullTime : 100.0
 spatialStep : 1.0
-pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
+pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/new_100.mesh
+#pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
+#pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
 initialCondition : sin
+defaultBorderType: enclosed
 domains:
 -   index: 0
     lambda: 2.0
     rho: 1.0
     mu: 1.0
--   index: 1
-    lambda: 2.0
-    rho: 1.0
-    mu: 1.0
+    borderType: enclosed
+#-   index: 1
+#    lambda: 2.0
+#    rho: 1.0
+#    mu: 1.0
+#    borderType: enclosed
+#-   index: 2
+#    lambda: 2.0
+#    rho: 1.0
+#    mu: 1.0
+#    borderType: enclosed
 
 
 #

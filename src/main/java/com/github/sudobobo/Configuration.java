@@ -11,5 +11,6 @@ public @Data class Configuration {
     private String pathToMeshFile;
     private String initialCondition;
     private double spatialStepForNumericalIntegration;
-    private List<Map<String, Double>> domains;
+    private String defaultBorderType;
+    private List<Map<String, Object>> domains;
 }

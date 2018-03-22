@@ -40,7 +40,6 @@ public class General {
 
         System.out.println(config.toString());
 
-
 //        double lambda = 2.0;
 //        double mu = 1.0;
 //        double rho = 1.0;
@@ -51,13 +50,14 @@ public class General {
         Domain[] domains = Domain.createDomains(config.getDomains());
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
 
+
         System.out.println("Mesh is built");
 
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
-        double maxCP = calcMaxCP(config.getDomains());
-        double maxCS = calcMaxCS(config.getDomains());
+//        double maxCP = calcMaxCP(config.getDomains());
+//        double maxCS = calcMaxCS(config.getDomains());
 //        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
 
         double timeStep = config.getRealFullTime();
@@ -76,17 +76,15 @@ public class General {
         meshName = meshName.substring(0, meshName.indexOf("."));
 
 
-        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/galerkin_1/results/", meshName, config.getRealFullTime(), timeStep);
+        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/DG/results/", meshName, config.getRealFullTime(), timeStep);
         System.out.println("Results are at " + outputDir.toString());
-        MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"), Paths.get("VtrApperTemplate"),
-                Paths.get("VtrLowerTemplate"));
-
-
+        MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"));
+        
         // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
 
-
-        double rectangleSideLength = minSideLength / 10;
+        double rectangleSideLength = minSideLength / 2;
         rectangleSideLength = Math.floor(rectangleSideLength);
+        assert(rectangleSideLength > 0);
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
@@ -95,14 +93,10 @@ public class General {
 
         System.out.println("Values are calculated");
 
-        writeSimpleValues(values, basis);
-
         ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
 
         System.out.println("ValuesToWrite are ready");
-
-
 
         Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
@@ -125,27 +119,42 @@ public class General {
 //            System.out.println("\n");
 //        }
 
-        try {
-            meshWriter.writeMeshVTR(valuesToWrite, extent, 0);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            meshWriter.writeMeshVTR(valuesToWrite, extent, 0);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
 //        System.out.println("Values to write print");
 //        writeValuesToWriteSorted(valuesToWrite, basis);
 
+//        System.out.println(
+//            String.format("Triangle-to-domain info is written to %s"),
+//            domainFile.toString());
+
+        try {
+            meshWriter.writeMeshVTR(valuesToWrite.getRawTrianglesToDomains(),
+                extent, 0, "/Domains_%d.vtr",  Paths.get("DomainsApperTemplate"),
+                Paths.get("DomainsLowerTemplate"));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
 
-//        for (int t = 0; t < timeSteps; t++) {
-//
-//            try {
-//                meshWriter.writeMeshVTR(valuesToWrite, extent, t);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//
-//            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
-//        }
+        String fileNameTemplate = "/part0_%d.vtr";
+
+        for (int t = 0; t < timeSteps; t++) {
+
+            try {
+                meshWriter.writeMeshVTR(valuesToWrite.getRawValuesToWrite(),
+                    extent, t, fileNameTemplate,  Paths.get("VtrApperTemplate"),
+                    Paths.get("VtrLowerTemplate"));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
+        }
 
         long endTime   = System.currentTimeMillis();
         long totalTime = endTime - startTime;

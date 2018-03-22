@@ -9,6 +9,19 @@ class Mesh {
     private Triangle[] triangles;
     private Point[] points;
 
+    private Point LTPoint;
+    private Point RBPoint;
+
+//    public double[] getRawTrianglesToDomains() {
+//        int rawSize = this.triangles.length;
+//        double[] raw = new double[rawSize];
+//
+//        for (int t = 0; t < rawSize; t++) {
+//            raw[t] = this.triangles[t].getDomain().getIndex();
+//        }
+//        return raw;
+//    }
+
     public double getMinSideLength() {
         double minSideLength = 1000000;
         for (Triangle t : triangles){
@@ -21,42 +34,74 @@ class Mesh {
     }
 
     public Point getLTPoint() {
+        if (LTPoint == null) {
+            double ltX = points[0].x;
+            double ltY = points[0].y;
 
-        double ltX = points[0].x;
-        double ltY = points[0].y;
-
-        for (Point p : points) {
-            if (p.x <= ltX) {
-                if (p.y >= ltY) {
-                    ltX = p.x;
-                    ltY = p.y;
+            for (Point p : points) {
+                if (p.x <= ltX) {
+                    if (p.y >= ltY) {
+                        ltX = p.x;
+                        ltY = p.y;
+                    }
                 }
             }
+            LTPoint = new Point(-1, new double[]{ltX, ltY});
         }
-
-        return new Point(-1, new double[]{ltX, ltY});
+        return LTPoint;
     }
 
     public Point getRBPoint() {
+        if (RBPoint == null) {
+            double rbX = points[0].x;
+            double rbY = points[0].y;
 
-        double rbX = points[0].x;
-        double rbY = points[0].y;
-
-        for (Point p : points) {
-            if (p.x >= rbX) {
-                if (p.y <= rbY) {
-                    rbX = p.x;
-                    rbY = p.y;
+            for (Point p : points) {
+                if (p.x >= rbX) {
+                    if (p.y <= rbY) {
+                        rbX = p.x;
+                        rbY = p.y;
+                    }
                 }
             }
+            RBPoint = new Point(-1, new double[]{rbX, rbY});
         }
-
-        return new Point(-1, new double[]{rbX, rbY});
+        return RBPoint ;
     }
 
     public int size() {
         return triangles.length;
     }
+
+    // find border by begin and end coordinates
+    // todo it may be optimized by keeping triangles sorted
+    public Border findBorder(double beginX, double beginY, double endX, double endY) {
+        double bx;
+        double by;
+        double ex;
+        double ey;
+
+        for (Triangle t: triangles) {
+            for (Border b: t.getBorders()){
+                bx = b.getBeginPoint().x;
+                by = b.getBeginPoint().y;
+                ex = b.getEndPoint().x;
+                ey = b.getEndPoint().y;
+
+                if (bx == beginX && by == beginY && ex == endX && ey == endY){
+                    return b;
+                }
+
+                if (bx == endX && by == endY && ex == beginX && ey == beginY) {
+                    return b;
+                }
+            }
+        }
+        System.out.println("FAIL");
+        assert false : "findBorder() failed to find border";
+        return null;
+    }
+
 
 //    public Double[] getFineDataArray() {
 //        Double[] result = new Double[(triangles.size()) * 5];
