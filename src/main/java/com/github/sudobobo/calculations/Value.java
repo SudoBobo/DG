@@ -21,9 +21,9 @@ class Value {
     // This is the actual place, were we apply 'initialCondition' function and 'basis'
     // to calculate initial coefficients of all cells (triangles)
 
-    // 'initialCondition' is expected to be a simple f(x,y) 'physics' function
+    // 'initialCondition' is expected to be a simple f(x,y) 'physical' function
     public static Value[] makeValuesArray(Mesh mesh, String initialCondition, Basis basis) {
-        // for all triangles produce associated 'U' matrices
+        // for all triangles produce associated 'U' (u_p_l) matrices
         Value[] values = new Value[mesh.getTriangles().length];
 
         // 0.5 - will make initial condition all along the axis
@@ -32,11 +32,14 @@ class Value {
         // 0.0625 - 1/8
 
         double xWidthCoef = 0.5;
-        double yWidthCoef = 0.5;
+        double yWidthCoef = 0.25;
+        System.out.println(String.format("Value: xWidthCoef: %f, yWidthCoef: %f",
+            xWidthCoef, yWidthCoef));
 
         assert (initialCondition.equals("sin"));
         InitialConditionPhase initialConditionPhase =
-                buildSampleInitialConditionPhaseFunction(mesh.getLTPoint(), mesh.getRBPoint(), xWidthCoef, yWidthCoef);
+            buildSampleInitialConditionPhaseFunction(mesh.getLTPoint(),
+                mesh.getRBPoint(), xWidthCoef, yWidthCoef);
 
         // initialConditionAmplitude
         DoubleMatrix R2 = mesh.getTriangles()[0].getRpqn().getColumn(1);
@@ -46,7 +49,7 @@ class Value {
         for (int t = 0; t < mesh.getTriangles().length; t++) {
 
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
-
+            System.out.println(u);
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);
 

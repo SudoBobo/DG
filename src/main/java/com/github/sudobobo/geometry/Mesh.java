@@ -97,7 +97,6 @@ class Mesh {
                 }
             }
         }
-        System.out.println("FAIL");
         assert false : "findBorder() failed to find border";
         return null;
     }

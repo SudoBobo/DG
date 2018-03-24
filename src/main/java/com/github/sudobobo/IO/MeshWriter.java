@@ -26,7 +26,6 @@ public class MeshWriter {
                              Path vtrApperTemplate, Path vtrLowerTemplate) throws IOException {
         assert wholeExtent.length == 3;
 
-        System.out.println(rawValuesToWrite.length);
         Path apperTemplate = null;
         Path lowerTemplate = null;
 
@@ -136,7 +135,7 @@ public class MeshWriter {
 
         boolean is_exist = Files.exists(filledTemplate);
         if (!is_exist) {
-            System.out.println(filledTemplate.toFile().createNewFile());
+            filledTemplate.toFile().createNewFile();
         }
 
         Files.copy(pvtrTemplate, filledTemplate, REPLACE_EXISTING);

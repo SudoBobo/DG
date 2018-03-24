@@ -26,31 +26,15 @@ import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCS;
 
 public class General {
     public static void main(String[] args) {
-
-
         long startTime = System.currentTimeMillis();
 
-
-
         Path configFile = Paths.get(args[0]);
-
-
         Configuration config = getConfigFromYML(configFile);
-
-
         System.out.println(config.toString());
-
-//        double lambda = 2.0;
-//        double mu = 1.0;
-//        double rho = 1.0;
-
-//        double realFullTime = 1;
 
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Domain[] domains = Domain.createDomains(config.getDomains());
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
-
-
         System.out.println("Mesh is built");
 
         double minSideLength = mesh.getMinSideLength();
@@ -60,21 +44,19 @@ public class General {
 //        double maxCS = calcMaxCS(config.getDomains());
 //        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
 
-        double timeStep = config.getRealFullTime();
+        double timeStep = 1;
 
         double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
-
         System.out.println("Basis functions are calculated");
 
-//        System.out.println("min dx = " + minSideLength);
-//        System.out.println("dt = " + timeStep);
+        System.out.println("min dx = " + minSideLength);
+        System.out.println("dt = " + timeStep);
 
         int timeSteps = (int) (config.getRealFullTime() / timeStep);
 
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
-
 
         Path outputDir = getOutputPath("/home/bobo/IdeaProjects/DG/results/", meshName, config.getRealFullTime(), timeStep);
         System.out.println("Results are at " + outputDir.toString());
@@ -159,7 +141,6 @@ public class General {
         long endTime   = System.currentTimeMillis();
         long totalTime = endTime - startTime;
         System.out.println(String.format("Total time %d", totalTime / 1000));
-
     }
 
     private static double calcMaxCP(List<Map<String, Double>> domains) {
