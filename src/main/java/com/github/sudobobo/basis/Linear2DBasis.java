@@ -6,8 +6,8 @@ import org.jblas.DoubleMatrix;
 
 import java.util.Arrays;
 
+// description of linear2D basis {1; x - 1/3; y - 1/3}
 public class Linear2DBasis implements Basis {
-
     private Function zeroFunction;
     private Function[] basisFunctions;
     private Function[] squaredBasisFunctions;
@@ -37,17 +37,12 @@ public class Linear2DBasis implements Basis {
         KEta = calcKEta();
     }
 
-
-    // description of linear2D basis {1; x - 1/3; y - 1/3}
-
+    // The function calculate square integral in inner triangle system.
+    // Explanation and illustration can be found in 1 ref. on pg. 4
     private double squareIntegral(Function f1, Function f2, double integrationStep) {
-
         double dl = integrationStep;
         double numericalValue = 0;
 
-        // @todo is it correct in the case of Fklj0 ?
-        // @todo is it clockwise?
-        // @todo it should be changed as linear integral in original ader
         double[] x = new double[]{0, 0};
         for (x[0] = 0; x[0] < 1; x[0] += dl) {
             for (x[1] = 0; x[1] < (1 - x[0]); x[1] += dl) {
@@ -320,12 +315,10 @@ public class Linear2DBasis implements Basis {
 
         for (int i = 0; i < numberOfBasisFunctions; i++) {
             for (int j = 0; j < numberOfBasisFunctions; j++) {
-
                 M.put(i, j,
                         squareIntegral(basisFunctions[i], basisFunctions[j], integrationStep));
             }
         }
-
         return M;
     }
 
@@ -339,7 +332,6 @@ public class Linear2DBasis implements Basis {
                         squareIntegral(basisFunctions[k].getDerivative(1, 0, 0), basisFunctions[l], integrationStep));
             }
         }
-
         return KKsi;
     }
 
@@ -353,7 +345,6 @@ public class Linear2DBasis implements Basis {
                         squareIntegral(basisFunctions[k].getDerivative(0, 1, 0), basisFunctions[l], integrationStep));
             }
         }
-
         return KEta;
     }
 

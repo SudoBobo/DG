@@ -1,4 +1,4 @@
-realFullTime : 100.0
+realFullTime : 5.0
 spatialStep : 1.0
 pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/new_100.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh

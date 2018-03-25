@@ -32,7 +32,7 @@ class Value {
         // 0.0625 - 1/8
 
         double xWidthCoef = 0.5;
-        double yWidthCoef = 0.25;
+        double yWidthCoef = 0.5;
         System.out.println(String.format("Value: xWidthCoef: %f, yWidthCoef: %f",
             xWidthCoef, yWidthCoef));
 
@@ -49,7 +49,6 @@ class Value {
         for (int t = 0; t < mesh.getTriangles().length; t++) {
 
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
-            System.out.println(u);
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);
 

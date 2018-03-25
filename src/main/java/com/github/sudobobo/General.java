@@ -18,8 +18,6 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
 
 import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCP;
 import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCS;
@@ -40,11 +38,9 @@ public class General {
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
         double durability = 0.5;
-//        double maxCP = calcMaxCP(config.getDomains());
-//        double maxCS = calcMaxCS(config.getDomains());
-//        double timeStep = calcCourantTimeStep(cP, cS,  minSideLength, durability);
-
-        double timeStep = 1;
+        double maxCP = calcMaxCP(domains);
+        double maxCS = calcMaxCS(domains);
+        double timeStep = calcCourantTimeStep(maxCP, maxCS,  minSideLength, durability);
 
         double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
@@ -53,7 +49,8 @@ public class General {
         System.out.println("min dx = " + minSideLength);
         System.out.println("dt = " + timeStep);
 
-        int timeSteps = (int) (config.getRealFullTime() / timeStep);
+//        int timeSteps = (int) (config.getRealFullTime() / timeStep);
+        int timeSteps = (int) (timeStep * 10);
 
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
@@ -143,24 +140,24 @@ public class General {
         System.out.println(String.format("Total time %d", totalTime / 1000));
     }
 
-    private static double calcMaxCP(List<Map<String, Double>> domains) {
+    private static double calcMaxCP(Domain[] domains) {
         double maxCP = 0;
         double CP;
 
-        for (Map <String, Double> domain : domains){
-            CP = calcCS(domain.get("mu"), domain.get("rho"));
+        for (Domain domain : domains){
+            CP = calcCS(domain.getMu(), domain.getRho());
             maxCP = (CP > maxCP) ? CP : maxCP;
         }
 
         return maxCP;
     }
 
-    private static double calcMaxCS(List<Map<String, Double>> domains) {
+    private static double calcMaxCS(Domain[] domains) {
         double maxCS = 0;
         double CS;
 
-        for (Map <String, Double> domain : domains){
-            CS = calcCP(domain.get("lambda"), domain.get("mu"), domain.get("rho"));
+        for (Domain domain : domains){
+            CS = calcCP(domain.getLambda(), domain.getMu(), domain.getRho());
             maxCS = (CS > maxCS) ? CS : maxCS;
         }
 
