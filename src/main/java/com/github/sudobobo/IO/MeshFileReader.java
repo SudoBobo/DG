@@ -21,11 +21,9 @@ import java.util.*;
 
 public class MeshFileReader {
     public static Point[] readPoints(Path meshFile) {
-
         Point[] points = null;
 
         try (BufferedReader br = new BufferedReader(new FileReader(meshFile.toFile()))) {
-
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.equals("Vertices")) {

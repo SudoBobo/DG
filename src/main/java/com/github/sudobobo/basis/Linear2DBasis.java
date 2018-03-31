@@ -322,7 +322,7 @@ public class Linear2DBasis implements Basis {
         return M;
     }
 
-    private DoubleMatrix calcKKsi() {
+    private DoubleMatrix calcKKsi()     {
         // tested
         DoubleMatrix KKsi = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
 

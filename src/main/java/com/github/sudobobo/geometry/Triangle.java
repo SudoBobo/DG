@@ -30,6 +30,7 @@ class Triangle {
     private DoubleMatrix Rpqn;
 
     private DoubleMatrix An;
+    private DoubleMatrix[] Anj;
 
     private Border[] borders;
     private Domain domain;
@@ -74,8 +75,6 @@ class Triangle {
         y1_y0 = points[1].y - points[0].y;
         y2_y0 = points[2].y - points[0].y;
         y2_y1 = points[2].y - points[1].y;
-
-
 
         ksiTranslationCoef = points[2].x * points[0].y - points[0].x * points[2].y;
         etaTranslationCoef = points[0].x * points[1].y - points[1].x * points[0].y;
@@ -225,6 +224,19 @@ class Triangle {
 
     public DoubleMatrix getTInv(int j) {
         return borders[j].getTInv();
+    }
+
+    public DoubleMatrix calcAnj(int j) {
+
+        if (Anj == null) {
+            Anj = new DoubleMatrix[3];
+        }
+        if (Anj[j] == null) {
+            double nX = this.getBorders()[j].getOuterNormal()[0];
+            double nY = this.getBorders()[j].getOuterNormal()[1];
+            Anj[j] = this.getA().mul(nX).add(this.getB().mul(nY));
+        }
+        return Anj[j];
     }
 
     public double getS(int j) {

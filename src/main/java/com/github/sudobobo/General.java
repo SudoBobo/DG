@@ -32,12 +32,13 @@ public class General {
 
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Domain[] domains = Domain.createDomains(config.getDomains());
+        //todo stoped here
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
         System.out.println("Mesh is built");
 
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
-        double durability = 0.5;
+        double durability = 0.1;
         double maxCP = calcMaxCP(domains);
         double maxCS = calcMaxCS(domains);
         double timeStep = calcCourantTimeStep(maxCP, maxCS,  minSideLength, durability);
@@ -51,6 +52,9 @@ public class General {
 
 //        int timeSteps = (int) (config.getRealFullTime() / timeStep);
         int timeSteps = (int) (timeStep * 10);
+        if (timeSteps < 5){
+            timeSteps = 30;
+        }
 
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
@@ -118,7 +122,6 @@ public class General {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
 
         String fileNameTemplate = "/part0_%d.vtr";
 
