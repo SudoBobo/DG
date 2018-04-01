@@ -95,6 +95,8 @@ public class Linear2DBasis implements Basis {
                     break;
                 }
                 case 0: {
+//                    x2[0] = 1 - t;
+//                    x2[1] = 0;
                     x2[0] = 1 - t;
                     x2[1] = 0;
                     break;

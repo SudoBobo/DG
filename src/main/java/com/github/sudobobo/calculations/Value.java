@@ -43,11 +43,20 @@ class Value {
 
         // initialConditionAmplitude
         DoubleMatrix R2 = mesh.getTriangles()[0].getRpqn().getColumn(1);
+        // todo
+        double mu = 1.0;
+        double cS = 1.0;
+        R2 = new DoubleMatrix(new double[][]{
+            {0},
+            {0},
+            {mu},
+            {0},
+            {cS}
+        });
 
         // u_p = R2_p * initialConditionPhase(x, y)
         // where initialConditionPhase is scalar function
         for (int t = 0; t < mesh.getTriangles().length; t++) {
-
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);

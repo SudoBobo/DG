@@ -26,6 +26,7 @@ public class General {
     public static void main(String[] args) {
         long startTime = System.currentTimeMillis();
 
+        System.out.println("lambda, mu and rho are hardcoded in triangle.calcRpqnJ");
         Path configFile = Paths.get(args[0]);
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
@@ -64,6 +65,7 @@ public class General {
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"));
         
         // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
+
 
         double rectangleSideLength = minSideLength / 2;
         rectangleSideLength = Math.floor(rectangleSideLength);
@@ -126,7 +128,6 @@ public class General {
         String fileNameTemplate = "/part0_%d.vtr";
 
         for (int t = 0; t < timeSteps; t++) {
-
             try {
                 meshWriter.writeMeshVTR(valuesToWrite.getRawValuesToWrite(),
                     extent, t, fileNameTemplate,  Paths.get("VtrApperTemplate"),

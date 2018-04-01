@@ -4,7 +4,7 @@ import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.calculations.Value;
 import org.jblas.DoubleMatrix;
 
-public class RKSolver implements Solver {
+public class RKSolverBack implements Solver {
 
     private dUmethod dU_method;
     // for optimization needs
@@ -18,7 +18,7 @@ public class RKSolver implements Solver {
 
     // TODO change add/mul for addi/muli to make use of inplace calculations (GC work can be really heavy)
 
-    public RKSolver(dUmethod dU_method, int numberOfTriangles) {
+    public RKSolverBack(dUmethod dU_method, int numberOfTriangles) {
         this.dU_method = dU_method;
 
         oldU = createZeroMatrices(numberOfTriangles);
@@ -50,6 +50,8 @@ public class RKSolver implements Solver {
     @Override
     public void solveOneStep(Value[] values, Value[] bufferValues, double timeStep, Basis basis) {
 
+        // todo lack of coordinate dx dy usage
+        // todo don't forget about time
         // 1 RK step
 
         for (int v = 0; v < values.length; v++) {
@@ -69,7 +71,7 @@ public class RKSolver implements Solver {
 
         for (int v = 0; v < values.length; v++) {
             k2[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(bufferValues[v].getU(), values[v].getAssociatedTriangle(), basis)
             );
         }
 
@@ -107,5 +109,7 @@ public class RKSolver implements Solver {
                     )
             );
         }
+
+
     }
 }

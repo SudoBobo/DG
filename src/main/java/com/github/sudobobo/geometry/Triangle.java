@@ -1,9 +1,11 @@
 package com.github.sudobobo.geometry;
 
 import com.github.sudobobo.calculations.Value;
+import com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes;
 import lombok.Builder;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
+import org.jblas.Solve;
 
 public
 @Data
@@ -28,9 +30,11 @@ class Triangle {
     //    private DoubleMatrix[] T;
 //    private DoubleMatrix[] TInv;
     private DoubleMatrix Rpqn;
+    private DoubleMatrix[] RpqnJ;
 
     private DoubleMatrix An;
     private DoubleMatrix[] Anj;
+    private DoubleMatrix[] AAbsJ;
 
     private Border[] borders;
     private Domain domain;
@@ -237,6 +241,47 @@ class Triangle {
             Anj[j] = this.getA().mul(nX).add(this.getB().mul(nY));
         }
         return Anj[j];
+    }
+
+    private DoubleMatrix calcRpqnJ(int j) {
+        if (RpqnJ == null) {
+            RpqnJ = new DoubleMatrix[3];
+        }
+        if (RpqnJ[j] == null) {
+            // todo remove hardcode
+            double lambda = 2.0;
+            double rho = 1.0;
+            double mu = 1.0;
+            double cP = 2.0;
+            double cS = 1.0;
+            double nX = this.getBorders()[j].getOuterNormal()[0];
+            double nY = this.getBorders()[j].getOuterNormal()[1];
+            RpqnJ[j] = PhysicalAttributesMatrixes.calcRpqn(lambda, mu, cP, cS, nX, nY);
+        }
+
+        return RpqnJ[j];
+    }
+
+    public DoubleMatrix calcAAbsJ(int j) {
+        if (AAbsJ == null) {
+            AAbsJ = new DoubleMatrix[3];
+        }
+        if (AAbsJ[j] == null) {
+            // todo remove hardcode
+            double cP = 2.0;
+            double cS = 1.0;
+            DoubleMatrix AS = new DoubleMatrix(new double[][]{
+                {cP, 0, 0, 0, 0},
+                {0, cS, 0, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, cS, 0},
+                {0, 0, 0, 0, cP}
+            });
+            AAbsJ[j] = this.calcRpqnJ(j).mmul(AS);
+            AAbsJ[j] = AAbsJ[j].mmul(Solve.pinv(this.calcRpqnJ(j)));
+        }
+
+        return AAbsJ[j];
     }
 
     public double getS(int j) {
