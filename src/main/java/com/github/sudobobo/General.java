@@ -5,6 +5,7 @@ import com.github.sudobobo.IO.ValueToWrite;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.Linear2DBasis;
+import com.github.sudobobo.basis.PreLinear2DBasis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
@@ -46,6 +47,8 @@ public class General {
 
         double spatialStepForNumericalIntegration = 0.001;
         Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
+        Basis altBasis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+
         System.out.println("Basis functions are calculated");
 
         System.out.println("min dx = " + minSideLength);
@@ -85,7 +88,7 @@ public class General {
 
         Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
-        dUmethod dU_method = new dUmethod();
+        dUmethod dU_method = new dUmethodReal();
         Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);

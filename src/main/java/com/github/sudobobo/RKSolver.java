@@ -55,21 +55,33 @@ public class RKSolver implements Solver {
         for (int v = 0; v < values.length; v++) {
 
             k1[v].copy(
-                    dU_method.calcDU(values[v].getU(), values[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(values[v].getU(), values[v].getAssociatedTriangle(), basis).mul(timeStep)
             );
         }
 
         // 2 RK step
 
         for (int v = 0; v < values.length; v++) {
-            bufferValues[v].getU().copy(
-                    values[v].getU().add(k1[v].mul(timeStep / 2))
-            );
+
+            assert ((timeStep / 2 ) > 0);
+            assert ((timeStep / 4 ) > 0);
+            assert ((timeStep / 6 ) > 0);
+
+            // 1
+//            bufferValues[v].getU().copy(
+//                    values[v].getU().add(k1[v].mul(timeStep / 2))
+//            );
         }
 
         for (int v = 0; v < values.length; v++) {
+            // 1
+//            k2[v].copy(
+//                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+//            );
+
+            DoubleMatrix uPlusk1 = values[v].getU().add(k1[v].mul(0.5));
             k2[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                dU_method.calcDU(uPlusk1, bufferValues[v].getAssociatedTriangle(), basis).mul(timeStep)
             );
         }
 
@@ -77,35 +89,60 @@ public class RKSolver implements Solver {
 
         // TODO add -> addi (and swap positions, like new_object.addi(old_object)
         for (int v = 0; v < values.length; v++) {
-            bufferValues[v].getU().copy(
-                    values[v].getU().add(k2[v].mul(timeStep / 2))
-            );
+//            bufferValues[v].getU().copy(
+//                    values[v].getU().add(k2[v].mul(timeStep / 2))
+//            );
         }
 
         for (int v = 0; v < values.length; v++) {
+//            k3[v].copy(
+//                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+//            );
+            DoubleMatrix uPlusk2 = values[v].getU().add(k2[v].mul(0.5));
             k3[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                dU_method.calcDU(uPlusk2, bufferValues[v].getAssociatedTriangle(), basis).mul(timeStep)
             );
         }
 
 
         // 4 RK step
         for (int v = 0; v < values.length; v++) {
-            bufferValues[v].getU().copy(
-                    values[v].getU().add(k3[v].mul(timeStep))
-            );
+//            bufferValues[v].getU().copy(
+//                    values[v].getU().add(k3[v].mul(timeStep))
+//            );
         }
 
         for (int v = 0; v < values.length; v++) {
+//            k4[v].copy(
+//                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+//            );
+
+            DoubleMatrix uPlusk3  = values[v].getU().add(k3[v]);
+
             k4[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                dU_method.calcDU(uPlusk3, bufferValues[v].getAssociatedTriangle(), basis).mul(timeStep)
             );
 
             values[v].getU().copy(
                     values[v].getU().add(
-                            (k1[v].add(k2[v].mul(2)).add(k3[v].mul(2)).add(k4[v])).mul(timeStep / 6)
+                            (k1[v].add(k2[v].mul(2)).add(k3[v].mul(2)).add(k4[v])).mul(1.0 / 6.0)
                     )
             );
         }
+    }
+
+    public void solve(Value[] values, Value[] bufferValues, double timeStep, Basis basis) {
+        Value[] vs = values;
+        Value[] bvs = bufferValues;
+        double dt = timeStep;
+        Basis b = basis;
+
+        assert (dt > 0);
+        assert (dt / 2 > 0);
+        assert (dt / 3 > 0);
+        assert (dt / 6 > 0);
+
+
+
     }
 }
