@@ -95,8 +95,6 @@ public class Linear2DBasis implements Basis {
                     break;
                 }
                 case 0: {
-//                    x2[0] = 1 - t;
-//                    x2[1] = 0;
                     x2[0] = 1 - t;
                     x2[1] = 0;
                     break;
@@ -133,7 +131,7 @@ public class Linear2DBasis implements Basis {
             // todo this change of variables should be discused
             public double getValue(double[] x) {
                 return initialConditionPhase.calc(
-                        t.getX(x[0], x[1]), t.getY(x[0], x[1])
+                    t.getX(x[0], x[1]), t.getY(x[0], x[1])
                 );
             }
 
@@ -145,7 +143,7 @@ public class Linear2DBasis implements Basis {
 
         DoubleMatrix u = new DoubleMatrix(initialConditionAmplitude.rows, numberOfBasisFunctions);
 
-        for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++){
+        for (int numberOfCoeff = 0; numberOfCoeff < numberOfBasisFunctions; numberOfCoeff++) {
 
             double upperIntegral = squareIntegral(initialConditionPhaseInInnerSystem, basisFunctions[numberOfCoeff], integrationStep);
             double downIntegral = M.get(numberOfCoeff, numberOfCoeff);
@@ -318,20 +316,20 @@ public class Linear2DBasis implements Basis {
         for (int i = 0; i < numberOfBasisFunctions; i++) {
             for (int j = 0; j < numberOfBasisFunctions; j++) {
                 M.put(i, j,
-                        squareIntegral(basisFunctions[i], basisFunctions[j], integrationStep));
+                    squareIntegral(basisFunctions[i], basisFunctions[j], integrationStep));
             }
         }
         return M;
     }
 
-    private DoubleMatrix calcKKsi()     {
+    private DoubleMatrix calcKKsi() {
         // tested
         DoubleMatrix KKsi = new DoubleMatrix(numberOfBasisFunctions, numberOfBasisFunctions);
 
         for (int k = 0; k < numberOfBasisFunctions; k++) {
             for (int l = 0; l < numberOfBasisFunctions; l++) {
                 KKsi.put(k, l,
-                        squareIntegral(basisFunctions[k].getDerivative(1, 0, 0), basisFunctions[l], integrationStep));
+                    squareIntegral(basisFunctions[k].getDerivative(1, 0, 0), basisFunctions[l], integrationStep));
             }
         }
         return KKsi;
@@ -344,7 +342,7 @@ public class Linear2DBasis implements Basis {
         for (int k = 0; k < numberOfBasisFunctions; k++) {
             for (int l = 0; l < numberOfBasisFunctions; l++) {
                 KEta.put(k, l,
-                        squareIntegral(basisFunctions[k].getDerivative(0, 1, 0), basisFunctions[l], integrationStep));
+                    squareIntegral(basisFunctions[k].getDerivative(0, 1, 0), basisFunctions[l], integrationStep));
             }
         }
         return KEta;

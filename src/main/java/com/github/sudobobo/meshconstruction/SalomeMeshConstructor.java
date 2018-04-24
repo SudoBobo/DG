@@ -276,6 +276,10 @@ public class SalomeMeshConstructor {
                     b.setEdgeOfMesh(false);
                     potentialNeibBorder.setEdgeOfMesh(false);
 
+                    // debug check
+//                    System.out.println(doBordersHaveSameDirection(b, b.getNeighborBorder()));
+                    //
+
                     return;
                 }
             }
@@ -292,13 +296,21 @@ public class SalomeMeshConstructor {
 //            System.out.println(enclosedBorder);
             Triangle enclosedTriangle = enclosedBorder.getTriangle();
 
-            b.setNeighborBorder( enclosedBorder);
+            b.setNeighborBorder(enclosedBorder);
             b.setNeighborTriangle(enclosedTriangle);
 
             enclosedBorder.setNeighborBorder(b);
             enclosedBorder.setNeighborTriangle(t);
+
+            // debug check
+//            System.out.println(doBordersHaveSameDirection(b, b.getNeighborBorder()));
+            //
         }
         // no special fields must be set in case of absorbing/free boundary
+    }
+
+    private static boolean doBordersHaveSameDirection(Border b1, Border b2) {
+        return (b1.getBeginPoint().equals(b2.getBeginPoint()));
     }
 
     // assume square mesh
