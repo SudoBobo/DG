@@ -2,6 +2,7 @@ package com.github.sudobobo.geometry;
 
 import lombok.Data;
 
+import static java.lang.Double.max;
 import static java.lang.Double.min;
 
 public @Data
@@ -99,6 +100,28 @@ class Mesh {
         }
         assert false : "findBorder() failed to find border";
         return null;
+    }
+
+    public double getMaxSideLength() {
+        double maxSideLength = 0;
+        for (Triangle t : triangles){
+            for (Border b : t.getBorders()){
+                maxSideLength = max(b.getS(), maxSideLength);
+            }
+        }
+
+        return maxSideLength;
+    }
+
+    public double getAVGSideLength() {
+        double sum = 0;
+        for (Triangle t : triangles){
+            for (Border b : t.getBorders()){
+                sum += b.getS();
+            }
+        }
+
+        return sum / (triangles.length * 3);
     }
 
 

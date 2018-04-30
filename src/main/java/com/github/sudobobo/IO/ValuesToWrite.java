@@ -14,7 +14,7 @@ public class ValuesToWrite {
     // in all other places we opearate only with the matrix of coefficients
     private Basis basis;
 
-    public ValuesToWrite(Value[] associatedValues, double rectangleSideLength, double minTriangleSideLength, Point lt,
+    public ValuesToWrite(Value[] associatedValues, double rectangleSideLength, Point lt,
                          Point rb, Basis basis) {
 
         boolean isSquare = (Math.abs((rb.x - lt.x) - (lt.y - rb.y)) < 0.001);
@@ -26,6 +26,7 @@ public class ValuesToWrite {
 
         int numberOfRectanglesOnSide = (int) (meshSideLength / rectangleSideLength);
         int valuesToWriteSize = (int) (Math.pow(numberOfRectanglesOnSide - 1, 2));
+        System.out.println("valuesToWriteSize = " + valuesToWriteSize);
         valuesToWrite = new ValueToWrite[valuesToWriteSize];
 
         double x = lt.x + (rectangleSideLength / 2);

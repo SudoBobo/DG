@@ -1,6 +1,6 @@
 realFullTime : 5.0
-spatialStep : 1.0
-pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/600.mesh
+resName : 2500_simple_basis_LONG_LONG
+pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/2500.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
 initialCondition : sin
