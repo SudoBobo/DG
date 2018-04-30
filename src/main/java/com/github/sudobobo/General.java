@@ -4,8 +4,7 @@ import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.IO.ValueToWrite;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
-import com.github.sudobobo.basis.Linear2DBasis;
-import com.github.sudobobo.basis.PreLinear2DBasis;
+import com.github.sudobobo.basis.SimpleBasis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
@@ -38,16 +37,19 @@ public class General {
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
         System.out.println("Mesh is built");
 
+        double maxSideLength = mesh.getMaxSideLength();
+        double avgSideLength = mesh.getAVGSideLength();
         double minSideLength = mesh.getMinSideLength();
         // durability - desiriable value of relation
-        double durability = 0.1;
+        double durability = 0.5;
         double maxCP = calcMaxCP(domains);
         double maxCS = calcMaxCS(domains);
         double timeStep = calcCourantTimeStep(maxCP, maxCS,  minSideLength, durability);
 
         double spatialStepForNumericalIntegration = 0.001;
-        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
-        Basis altBasis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+//        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
+//        Basis altBasis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+        Basis basis = new SimpleBasis(spatialStepForNumericalIntegration);
 
         System.out.println("Basis functions are calculated");
 
@@ -60,28 +62,39 @@ public class General {
             timeSteps = 30;
         }
 
+        timeSteps = 1500;
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
 
-        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/DG/results/", meshName, config.getRealFullTime(), timeStep);
+        Path outputDir = getOutputPath("/home/bobo/IdeaProjects/DG/results/", meshName, config.getRealFullTime(), timeStep, config.getResName());
         System.out.println("Results are at " + outputDir.toString());
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"));
         
         // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
 
+        // side of one to-write rectangle
+        double rectangleSideLength = 0;
+        if (avgSideLength > 5) {
+            rectangleSideLength = minSideLength / 2.0;
+            rectangleSideLength = Math.floor(rectangleSideLength);
+            rectangleSideLength = (rectangleSideLength > 1) ? rectangleSideLength : 1;
+        }
 
-        double rectangleSideLength = minSideLength / 2;
-        rectangleSideLength = Math.floor(rectangleSideLength);
+        if (avgSideLength < 5) {
+            rectangleSideLength = avgSideLength;
+        }
+
         assert(rectangleSideLength > 0);
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
+        System.out.println("Start to calculate values");
         Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
         Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         System.out.println("Values are calculated");
 
-        ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, minSideLength, mesh.getLTPoint(),
+        ValuesToWrite valuesToWrite = new ValuesToWrite(values, rectangleSideLength, mesh.getLTPoint(),
                 mesh.getRBPoint(), basis);
 
         System.out.println("ValuesToWrite are ready");
@@ -188,8 +201,16 @@ public class General {
         return durability * spatialStep / Math.max(cP, cS);
     }
 
-    public static Path getOutputPath(String generalOutputPath, String meshName, double realTime, double timeStep) {
-        String dirName = String.format(generalOutputPath + "mesh_%s_real_time_%.3f_time_step_%.3f", meshName, realTime, timeStep);
+    public static Path getOutputPath(String generalOutputPath, String meshName, double realTime, double timeStep, String resName) {
+
+        String dirName = "";
+        if (resName != null) {
+            dirName = generalOutputPath + resName;
+        }
+
+        if (resName == null) {
+            dirName = String.format(generalOutputPath + "mesh_%s_real_time_%.3f_time_step_%.3f", meshName, realTime, timeStep);
+        }
         Path outputDir = Paths.get(dirName);
 
         if (Files.exists(outputDir)) {

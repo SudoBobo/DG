@@ -51,13 +51,16 @@ public class dUmethodReal implements dUmethod {
         }
 
         // TODO fix this it is only for l = 0 case !
-        DoubleMatrix third = t.getAStr().mmul(u);
-        third = third.mmul(basis.KKsi());
-        third = third.mul(t.getJacobian());
+        DoubleMatrix third = DoubleMatrix.zeros(u.rows, u.columns);
+        DoubleMatrix fourth = DoubleMatrix.zeros(u.rows, u.columns);
 
-        DoubleMatrix fourth = t.getBStr().mmul(u);
-        fourth = fourth.mmul(basis.KEta());
-        fourth = fourth.mmul(t.getJacobian());
+//        DoubleMatrix third = t.getAStr().mmul(u);
+//        third = third.mmul(basis.KKsi());
+//        third = third.mul(t.getJacobian());
+//
+//        DoubleMatrix fourth = t.getBStr().mmul(u);
+//        fourth = fourth.mmul(basis.KEta());
+//        fourth = fourth.mmul(t.getJacobian());
 
         DoubleMatrix fifth = DoubleMatrix.zeros(u.rows, u.columns);
 
@@ -65,6 +68,7 @@ public class dUmethodReal implements dUmethod {
         DoubleMatrix divider = inversedM.mul(1.0 / t.getJacobian());
 
         DoubleMatrix dU = third.add(fourth);
+
         dU = dU.sub(first);
         dU = dU.sub(second);
         dU = dU.mmul(divider);
