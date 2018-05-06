@@ -45,11 +45,14 @@ public class General {
         double maxCP = calcMaxCP(domains);
         double maxCS = calcMaxCS(domains);
         double timeStep = calcCourantTimeStep(maxCP, maxCS,  minSideLength, durability);
+        timeStep = timeStep / 5.0;
 
         double spatialStepForNumericalIntegration = 0.001;
 //        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
-//        Basis altBasis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+//        Basis basis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
         Basis basis = new SimpleBasis(spatialStepForNumericalIntegration);
+//        Basis basis = new ArticleBasis(spatialStepForNumericalIntegration);
+
 
         System.out.println("Basis functions are calculated");
 
@@ -62,7 +65,7 @@ public class General {
             timeSteps = 30;
         }
 
-        timeSteps = 1500;
+        timeSteps = 100;
         String meshName = config.getPathToMeshFile().substring(config.getPathToMeshFile().lastIndexOf("/") + 1);
         meshName = meshName.substring(0, meshName.indexOf("."));
 

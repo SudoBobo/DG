@@ -22,7 +22,7 @@ public class PhysicalAttributesMatrixes {
                 abs(cP), abs(cS), 0, abs(cS), abs(cP)
         }));
 
-        return rpqn.mmul(diagMatrix).mmul(invRpqn);
+        return (rpqn.mmul(diagMatrix)).mmul(invRpqn);
     }
 
     public static DoubleMatrix calcRpqn(double lbd, double mu, double cP, double cS, double nX, double nY) {
@@ -58,6 +58,11 @@ public class PhysicalAttributesMatrixes {
     public static DoubleMatrix calcAStr(DoubleMatrix a, DoubleMatrix b, double jacobian, Point[] v) {
 //        double dKsidX = (v[2].getCoordinates()[1] - v[0].getCoordinates()[1]) / jacobian;
 //        double dKsidY = (v[0].getCoordinates()[0] - v[2].getCoordinates()[0]) / jacobian;
+
+//        for (int i = 0; i < 3; i++) {
+//            assert(v[i] == v[i].getId())
+//            // get number in triangle somehow (don't trust order in array)
+//        }
 
         double dKsidX = (v[2].y - v[0].y) / jacobian;
         double dKsidY = (v[0].x - v[2].x) / jacobian;

@@ -53,7 +53,6 @@ public class SalomeMeshConstructor {
     }
 
     private static void setConstantPhysicalFields(Triangle[] triangles, Domain[] domains) {
-
         Double nXInnerTriangleSystem = 1.0;
         Double nYInnerTriangleSystem = 0.0;
 
@@ -61,16 +60,13 @@ public class SalomeMeshConstructor {
         Map<Domain, Map<String, DoubleMatrix>> domainToMatricesSet = calcDomainToMatricesSet(domains, nXInnerTriangleSystem,
                 nYInnerTriangleSystem);
 
-
         for (Triangle t : triangles) {
-
             Map<String, DoubleMatrix> set = domainToMatricesSet.get(t.getDomain());
             t.setA(set.get("A"));
             t.setB(set.get("B"));
             t.setAn(set.get("An"));
             t.setAAbs(set.get("AAbs"));
             t.setRpqn(set.get("Rpqn"));
-
 
             double jacobian = calcJacobian(t);
 

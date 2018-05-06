@@ -1,11 +1,9 @@
 package com.github.sudobobo.geometry;
 
 import com.github.sudobobo.calculations.Value;
-import com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes;
 import lombok.Builder;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
-import org.jblas.Solve;
 
 public
 @Data
@@ -33,8 +31,8 @@ class Triangle {
     private DoubleMatrix[] RpqnJ;
 
     private DoubleMatrix An;
-    private DoubleMatrix[] Anj;
-    private DoubleMatrix[] AAbsJ;
+//    private DoubleMatrix[] Anj;
+//    private DoubleMatrix[] AAbsJ;
 
     private Border[] borders;
     private Domain domain;
@@ -174,7 +172,6 @@ class Triangle {
     // todo to discus : why should we check if the triangle is inside IN INNER
     // triangle system, while I can be done in lab system as well ?
 
-
     // Translate a point (x, y) into a inner triangle coordinate system and see if
     // in this system the point(ksi, eta) is inside the triangle
     public boolean isInTriangle(double x, double y) {
@@ -187,13 +184,8 @@ class Triangle {
         // (or one of them should be nought, it is the case when point(x,y) lies on the edge
         double fine = 0.00000000000000000001;
 
-
-
         // one of them is nought
         if ((Math.abs(f) < fine) || (Math.abs(s) < fine) || (Math.abs(t) < fine)) return true;
-
-
-
 
         // all of them have the same sign
         if ((f > 0 && s > 0 && t > 0) || (f < 0 && s < 0 && t < 0)) return true;
@@ -228,60 +220,6 @@ class Triangle {
 
     public DoubleMatrix getTInv(int j) {
         return borders[j].getTInv();
-    }
-
-    public DoubleMatrix calcAnj(int j) {
-
-        if (Anj == null) {
-            Anj = new DoubleMatrix[3];
-        }
-        if (Anj[j] == null) {
-            double nX = this.getBorders()[j].getOuterNormal()[0];
-            double nY = this.getBorders()[j].getOuterNormal()[1];
-            Anj[j] = this.getA().mul(nX).add(this.getB().mul(nY));
-        }
-        return Anj[j];
-    }
-
-    private DoubleMatrix calcRpqnJ(int j) {
-        if (RpqnJ == null) {
-            RpqnJ = new DoubleMatrix[3];
-        }
-        if (RpqnJ[j] == null) {
-            // todo remove hardcode
-            double lambda = 2.0;
-            double rho = 1.0;
-            double mu = 1.0;
-            double cP = 2.0;
-            double cS = 1.0;
-            double nX = this.getBorders()[j].getOuterNormal()[0];
-            double nY = this.getBorders()[j].getOuterNormal()[1];
-            RpqnJ[j] = PhysicalAttributesMatrixes.calcRpqn(lambda, mu, cP, cS, nX, nY);
-        }
-
-        return RpqnJ[j];
-    }
-
-    public DoubleMatrix calcAAbsJ(int j) {
-        if (AAbsJ == null) {
-            AAbsJ = new DoubleMatrix[3];
-        }
-        if (AAbsJ[j] == null) {
-            // todo remove hardcode
-            double cP = 2.0;
-            double cS = 1.0;
-            DoubleMatrix AS = new DoubleMatrix(new double[][]{
-                {cP, 0, 0, 0, 0},
-                {0, cS, 0, 0, 0},
-                {0, 0, 0, 0, 0},
-                {0, 0, 0, cS, 0},
-                {0, 0, 0, 0, cP}
-            });
-            AAbsJ[j] = this.calcRpqnJ(j).mmul(AS);
-            AAbsJ[j] = AAbsJ[j].mmul(Solve.pinv(this.calcRpqnJ(j)));
-        }
-
-        return AAbsJ[j];
     }
 
     public double getS(int j) {

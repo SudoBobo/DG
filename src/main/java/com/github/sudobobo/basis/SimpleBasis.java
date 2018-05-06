@@ -45,8 +45,8 @@ public class SimpleBasis implements Basis {
         F[1][0] = new DoubleMatrix(new double[]{1.0});
         F[2][0] = new DoubleMatrix(new double[]{1.0});
 
-        DoubleMatrix KKsi = new DoubleMatrix(new double[]{0.0});
-        DoubleMatrix KEta = new DoubleMatrix(new double[]{0.0});
+        KKsi = new DoubleMatrix(new double[]{0.0});
+        KEta = new DoubleMatrix(new double[]{0.0});
     }
 
     private void initBasisFunctions() {

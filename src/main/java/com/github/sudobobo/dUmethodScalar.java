@@ -6,21 +6,14 @@ import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
 
-//         (as mentioned in the article) u_p_l in each triangle
-//         p - stands for index of variable (sigma x, sigma y, etc)
-//         l - stands for index of time-dependent coefficient
-//         expected to be p x l matrics (p - rows, l - columns)
-public class dUmethodReal implements dUmethod {
+public class dUmethodScalar implements dUmethod {
     @Override
-    // expected not to change 'u' or 't'
     public DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis) {
         DoubleMatrix first = DoubleMatrix.zeros(u.rows, u.columns);
         DoubleMatrix second = DoubleMatrix.zeros(u.rows, u.columns);
 
-        // consider using mul for matrix * number, mmul form matrix * matrix
         for (int j = 0; j < 3; j++) {
             Border b = t.getBorders()[j];
-
             DoubleMatrix temp = t.getT(j).mul(0.5);
             DoubleMatrix sum = t.getAn().add(t.getAAbs());
             temp = temp.mmul(sum);
@@ -32,7 +25,6 @@ public class dUmethodReal implements dUmethod {
 
             //todo test this with series of manual tests
             int i = t.getIForFijFormula(j);
-
             temp = t.getT(j).mul(0.5);
             DoubleMatrix sub = t.getAn().sub(t.getAAbs());
             temp = temp.mmul(sub);
@@ -51,6 +43,9 @@ public class dUmethodReal implements dUmethod {
         fourth = fourth.mmul(basis.KEta());
         fourth = fourth.mul(t.getJacobian());
 
+        DoubleMatrix fifth = DoubleMatrix.zeros(u.rows, u.columns);
+
+        // todo check if this operations produce wrong results (inversing and divieder)
         DoubleMatrix inversedM = Solve.pinv(basis.M());
         DoubleMatrix divider = inversedM.mul(1.0 / t.getJacobian());
 

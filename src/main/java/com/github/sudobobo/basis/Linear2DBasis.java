@@ -415,6 +415,8 @@ public class Linear2DBasis implements Basis {
     @Override
     public DoubleMatrix F(int j, int i) {
         return F[i][j];
+        //TODO fix back
+//        return F[j][i];
     }
 
     @Override

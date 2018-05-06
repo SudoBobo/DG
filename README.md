@@ -9,3 +9,7 @@
     'values' translated to ValuesToWrite. ValuesToWrite is used to write file input
 
 3) Calculations are being conducted, along with the file input writing
+
+
+### Notes
+Transformation described in (18) works the following way:

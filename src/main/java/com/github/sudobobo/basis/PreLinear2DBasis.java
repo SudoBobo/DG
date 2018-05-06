@@ -1,4 +1,9 @@
 package com.github.sudobobo.basis;
+//
+// F[j][i]
+// j stands for border number in considered triangle
+// i stands for border number in neighbour triangle
+//
 
 import com.github.sudobobo.calculations.InitialConditionPhase;
 import com.github.sudobobo.geometry.Triangle;
@@ -7,13 +12,11 @@ import org.jblas.DoubleMatrix;
 import java.util.Arrays;
 
 public class PreLinear2DBasis implements Basis {
-
     private Function zeroFunction;
     private Function[] basisFunctions;
     private Function[] squaredBasisFunctions;
     private int numberOfBasisFunctions;
     private double integrationStep;
-
 
     private DoubleMatrix M;
     private DoubleMatrix[] F0;
@@ -40,11 +43,14 @@ public class PreLinear2DBasis implements Basis {
             {-(1.0f / 3.0f), -(1.0f / 18.0f), 1.0f / 9.0f}
         });
 
+        // this is what I got from WolframAlpha
         F0[1] = new DoubleMatrix(new double[][]{
-            {1, 1.0f / 6.0f, 1.0f / 6.0f},
-            {1.0f / 6.0f, 1.0f / 9.0f, -(1.0f / 18.0f)},
-            {1.0f / 6.0f, -(1.0f / 18.0f), 1.0f / 9.0f}
+            {1,           (1.0 / 6.0),      (1.0/6.0)},
+            {(1.0/6.0),  (1.0/9.0),        -(1.0 / 18.0)},
+            {(1.0/6.0),  -(1.0 / 18.0),     (1.0/9.0)}
         });
+
+        F0[1] = F0[1].mul(Math.sqrt(2.0));
 
         F0[2] = new DoubleMatrix(new double[][]{
             {1, -(1.0f / 3.0f), 1.0f / 6.0f},
@@ -53,6 +59,14 @@ public class PreLinear2DBasis implements Basis {
         });
 
         F = new DoubleMatrix[3][3];
+
+        //
+        // F[j][i]
+        // j stands for border number in considered triangle
+        // i stands for border number in neighbour triangle
+        //
+
+        // j = 0
 
         F[0][0] = new DoubleMatrix(new double[][]{
             {1, 1.0f / 6.0f, -(1.0f / 3.0f)},
@@ -72,6 +86,8 @@ public class PreLinear2DBasis implements Basis {
             {1.0f / 6.0f, 1.0f / 9.0f, -(1.0f / 18.0f)}
         });
 
+        // j = 1
+
         F[1][0] = new DoubleMatrix(new double[][]{
             {1, 1.0f / 6.0f, 1.0f / 6.0f},
             {1.0f / 6.0f, 1.0f / 9.0f, -(1.0f / 18.0f)},
@@ -90,6 +106,8 @@ public class PreLinear2DBasis implements Basis {
             {1.0f / 6.0f, -(1.0f / 18.0f), 1.0f / 9.0f}
 
         });
+
+        // j = 2
 
         F[2][0] = new DoubleMatrix(new double[][]{
             {1, -(1.0f / 3.0f), 1.0f / 6.0f},
@@ -111,15 +129,15 @@ public class PreLinear2DBasis implements Basis {
         });
 
         KKsi = new DoubleMatrix(new double[][]{
-            {0, 1.0f / 2.0f, 0},
             {0, 0, 0},
+            {1.0f / 2.0f, 0, 0},
             {0, 0, 0}
         });
 
         KEta = new DoubleMatrix(new double[][]{
-            {0, 0, 1.0f / 2.0f},
             {0, 0, 0},
-            {0, 0, 0}
+            {0, 0, 0},
+            {1.0f / 2.0f, 0, 0}
         });
     }
 
@@ -264,7 +282,7 @@ public class PreLinear2DBasis implements Basis {
 
     @Override
     public DoubleMatrix F(int j, int i) {
-        return F[i][j];
+        return F[j][i];
     }
 
     @Override
@@ -328,69 +346,6 @@ public class PreLinear2DBasis implements Basis {
         return numericalValue;
     }
 
-    private double linearIntegral(int j, int i, Function k, Function l, double integrationStep) {
-        double dl = integrationStep;
-        double numericalValue = 0;
-        if (j < 0 || j > 2) {
-            throw new RuntimeException("not implemented yet for j=" + j);
-        }
-        if (i < -1 || i > 2) {
-            throw new RuntimeException("not implemented yet for i=" + i);
-        }
-        double[] x1 = new double[]{0, 0};
-        double[] x2 = new double[]{0, 0};
-
-        for (double t = 0; t < 1; t += dl) {
-            switch (j) {
-                case 0: {
-                    x1[0] = t;
-                    x1[1] = 0;
-                    break;
-                }
-                case 1: {
-                    x1[0] = 1 - t;
-                    x1[1] = t;
-                    break;
-                }
-                case 2: {
-                    x1[0] = 0;
-                    x1[1] = 1 - t;
-                    break;
-                }
-            }
-            switch (i) {
-                case -1: {
-                    x2[0] = x1[0];
-                    x2[1] = x1[1];
-                    break;
-                }
-                case 0: {
-                    x2[0] = 1 - t;
-                    x2[1] = 0;
-                    break;
-                }
-                case 1: {
-                    x2[0] = t;
-                    x2[1] = 1 - t;
-                    break;
-                }
-                case 2: {
-                    x2[0] = 0;
-                    x2[1] = t;
-                    break;
-                }
-            }
-            numericalValue += k.getValue(x1) * l.getValue(x2);
-        }
-
-        numericalValue *= dl;
-
-        if (Math.abs(numericalValue) < integrationStep) {
-            numericalValue = 0.0f;
-        }
-        return numericalValue;
-    }
-
     @Override
     public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
 
@@ -406,6 +361,7 @@ public class PreLinear2DBasis implements Basis {
             for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
 
                 // todo should be discussed
+                // todo compare with Denis and check
                 result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
             }
         }

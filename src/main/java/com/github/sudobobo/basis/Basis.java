@@ -18,6 +18,9 @@ public interface Basis {
     DoubleMatrix F0(int j);
 
     // (26)
+    // F[j][i]
+    // j stands for border number in considered triangle
+    // i stands for border number in neighbour triangle
     DoubleMatrix F(int j, int i);
 
     // (27)

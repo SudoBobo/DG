@@ -60,34 +60,6 @@ class Value {
             DoubleMatrix u = basis.calcUCoeffs(initialConditionPhase, R2, mesh.getTriangles()[t]);
             values[t] = new Value(u, mesh.getTriangles()[t]);
             mesh.getTriangles()[t].setValue(values[t]);
-
-//            if (t == (mesh.getTriangles().length - 3)){
-
-//
-//                Triangle tr = mesh.getTriangles()[t];
-//
-//                System.out.println("In middle triangle section beigins");
-//                System.out.println("Center coordinates");
-//                System.out.println(tr.getCenter().x);
-//                System.out.println(tr.getCenter().y);
-//
-//                double phase = initialConditionPhase.calc(tr.getCenter().x, tr.getCenter().y);
-//                DoubleMatrix calcU = R2.mul(phase);
-
-//                System.out.println("phase");
-//                System.out.println(phase);
-//                System.out.println("numericalv value");
-//                System.out.println(calcU);
-
-//                System.out.println("coef value");
-//                System.out.println(u.toString());
-//                double [] refinedU = basis.calcUNumerical(u, tr);
-//                System.out.println("refined from coef numerical value");
-//                System.out.println(Arrays.toString(refinedU));
-//
-//                System.out.println("In middle triangle section ends");
-
-//            }
         }
 
         return values;
