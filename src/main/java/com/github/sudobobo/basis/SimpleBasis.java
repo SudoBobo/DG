@@ -219,4 +219,26 @@ public class SimpleBasis implements Basis {
 
         return result;
     }
+
+    @Override
+    public double[] calcUNumericalInPoint(DoubleMatrix UCoeffs, Triangle t, double[] xy) {
+        // todo : don't create an array, use and re-write x`given instead
+
+        double ksi = t.getKsiInLocalSystem(xy[0], xy[1]);
+        double eta = t.getEtaInLocalSystem(xy[0], xy[1]);
+
+        double[] result = new double[UCoeffs.rows];
+        Arrays.fill(result, 0);
+
+        for (int value = 0; value < UCoeffs.rows; value++) {
+            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
+
+                // todo should be discussed
+                // todo compare with Denis and check
+                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
+            }
+        }
+
+        return result;
+    }
 }

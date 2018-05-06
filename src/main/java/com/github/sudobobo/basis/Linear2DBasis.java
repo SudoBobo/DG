@@ -191,6 +191,12 @@ public class Linear2DBasis implements Basis {
         return result;
     }
 
+    @Override
+    public double[] calcUNumericalInPoint(DoubleMatrix u, Triangle t, double[] xy) {
+        assert false;
+        return null;
+    }
+
 
     private void initBasisFunctions() {
 

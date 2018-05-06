@@ -354,4 +354,10 @@ public class ArticleBasis implements Basis {
 
         return result;
     }
+
+    @Override
+    public double[] calcUNumericalInPoint(DoubleMatrix u, Triangle t, double[] xy) {
+        assert false;
+        return null;
+    }
 }

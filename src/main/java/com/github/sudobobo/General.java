@@ -4,10 +4,11 @@ import com.github.sudobobo.IO.MeshWriter;
 import com.github.sudobobo.IO.ValueToWrite;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
-import com.github.sudobobo.basis.SimpleBasis;
+import com.github.sudobobo.basis.PreLinear2DBasis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
+import com.github.sudobobo.geometry.Triangle;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
 
@@ -37,6 +38,14 @@ public class General {
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
         System.out.println("Mesh is built");
 
+        int k = 0;
+        for (Triangle t: mesh.getTriangles()) {
+            if (Math.abs(t.getCenter().x) < 5 && Math.abs(t.getCenter().y) < 5){
+                System.out.println(k);
+            }
+            k++;
+        }
+
         double maxSideLength = mesh.getMaxSideLength();
         double avgSideLength = mesh.getAVGSideLength();
         double minSideLength = mesh.getMinSideLength();
@@ -49,8 +58,8 @@ public class General {
 
         double spatialStepForNumericalIntegration = 0.001;
 //        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
-//        Basis basis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
-        Basis basis = new SimpleBasis(spatialStepForNumericalIntegration);
+        Basis basis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+//        Basis basis = new SimpleBasis(spatialStepForNumericalIntegration);
 //        Basis basis = new ArticleBasis(spatialStepForNumericalIntegration);
 
 
@@ -84,10 +93,18 @@ public class General {
         }
 
         if (avgSideLength < 5) {
-            rectangleSideLength = avgSideLength;
+            rectangleSideLength = avgSideLength / 20.0;
         }
 
         assert(rectangleSideLength > 0);
+
+        if (avgSideLength > 1) {
+            rectangleSideLength = avgSideLength / 20.0;
+        }
+
+        System.out.println("rectangle side length is " + rectangleSideLength);
+
+
 
         // associate values with mesh triangles and triangles with values
         // change appropriate fields

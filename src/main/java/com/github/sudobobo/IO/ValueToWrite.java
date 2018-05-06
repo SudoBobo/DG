@@ -8,6 +8,8 @@ import lombok.Data;
 @Builder
 public class ValueToWrite {
     Value associatedValue;
+    double x;
+    double y;
 }
 
 

@@ -1,5 +1,5 @@
 realFullTime : 5.0
-resName : 600_one_function_basis
+resName : 600_more_alike
 pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/600.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh

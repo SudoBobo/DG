@@ -10,10 +10,31 @@ import org.jblas.Solve;
 //         p - stands for index of variable (sigma x, sigma y, etc)
 //         l - stands for index of time-dependent coefficient
 //         expected to be p x l matrics (p - rows, l - columns)
+
 public class dUmethodReal implements dUmethod {
+    private static int k;
+
     @Override
     // expected not to change 'u' or 't'
     public DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis) {
+
+        if (k == 421){
+            System.out.println("heh");
+            System.out.println("hoj");
+        }
+        k++;
+
+        DoubleMatrix third = t.getAStr().mmul(u);
+        third = third.mmul(basis.KKsi());
+        third = third.mul(t.getJacobian());
+
+        DoubleMatrix fourth = t.getBStr().mmul(u);
+        fourth = fourth.mmul(basis.KEta());
+        fourth = fourth.mul(t.getJacobian());
+
+        DoubleMatrix inversedM = Solve.pinv(basis.M());
+        DoubleMatrix divider = inversedM.mul(1.0 / t.getJacobian());
+
         DoubleMatrix first = DoubleMatrix.zeros(u.rows, u.columns);
         DoubleMatrix second = DoubleMatrix.zeros(u.rows, u.columns);
 
@@ -22,9 +43,11 @@ public class dUmethodReal implements dUmethod {
             Border b = t.getBorders()[j];
 
             DoubleMatrix temp = t.getT(j).mul(0.5);
+
             DoubleMatrix sum = t.getAn().add(t.getAAbs());
+            sum = sum.mmul(t.getTInv(j));
+
             temp = temp.mmul(sum);
-            temp = temp.mmul(t.getTInv(j));
             temp = temp.mmul(u);
             temp = temp.mul(t.getS(j));
             temp = temp.mmul(basis.F0(j));
@@ -43,16 +66,8 @@ public class dUmethodReal implements dUmethod {
             second.addi(temp);
         }
 
-        DoubleMatrix third = t.getAStr().mmul(u);
-        third = third.mmul(basis.KKsi());
-        third = third.mul(t.getJacobian());
 
-        DoubleMatrix fourth = t.getBStr().mmul(u);
-        fourth = fourth.mmul(basis.KEta());
-        fourth = fourth.mul(t.getJacobian());
 
-        DoubleMatrix inversedM = Solve.pinv(basis.M());
-        DoubleMatrix divider = inversedM.mul(1.0 / t.getJacobian());
 
         DoubleMatrix dU = third.add(fourth);
 

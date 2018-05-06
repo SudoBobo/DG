@@ -42,7 +42,7 @@ public class ValuesToWrite {
                             String.format("Can't find associated value for valueToWrite with coordinates x= %f , y= %f", x, y));
                 }
 
-                valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues, v));
+                valuesToWrite[v] = new ValueToWrite(FindAssociatedValue(x, y, associatedValues, v), x, y);
                 v++;
                 x += rectangleSideLength;
             }
@@ -117,7 +117,10 @@ public class ValuesToWrite {
                 assert (false) : "one of values is not associated with any triangle";
             }
 
-            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
+//            double[] u = basis.calcUNumerical(valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle());
+            double[] xy = new double[]{valuesToWrite[v].getX(), valuesToWrite[v].getY()};
+            double[] u = basis.calcUNumericalInPoint(
+                valuesToWrite[v].associatedValue.u, valuesToWrite[v].associatedValue.getAssociatedTriangle(), xy);
 
             for (int r = 0; r < numberOfValuesInValueVector; r++) {
                 raw[numberOfValuesInValueVector * v + r] = u[r];
