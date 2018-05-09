@@ -31,7 +31,7 @@ class Value {
         // 0.125 - on quarter
         // 0.0625 - 1/8
 
-        double xWidthCoef = 0.25;
+        double xWidthCoef = 0.125;
         double yWidthCoef = 0.5;
         System.out.println(String.format("Value: xWidthCoef: %f, yWidthCoef: %f",
             xWidthCoef, yWidthCoef));

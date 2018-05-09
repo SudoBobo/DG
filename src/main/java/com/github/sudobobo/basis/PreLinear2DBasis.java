@@ -50,7 +50,7 @@ public class PreLinear2DBasis implements Basis {
             {(1.0/6.0),  -(1.0 / 18.0),     (1.0/9.0)}
         });
 
-        F0[1] = F0[1].mul(Math.sqrt(2.0));
+//        F0[1] = F0[1].mul(Math.sqrt(2.0));
 
         F0[2] = new DoubleMatrix(new double[][]{
             {1, -(1.0f / 3.0f), 1.0f / 6.0f},

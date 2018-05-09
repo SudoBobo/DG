@@ -24,16 +24,41 @@ public class CosInitialConditionPhase implements InitialConditionPhase {
     @Override
     public double calc(double x, double y) {
 
-        // TODO memorize this
-        // TODO will not work on the border
+//        // TODO memorize this
+//        // TODO will not work on the border
+//
+//        boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
+//        boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
+//
+//        if (is_x_inside && is_y_inside) {
+//            return Math.cos(a * x + phi);
+//        } else {
+//            return 0.0;
+//        }
+//    }
 
+        // Taken from Denis
         boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
         boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
 
-        if (is_x_inside && is_y_inside) {
-            return Math.cos(a * x + phi);
+        System.out.println("Initial condition is hardcoded with fixed width!");
+        double width = 50.0;
+        if (x < 25 && x > -25) {
+            return Math.cos(Math.PI * (Math.abs(x) - initialXCenter) / width);
         } else {
             return 0.0;
         }
+
+//        d = d.norm();
+//        Vector a = new Vector(new Point(-1, centerPoint), new Point(-1, currentPoint));
+//        float coordinate = a.scalar(d) / 1.0f;//1.0 == module d ->norm
+//        float center = 0;
+//
+//        float min = center - width[0] / 2;
+//        float max = center + width[0] / 2;
+//        if (min > coordinate || max < coordinate) {
+//            return 0;
+//        }
+//        return (float) Math.cos(Math.PI * (coordinate - center) / width[0]);
     }
 }
