@@ -33,8 +33,6 @@ class Value {
 
         double xWidthCoef = 0.125;
         double yWidthCoef = 0.5;
-        System.out.println(String.format("Value: xWidthCoef: %f, yWidthCoef: %f",
-            xWidthCoef, yWidthCoef));
 
         assert (initialCondition.equals("sin"));
         InitialConditionPhase initialConditionPhase =
@@ -47,11 +45,11 @@ class Value {
         double mu = 1.0;
         double cS = 1.0;
         R2 = new DoubleMatrix(new double[][]{
+            {4},
+            {2},
             {0},
-            {0},
-            {mu},
-            {0},
-            {cS}
+            {2},
+            {0}
         });
 
         // u_p = R2_p * initialConditionPhase(x, y)

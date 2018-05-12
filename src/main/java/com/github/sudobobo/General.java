@@ -1,7 +1,6 @@
 package com.github.sudobobo;
 
 import com.github.sudobobo.IO.MeshWriter;
-import com.github.sudobobo.IO.ValueToWrite;
 import com.github.sudobobo.IO.ValuesToWrite;
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.basis.PreLinear2DBasis;
@@ -32,9 +31,17 @@ public class General {
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
 
+
+        //
+        float some[][] = new float[2][100];
+        System.out.println(some.length);
+        System.out.println(some[0].length);
+
+        //
+
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Domain[] domains = Domain.createDomains(config.getDomains());
-        //todo stoped here
+
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
         System.out.println("Mesh is built");
 
@@ -121,8 +128,10 @@ public class General {
 
         Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
-        dUmethod dU_method = new dUmethodReal();
-        Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
+//        dUmethod dU_method = new dUmethodReal();
+        dUmethod dU_method = new DendUmethod();
+//        Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
+        Solver RK_Solver = new RKSolverBack(dU_method, mesh.getTriangles().length);
 
         meshWriter.writeAllPVTR(extent, timeSteps - 1);
 
@@ -285,26 +294,26 @@ public class General {
 //        }
     }
 
-    private static void writeValuesToWriteSorted(ValuesToWrite valuesToWrite, Basis basis) {
-
-
-        class vComp implements Comparator<ValueToWrite> {
-            // Used for sorting in ascending order of
-            // roll number
-            public int compare(ValueToWrite a, ValueToWrite b) {
-                return (int) (a.getAssociatedValue().getAssociatedTriangle().getCenter().x
-                        - b.getAssociatedValue().getAssociatedTriangle().getCenter().x);
-            }
-        }
-
-        Arrays.sort(valuesToWrite.getValuesToWrite(), new vComp());
-        for (ValueToWrite v : valuesToWrite.getValuesToWrite()) {
-            String r = Arrays.toString(v.getAssociatedValue().getAssociatedTriangle().getCenter().coordinates());
-            System.out.println(r);
-
-            System.out.println(Arrays.toString(basis.calcUNumerical(v.getAssociatedValue().getU(), v.getAssociatedValue().getAssociatedTriangle())));
-
-
-        }
-    }
+//    private static void writeValuesToWriteSorted(ValuesToWrite valuesToWrite, Basis basis) {
+//
+//
+//        class vComp implements Comparator<ValueToWrite> {
+//            // Used for sorting in ascending order of
+//            // roll number
+//            public int compare(ValueToWrite a, ValueToWrite b) {
+//                return (int) (a.getAssociatedValue().getAssociatedTriangle().getCenter().x
+//                        - b.getAssociatedValue().getAssociatedTriangle().getCenter().x);
+//            }
+//        }
+//
+//        Arrays.sort(valuesToWrite.getValuesToWrite(), new vComp());
+//        for (ValueToWrite v : valuesToWrite.getValuesToWrite()) {
+//            String r = Arrays.toString(v.getAssociatedValue().getAssociatedTriangle().getCenter().coordinates());
+//            System.out.println(r);
+//
+//            System.out.println(Arrays.toString(basis.calcUNumerical(v.getAssociatedValue().getU(), v.getAssociatedValue().getAssociatedTriangle())));
+//
+//
+//        }
+//    }
 }

@@ -19,6 +19,8 @@ public class CosInitialConditionPhase implements InitialConditionPhase {
         this.yWidth = yWidth;
         this.initialXCenter = initialXCenter;
         this.initialYCenter = initialYCenter;
+        System.out.println("Initial condition is hardcoded with fixed width!");
+
     }
 
     @Override
@@ -38,13 +40,12 @@ public class CosInitialConditionPhase implements InitialConditionPhase {
 //    }
 
         // Taken from Denis
-        boolean is_x_inside = ((initialXCenter - xWidth) <= x) && (x <= (initialXCenter + xWidth));
-        boolean is_y_inside = ((initialYCenter - yWidth) <= y) && (y <= (initialYCenter + yWidth));
 
-        System.out.println("Initial condition is hardcoded with fixed width!");
         double width = 50.0;
         if (x < 25 && x > -25) {
-            return Math.cos(Math.PI * (Math.abs(x) - initialXCenter) / width);
+//            return Math.cos(Math.PI * (Math.abs(x) - initialXCenter) / width);
+            return Math.cos(Math.PI * (x - initialXCenter) / width);
+
         } else {
             return 0.0;
         }

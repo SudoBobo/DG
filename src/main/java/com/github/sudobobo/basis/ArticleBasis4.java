@@ -9,7 +9,7 @@ import com.github.sudobobo.calculations.InitialConditionPhase;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
-public class ArticleBasis implements Basis {
+public class ArticleBasis4 implements Basis {
     private Function zeroFunction;
     private Function[] basisFunctions;
     private Function[] squaredBasisFunctions;
@@ -22,7 +22,7 @@ public class ArticleBasis implements Basis {
     private DoubleMatrix KKsi;
     private DoubleMatrix KEta;
 
-    public ArticleBasis(double integrationStep) {
+    public ArticleBasis4(double integrationStep) {
         this.integrationStep = integrationStep;
         initBasisFunctions();
         numberOfBasisFunctions = 3;

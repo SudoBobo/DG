@@ -26,14 +26,9 @@ public class dUmethodReal implements dUmethod {
 
         DoubleMatrix third = t.getAStr().mmul(u);
         third = third.mmul(basis.KKsi());
-        third = third.mul(t.getJacobian());
 
         DoubleMatrix fourth = t.getBStr().mmul(u);
         fourth = fourth.mmul(basis.KEta());
-        fourth = fourth.mul(t.getJacobian());
-
-        DoubleMatrix inversedM = Solve.pinv(basis.M());
-        DoubleMatrix divider = inversedM.mul(1.0 / t.getJacobian());
 
         DoubleMatrix first = DoubleMatrix.zeros(u.rows, u.columns);
         DoubleMatrix second = DoubleMatrix.zeros(u.rows, u.columns);
@@ -51,7 +46,7 @@ public class dUmethodReal implements dUmethod {
             temp = temp.mmul(u);
             temp = temp.mul(t.getS(j));
             temp = temp.mmul(basis.F0(j));
-            first.addi(temp);
+            first = first.add(temp);
 
             //todo test this with series of manual tests
             int i = t.getIForFijFormula(j);
@@ -63,22 +58,18 @@ public class dUmethodReal implements dUmethod {
             temp = temp.mmul(b.getNeighborTriangle().getValue().u);
             temp = temp.mul(t.getS(j));
             temp = temp.mmul(basis.F(j, i));
-            second.addi(temp);
+            second = second.add(temp);
         }
 
-
-
+        first = first.mul(1 / t.getJacobian());
+        second = second.mul(1 / t.getJacobian());
 
         DoubleMatrix dU = third.add(fourth);
+        dU = dU.sub(first.add(second));
 
-        // todo check all values in (0,0) by conditonal debug syop point
-//        if ((Math.abs(t.getCenter().x) < 5) && (Math.abs(t.getCenter().y) < 5)) {
-//            System.out.println("");
-//        }
 
-        dU = dU.sub(first);
-        dU = dU.sub(second);
-        dU = dU.mmul(divider);
+        DoubleMatrix inversedM = Solve.pinv(basis.M());
+        dU = dU.mmul(inversedM);
 
         return dU;
     }

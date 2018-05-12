@@ -35,7 +35,7 @@ public interface Basis {
                              Triangle t);
 
     // method to calculate u[p] from u[p][l]
-    double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t);
+//    double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t);
 
     double[] calcUNumericalInPoint(DoubleMatrix u, Triangle t, double[] xy);
 }

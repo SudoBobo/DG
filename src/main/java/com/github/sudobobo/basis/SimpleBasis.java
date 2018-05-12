@@ -199,26 +199,26 @@ public class SimpleBasis implements Basis {
         return u;
     }
 
-    @Override
-    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
-        // todo : don't create an array, use and re-write x`given instead
-
-        double ksi = t.getKsiInLocalSystem(t.getCenter().x, t.getCenter().y);
-        double eta = t.getEtaInLocalSystem(t.getCenter().x, t.getCenter().y);
-
-        double[] result = new double[UCoeffs.rows];
-        Arrays.fill(result, 0);
-
-        for (int value = 0; value < UCoeffs.rows; value++) {
-            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
-
-                // todo should be discussed
-                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
-            }
-        }
-
-        return result;
-    }
+//    @Override
+//    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
+//        // todo : don't create an array, use and re-write x`given instead
+//
+//        double ksi = t.getKsiInLocalSystem(t.getCenter().x, t.getCenter().y);
+//        double eta = t.getEtaInLocalSystem(t.getCenter().x, t.getCenter().y);
+//
+//        double[] result = new double[UCoeffs.rows];
+//        Arrays.fill(result, 0);
+//
+//        for (int value = 0; value < UCoeffs.rows; value++) {
+//            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
+//
+//                // todo should be discussed
+//                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
+//            }
+//        }
+//
+//        return result;
+//    }
 
     @Override
     public double[] calcUNumericalInPoint(DoubleMatrix UCoeffs, Triangle t, double[] xy) {

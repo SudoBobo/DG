@@ -4,8 +4,6 @@ import com.github.sudobobo.calculations.InitialConditionPhase;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 
-import java.util.Arrays;
-
 // description of linear2D basis {1; x - 1/3; y - 1/3}
 public class Linear2DBasis implements Basis {
     private Function zeroFunction;
@@ -168,28 +166,28 @@ public class Linear2DBasis implements Basis {
         return u;
     }
 
-    @Override
-    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
-
-
-        // todo : don't create an array, use and re-write x`given instead
-
-        double ksi = t.getKsiInLocalSystem(t.getCenter().x, t.getCenter().y);
-        double eta = t.getEtaInLocalSystem(t.getCenter().x, t.getCenter().y);
-
-        double[] result = new double[UCoeffs.rows];
-        Arrays.fill(result, 0);
-
-        for (int value = 0; value < UCoeffs.rows; value++) {
-            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
-
-                // todo should be discussed
-                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
-            }
-        }
-
-        return result;
-    }
+//    @Override
+//    public double[] calcUNumerical(DoubleMatrix UCoeffs, Triangle t) {
+//
+//
+//        // todo : don't create an array, use and re-write x`given instead
+//
+//        double ksi = t.getKsiInLocalSystem(t.getCenter().x, t.getCenter().y);
+//        double eta = t.getEtaInLocalSystem(t.getCenter().x, t.getCenter().y);
+//
+//        double[] result = new double[UCoeffs.rows];
+//        Arrays.fill(result, 0);
+//
+//        for (int value = 0; value < UCoeffs.rows; value++) {
+//            for (int coeff = 0; coeff < UCoeffs.columns; coeff++) {
+//
+//                // todo should be discussed
+//                result[value] += UCoeffs.get(value, coeff) * basisFunctions[coeff].getValue(new double[]{ksi, eta});
+//            }
+//        }
+//
+//        return result;
+//    }
 
     @Override
     public double[] calcUNumericalInPoint(DoubleMatrix u, Triangle t, double[] xy) {
