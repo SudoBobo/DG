@@ -5,11 +5,16 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
+import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCP;
+import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCS;
+
 @Data public class Domain {
     private final int index;
     private final double rho;
     private final double mu;
     private final double lambda;
+    private final double cp;
+    private final double cs;
 //    private final String borderType;
 
     public static Domain[] createDomains(List<Map<String, Object>> domains) {
@@ -34,8 +39,11 @@ import java.util.Map;
 
 //            domainObjects[i] = new Domain(index, rho, mu,
 //                    lambda, borderType);
+
+            double cP = calcCP(lambda, mu, rho);
+            double cS = calcCS(mu, rho);
             domainObjects[i] = new Domain(index, rho, mu,
-                lambda);
+                lambda, cP, cS);
         }
         return domainObjects;
     }

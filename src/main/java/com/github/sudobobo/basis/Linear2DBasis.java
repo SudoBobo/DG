@@ -129,7 +129,7 @@ public class Linear2DBasis implements Basis {
             // todo this change of variables should be discused
             public double getValue(double[] x) {
                 return initialConditionPhase.calc(
-                    t.getX(x[0], x[1]), t.getY(x[0], x[1])
+                    t.getX(x[0], x[1]), t.getY(x[0], x[1]), 0
                 );
             }
 

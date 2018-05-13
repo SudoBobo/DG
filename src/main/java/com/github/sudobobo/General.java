@@ -7,7 +7,7 @@ import com.github.sudobobo.basis.PreLinear2DBasis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
-import com.github.sudobobo.geometry.Triangle;
+import com.github.sudobobo.meshconstruction.InitialConditionConfig;
 import com.github.sudobobo.meshconstruction.MeshBorder;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
@@ -19,6 +19,7 @@ import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Map;
 
 import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCP;
 import static com.github.sudobobo.meshconstruction.SalomeMeshConstructor.calcCS;
@@ -39,13 +40,6 @@ public class General {
         Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains, borders);
         System.out.println("Mesh is built");
 
-        int k = 0;
-        for (Triangle t: mesh.getTriangles()) {
-            if (Math.abs(t.getCenter().x) < 5 && Math.abs(t.getCenter().y) < 5){
-                System.out.println(k);
-            }
-            k++;
-        }
 
         double maxSideLength = mesh.getMaxSideLength();
         double avgSideLength = mesh.getAVGSideLength();
@@ -82,8 +76,6 @@ public class General {
         Path outputDir = getOutputPath("/home/bobo/IdeaProjects/DG/results/", meshName, config.getRealFullTime(), timeStep, config.getResName());
         System.out.println("Results are at " + outputDir.toString());
         MeshWriter meshWriter = new MeshWriter(outputDir, Paths.get("PvtrTemplate"));
-        
-        // todo remove hardcode inside makeValuesArray (pass initialCondition function as an argument)
 
         // side of one to-write rectangle
         double rectangleSideLength = 0;
@@ -105,12 +97,11 @@ public class General {
 
         System.out.println("rectangle side length is " + rectangleSideLength);
 
-
-
         // associate values with mesh triangles and triangles with values
         // change appropriate fields
         System.out.println("Start to calculate values");
-        Value[] values = Value.makeValuesArray(mesh, config.getInitialCondition(), basis);
+        InitialConditionConfig initConfg = getInitialConditionConfig(config);
+        Value[] values = Value.makeValuesArray(mesh, initConfg, basis);
         Value[] bufferValues = Value.makeBufferValuesArray(mesh, basis);
 
         System.out.println("Values are calculated");
@@ -181,6 +172,35 @@ public class General {
         long endTime   = System.currentTimeMillis();
         long totalTime = endTime - startTime;
         System.out.println(String.format("Total time %d", totalTime / 1000));
+    }
+
+    private static InitialConditionConfig getInitialConditionConfig(Configuration config) {
+
+        Map<String, Object> init = config.getInitialCondition();
+        assert (init != null);
+
+        String profile = (String) init.get("profile");
+        assert (profile != null);
+
+        double width = (double) init.get("width");
+        double amplitude = (double) init.get("amplitude");
+
+        Map<String, Object> direction = (Map<String, Object>) init.get("direction");
+        assert (direction != null);
+        double dX = (double) direction.get("x");
+        double dY = (double) direction.get("y");
+        double dZ = (double) direction.get("z");
+
+        Map<String, Object> center = (Map<String, Object>) init.get("center");
+        assert (center != null);
+
+        double c[] = new double[3];
+
+        c[0] = (double) center.get("x");
+        c[1] = (double) center.get("y");
+        c[2] = (double) center.get("z");
+
+        return new InitialConditionConfig(profile, width, amplitude, dX, dY, dZ, c);
     }
 
     private static double calcMaxCP(Domain[] domains) {

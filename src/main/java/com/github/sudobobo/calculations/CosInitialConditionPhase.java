@@ -1,30 +1,32 @@
 package com.github.sudobobo.calculations;
 
+import com.github.sudobobo.meshconstruction.InitialConditionConfig;
+import org.jblas.DoubleMatrix;
+
 public class CosInitialConditionPhase implements InitialConditionPhase {
+    private double width;
+    private double center[];
 
-    private double a;
-    private double phi;
+    // direction
+    private DoubleMatrix d;
 
-    private double xWidth;
-    private double yWidth;
+    public CosInitialConditionPhase(InitialConditionConfig initialConditionConfig) {
+        this.width = initialConditionConfig.getWidth();
+        this.center = initialConditionConfig.getCenter();
+        this.d = new DoubleMatrix(1, 3);
 
-    private double initialXCenter;
-    private double initialYCenter;
+        double m = Math.sqrt(
+            initialConditionConfig.getDX() * initialConditionConfig.getDX() +
+            initialConditionConfig.getDY() * initialConditionConfig.getDY() +
+            initialConditionConfig.getDZ() * initialConditionConfig.getDZ());
 
-
-    public CosInitialConditionPhase(double a, double phi, double xWidth, double yWidth, double initialXCenter, double initialYCenter) {
-        this.a = a;
-        this.phi = phi;
-        this.xWidth = xWidth;
-        this.yWidth = yWidth;
-        this.initialXCenter = initialXCenter;
-        this.initialYCenter = initialYCenter;
-        System.out.println("Initial condition is hardcoded with fixed width!");
-
+        d.put(0, 0, initialConditionConfig.getDX() / m);
+        d.put(0, 1, initialConditionConfig.getDY() / m);
+        d.put(0, 2, initialConditionConfig.getDZ() / m);
     }
 
     @Override
-    public double calc(double x, double y) {
+    public double calc(double x, double y, double z) {
 
 //        // TODO memorize this
 //        // TODO will not work on the border
@@ -41,25 +43,29 @@ public class CosInitialConditionPhase implements InitialConditionPhase {
 
         // Taken from Denis
 
-        double width = 50.0;
-        if (x < 25 && x > -25) {
-//            return Math.cos(Math.PI * (Math.abs(x) - initialXCenter) / width);
-            return Math.cos(Math.PI * (x - initialXCenter) / width);
-
-        } else {
-            return 0.0;
-        }
-
-//        d = d.norm();
-//        Vector a = new Vector(new Point(-1, centerPoint), new Point(-1, currentPoint));
-//        float coordinate = a.scalar(d) / 1.0f;//1.0 == module d ->norm
-//        float center = 0;
+//        double width = 50.0;
+//        if (x < 25 && x > -25) {
+////            return Math.cos(Math.PI * (Math.abs(x) - initialXCenter) / width);
+//            return Math.cos(Math.PI * (x - initialXCenter) / width);
 //
-//        float min = center - width[0] / 2;
-//        float max = center + width[0] / 2;
-//        if (min > coordinate || max < coordinate) {
-//            return 0;
+//        } else {
+//            return 0.0;
 //        }
-//        return (float) Math.cos(Math.PI * (coordinate - center) / width[0]);
+
+
+        // from center to current point
+        DoubleMatrix a = new DoubleMatrix(3, 1);
+        a.put(0, 0, x - center[0]);
+        a.put(1, 0, y - center[1]);
+        a.put(2, 0, z - center[2]);
+
+        double coordinate = a.dot(d);
+
+        double min = - width / 2;
+        double max =   width / 2;
+        if (min > coordinate || max < coordinate) {
+            return 0;
+        }
+        return Math.cos(Math.PI * coordinate / width);
     }
 }

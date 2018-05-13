@@ -1,9 +1,20 @@
 realFullTime : 5.0
-resName : 7_normal_set
-pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/600.mesh
+resName : 16
+pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
-initialCondition : sin
+initialCondition :
+  profile: cos
+  width: 25.0
+  amplitude: 1.0
+  direction:
+    x: 1.0
+    y: 0.0
+    z: 0.0
+  center:
+    x: 0.0
+    y: 0.0
+    z: 0.0
 
 # Currently user must associate borders with borders' configs manually
 # to do it user must go to be used .mesh file and find Vertices line
@@ -15,7 +26,7 @@ initialCondition : sin
 #     will have the same index as they are all on the same side)
 # Also this fourth index value in {...} is called 'edgeIndex' in Salome and
 # can be seen there.
-defaultBorderType: enclosed
+defaultBorderType: absorbing
 # enclosed, free, absorbing
 borders:
     # left
@@ -36,17 +47,14 @@ domains:
     lambda: 2.0
     rho: 1.0
     mu: 1.0
-#    borderType: enclosed
-#-   index: 1
-#    lambda: 2.0
-#    rho: 1.0
-#    mu: 1.0
-#    borderType: enclosed
-#-   index: 2
-#    lambda: 2.0
-#    rho: 1.0
-#    mu: 1.0
-#    borderType: enclosed
+-   index: 1
+    lambda: 6.0
+    rho: 7.0
+    mu: 8.0
+-   index: 2
+    lambda: 2.0
+    rho: 1.0
+    mu: 1.0
 
 
 #

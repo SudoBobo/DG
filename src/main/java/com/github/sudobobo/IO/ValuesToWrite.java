@@ -4,6 +4,7 @@ import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Point;
 import lombok.Data;
+import org.jblas.DoubleMatrix;
 
 @Data
 public class ValuesToWrite {
@@ -59,7 +60,9 @@ public class ValuesToWrite {
                 return v;
             }
         }
-        return null;
+
+        return new Value(new DoubleMatrix(associatedValues[0].u.rows, associatedValues[0].u.columns),
+            associatedValues[0].getAssociatedTriangle());
     }
 
     public Long[] getExtent(double rectangleSideLength, Point lt, Point rb) {

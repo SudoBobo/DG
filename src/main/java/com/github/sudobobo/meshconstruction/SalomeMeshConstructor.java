@@ -13,7 +13,6 @@ import static com.github.sudobobo.meshconstruction.PhysicalAttributesMatrixes.*;
 import static java.lang.Math.sqrt;
 
 public class SalomeMeshConstructor {
-
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
     private static Map<Double, DoubleMatrix> nToT;
     private static Map<Integer, String> IdxToBorderType;
@@ -42,14 +41,9 @@ public class SalomeMeshConstructor {
 
         changePointsOrderToReverseClock(triangles);
 
-
         setNeighborsAndBounds(mesh, borders);
         setIJ(triangles);
-        // make use of domains
         setConstantPhysicalFields(triangles, domains);
-//        setAbsorbingBoundary(triangles);
-
-
         return mesh;
     }
 
@@ -83,7 +77,8 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static Map<Domain, Map<String, DoubleMatrix>> calcDomainToMatricesSet(Domain[] domains, Double nXInnerTriangleSystem, Double nYInnerTriangleSystem) {
+    private static Map<Domain, Map<String, DoubleMatrix>> calcDomainToMatricesSet
+        (Domain[] domains, Double nXInnerTriangleSystem, Double nYInnerTriangleSystem) {
 
         Map<Domain, Map<String, DoubleMatrix>> domainToMatricesSet = new HashMap<>();
 
