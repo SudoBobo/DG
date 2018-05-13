@@ -81,3 +81,21 @@ domains:
 #			</domain>
 #
 #		</domains>
+
+sources:
+-   name: P
+    profile: sin
+    amplitude: 2
+    vector:
+      x: 0.0
+      y: 1.0
+      z: 0.0
+    point:
+      x: -9.0
+      y: 12.0
+      z: 0.0
+    size:
+      x: 0.01
+      y: 0.01
+      z: 0.0
+    omega: 0.5

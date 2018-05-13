@@ -10,6 +10,7 @@ import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.meshconstruction.InitialConditionConfig;
 import com.github.sudobobo.meshconstruction.MeshBorder;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
+import com.github.sudobobo.meshconstruction.SourceConfig;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -36,8 +37,8 @@ public class General {
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Domain[] domains = Domain.createDomains(config.getDomains());
         MeshBorder[] borders = MeshBorder.createMeshBorders(config.getBorders(), config.getDefaultBorderType());
-
-        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains, borders);
+        SourceConfig[] sources = SourceConfig.createSourceConfigs(config.getSources());
+        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains, borders, sources);
         System.out.println("Mesh is built");
 
 

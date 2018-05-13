@@ -16,4 +16,5 @@ public @Data class Configuration {
     private List<Map<String, Object>> borders;
     private String resName;
     private Map<String, Object> center;
+    private List<Map<String, Object>> sources;
 }

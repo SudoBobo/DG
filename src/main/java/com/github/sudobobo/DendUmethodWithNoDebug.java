@@ -45,11 +45,6 @@ public class DendUmethodWithNoDebug implements dUmethod {
             X1j = X1j.mmul(u);
             DoubleMatrix out = X1j.mmul(Fin);
 
-            if (b.getBorderType() == null) {
-//                System.out.println("some");
-//                System.out.println("some");
-            }
-
             DoubleMatrix in = null;
             // should distinguish between normal border and absorbing border
             if(!b.isEdgeOfMesh() || (b.isEdgeOfMesh() && b.getBorderType().equals("enclosed"))) {
@@ -77,10 +72,25 @@ public class DendUmethodWithNoDebug implements dUmethod {
             edgeFlux[j] = (Tj.mul(-Sj / (2.0 * J))).mmul(edgeFlux[j]);
         }
 
+        DoubleMatrix staticSourcesSum = new DoubleMatrix(AUDX.rows, AUDX.columns);
+        // static source processing
+        if (t.hasStaticSource()){
+            // calculate
+            for (StaticSource s: t.getStaticSources()) {
+                // make use of time part
+                // add
+            }
+        }
+
+        // moving source processing
+        // it is separated from the static case as it should be realized in a
+        // different way
+
         DoubleMatrix sum = edgeFlux[0].add(edgeFlux[1]);
         sum = sum.add(edgeFlux[2]);
         sum = sum.add(AUDX);
         sum = sum.add(BUDY);
+        sum = sum.add(staticSourcesSum);
         sum = sum.mmul(M_inv);
 
         return sum;

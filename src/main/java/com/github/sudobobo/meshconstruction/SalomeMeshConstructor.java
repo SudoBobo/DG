@@ -18,7 +18,7 @@ public class SalomeMeshConstructor {
     private static Map<Integer, String> IdxToBorderType;
 
     public static Mesh constructHomoMesh(Path meshFile, Domain[] domains,
-                                         MeshBorder[] borders) {
+                                         MeshBorder[] borders, SourceConfig [] sources) {
         // order of functions call here is important! (as these functions have output params)
 
         IdxToBorderType = new HashMap<Integer, String>();
@@ -44,7 +44,22 @@ public class SalomeMeshConstructor {
         setNeighborsAndBounds(mesh, borders);
         setIJ(triangles);
         setConstantPhysicalFields(triangles, domains);
+        setSources(triangles, sources);
         return mesh;
+    }
+
+    private static boolean match(SourceConfig s, Triangle t){
+
+    }
+
+    private static void setSources(Triangle[] triangles, SourceConfig[] sources) {
+        for (SourceConfig s: sources){
+            for (Triangle t: triangles){
+                if(match(s, t)){
+                    t.addStaticSource(s);
+                }
+            }
+        }
     }
 
     public static void setIJ(Triangle[] triangles) {
