@@ -41,7 +41,9 @@ public class MeshFileReader {
                 int pointId = pointNumber + 1;
                 points[pointNumber] = new Point(pointId, new double[]{
                         Double.parseDouble(pointLine[0]),
-                        Double.parseDouble(pointLine[1])});
+                        Double.parseDouble(pointLine[1]),
+                        Double.parseDouble(pointLine[2])},
+                        Integer.parseInt(pointLine[3]));
 
             }
         } catch (IOException e) {

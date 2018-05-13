@@ -16,9 +16,16 @@ public class SalomeMeshConstructor {
 
     private static Map<DoubleMatrix, DoubleMatrix> TtoInversedT;
     private static Map<Double, DoubleMatrix> nToT;
+    private static Map<Integer, String> IdxToBorderType;
 
-    public static Mesh constructHomoMesh(Path meshFile, Domain[] domains) {
+    public static Mesh constructHomoMesh(Path meshFile, Domain[] domains,
+                                         MeshBorder[] borders) {
         // order of functions call here is important! (as these functions have output params)
+
+        IdxToBorderType = new HashMap<Integer, String>();
+        for (MeshBorder mb : borders) {
+            IdxToBorderType.put(mb.getIndex(), mb.getBorderType());
+        }
 
         Point[] points = MeshFileReader.readPoints(meshFile);
         Triangle[] triangles = MeshFileReader.readTriangles(meshFile, points, domains);
@@ -36,7 +43,7 @@ public class SalomeMeshConstructor {
         changePointsOrderToReverseClock(triangles);
 
 
-        setNeighborsAndBounds(mesh);
+        setNeighborsAndBounds(mesh, borders);
         setIJ(triangles);
         // make use of domains
         setConstantPhysicalFields(triangles, domains);
@@ -192,7 +199,7 @@ public class SalomeMeshConstructor {
         }
     }
 
-    public static void setNeighborsAndBounds(Mesh mesh) {
+    public static void setNeighborsAndBounds(Mesh mesh, MeshBorder[] meshBorders) {
 
         if (TtoInversedT == null) {
             TtoInversedT = new HashMap<DoubleMatrix, DoubleMatrix>();
@@ -210,7 +217,6 @@ public class SalomeMeshConstructor {
             Border[] borders = new Border[3];
 
             for (int b = 0; b < 3; b++) {
-
                 borders[b] = Border.builder()
                         .beginPoint(t.getPoints()[b])
                         .endPoint(t.getPoints()[(b + 1) % 3])
@@ -238,8 +244,67 @@ public class SalomeMeshConstructor {
         }
     }
 
-    private static void findNeibAndSetBorder(Triangle t, Mesh mesh,
-                                             Border b, Border borderNotSet) {
+    // There are two possibilities for a point:
+    // 1) point has a border index (set by Salome) and border with this
+    //      index is described in config.yml
+    // 2) point has a border index and border with this index is not
+    //      described in config.yml
+    //
+    // In the pair of point which forms a border there are two 'ok' cases:
+    // 1) Both of point's border indexes refers to the same described border
+    //      type. In that case this border type is taken.
+    // 2) One point's border index refers to explicitly described
+    //      border type. Another point's border index refers to non-described
+    //      border type. In this case resulting border must have border type
+    //      described by the first point.
+    //
+    // All over cases are wrong.
+    private static String getBorderType(Point bP, Point eP) {
+        boolean isSetForA = false;
+        boolean isSetForB = false;
+        for (Map.Entry<Integer, String> b : IdxToBorderType.entrySet()) {
+            if (bP.getBorderIndex() == b.getKey()) {
+                isSetForA = true;
+            }
+
+            if (eP.getBorderIndex() == b.getKey()){
+                isSetForB = true;
+            }
+        }
+
+        String res = null;
+
+        if (isSetForA && isSetForB && (bP.getBorderIndex() == eP.getBorderIndex())) {
+            res = IdxToBorderType.get(bP.getBorderIndex());
+        }
+
+        if (isSetForA && (!isSetForB)) {
+            res = IdxToBorderType.get(bP.getBorderIndex());
+        }
+
+        if (isSetForB && (!isSetForA)) {
+            res = IdxToBorderType.get(eP.getBorderIndex());
+        }
+
+        if (!(isSetForA) && (!(isSetForB))){
+            // -1 is border index for default border
+            res =  IdxToBorderType.get(-1);
+        }
+
+        if (res == null) {
+            try {
+                throw new Exception("Error with determing border type on border types of " +
+                    "points: " + bP.getBorderIndex() + " " + eP.getBorderIndex());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return res;
+    }
+
+    private static void findNeibAndSetBorder(Triangle t, Mesh mesh, Border b,
+                                             Border borderNotSet) {
         //@ todo optimize this
 
         // check if neighbor border is already set for this border
@@ -271,6 +336,8 @@ public class SalomeMeshConstructor {
 
                     b.setEdgeOfMesh(false);
                     potentialNeibBorder.setEdgeOfMesh(false);
+                    b.setBorderType("normal");
+                    potentialNeibBorder.setBorderType("normal");
 
                     // debug check
 //                    System.out.println(doBordersHaveSameDirection(b, b.getNeighborBorder()));
@@ -286,7 +353,17 @@ public class SalomeMeshConstructor {
         b.setNeighborTriangle(null);
         b.setNeighborBorder(null);
 
-        if (t.getDomain().getBorderType().equals("enclosed")) {
+        // Setting special edge condition
+
+        String borderType = getBorderType(b.getBeginPoint(), b.getEndPoint());
+        b.setBorderType(borderType);
+
+        // Debug print
+        System.out.println(b.getBeginPoint());
+        System.out.println(b.getEndPoint());
+        System.out.println(b.getBorderType());
+
+        if (b.getBorderType().equals("enclosed")) {
 
             Border enclosedBorder = findEnclosedBorder(b, mesh);
 //            System.out.println(enclosedBorder);

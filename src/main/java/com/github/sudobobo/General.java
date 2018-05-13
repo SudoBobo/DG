@@ -8,6 +8,7 @@ import com.github.sudobobo.calculations.Value;
 import com.github.sudobobo.geometry.Domain;
 import com.github.sudobobo.geometry.Mesh;
 import com.github.sudobobo.geometry.Triangle;
+import com.github.sudobobo.meshconstruction.MeshBorder;
 import com.github.sudobobo.meshconstruction.SalomeMeshConstructor;
 import org.yaml.snakeyaml.Yaml;
 
@@ -31,18 +32,11 @@ public class General {
         Configuration config = getConfigFromYML(configFile);
         System.out.println(config.toString());
 
-
-        //
-        float some[][] = new float[2][100];
-        System.out.println(some.length);
-        System.out.println(some[0].length);
-
-        //
-
         Path meshFile = Paths.get(config.getPathToMeshFile());
         Domain[] domains = Domain.createDomains(config.getDomains());
+        MeshBorder[] borders = MeshBorder.createMeshBorders(config.getBorders(), config.getDefaultBorderType());
 
-        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains);
+        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains, borders);
         System.out.println("Mesh is built");
 
         int k = 0;
@@ -129,7 +123,7 @@ public class General {
         Long[] extent = valuesToWrite.getExtent(rectangleSideLength, mesh.getLTPoint(), mesh.getRBPoint());
 
 //        dUmethod dU_method = new dUmethodReal();
-        dUmethod dU_method = new DendUmethod();
+        dUmethod dU_method = new DendUmethodWithNoDebug();
 //        Solver RK_Solver = new RKSolver(dU_method, mesh.getTriangles().length);
         Solver RK_Solver = new RKSolverBack(dU_method, mesh.getTriangles().length);
 

@@ -89,16 +89,19 @@ class Triangle {
     public void setCenter() {
         double x = 0;
         double y = 0;
+        double z = 0;
 
         for (Point p : points) {
             x += p.x;
             y += p.y;
+            z += p.z;
         }
 
         x /= 3;
         y /= 3;
+        z /= 3;
 
-        center = new Point(-1, new double[]{x, y});
+        center = new Point(-1, new double[]{x, y, z}, -1);
     }
 
     public double getKsiInLocalSystem(double x, double y) {

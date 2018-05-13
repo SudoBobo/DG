@@ -10,7 +10,7 @@ import java.util.Map;
     private final double rho;
     private final double mu;
     private final double lambda;
-    private final String borderType;
+//    private final String borderType;
 
     public static Domain[] createDomains(List<Map<String, Object>> domains) {
         Domain[] domainObjects = new Domain[domains.size()];
@@ -29,11 +29,13 @@ import java.util.Map;
             assert(d.get("lambda") != null);
             double lambda = (double) d.get("lambda");
 
-            assert(d.get("borderType") != null);
-            String borderType = (String) d.get("borderType");
+//            assert(d.get("borderType") != null);
+//            String borderType = (String) d.get("borderType");
 
+//            domainObjects[i] = new Domain(index, rho, mu,
+//                    lambda, borderType);
             domainObjects[i] = new Domain(index, rho, mu,
-                    lambda, borderType);
+                lambda);
         }
         return domainObjects;
     }

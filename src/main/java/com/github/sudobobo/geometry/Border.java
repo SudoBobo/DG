@@ -26,6 +26,8 @@ class Border {
     private Border neighborBorder;
 
     private Triangle triangle;
+    // enclosed, free, absorbing
+    private String borderType;
 
     public static boolean doBordersPointsMatch(Border b, Border potentialNeibBorder) {
 

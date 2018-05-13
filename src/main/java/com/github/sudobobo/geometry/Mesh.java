@@ -47,7 +47,7 @@ class Mesh {
                     }
                 }
             }
-            LTPoint = new Point(-1, new double[]{ltX, ltY});
+            LTPoint = new Point(-1, new double[]{ltX, ltY, 0}, -1);
         }
         return LTPoint;
     }
@@ -65,7 +65,7 @@ class Mesh {
                     }
                 }
             }
-            RBPoint = new Point(-1, new double[]{rbX, rbY});
+            RBPoint = new Point(-1, new double[]{rbX, rbY, 0}, -1);
         }
         return RBPoint ;
     }
