@@ -59,7 +59,7 @@ class Value {
         // u_p = R2_p * initialConditionPhase(x, y)
         // where initialConditionPhase is scalar function
         for (int t = 0; t < mesh.getTriangles().length; t++) {
-            // todo easy to make more efficien
+            // todo easy to make more efficient
             DoubleMatrix PWaveAmpl =
                 PhysicalAttributesMatrixes.calcRpqn(
                     mesh.getTriangles()[t].getDomain().getLambda(),
@@ -80,7 +80,7 @@ class Value {
         return values;
     }
 
-    private static InitialConditionPhase buildInitialConditionPhaseFunction(InitialConditionConfig initialConditionConfig) {
+    public static InitialConditionPhase buildInitialConditionPhaseFunction(InitialConditionConfig initialConditionConfig) {
         switch (initialConditionConfig.getProfile()) {
             case "cos":
                 return new CosInitialConditionPhase(initialConditionConfig);

@@ -48,7 +48,7 @@ public class RKSolverBack implements Solver {
     // 3 : v(2) -> b(3)
     // 4 : b(3) -> v(4)
     @Override
-    public void solveOneStep(Value[] values, Value[] bufferValues, double timeStep, Basis basis) {
+    public void solveOneStep(Value[] values, Value[] bufferValues, double time, double timeStep, Basis basis) {
 
         // todo lack of coordinate dx dy usage
         // todo don't forget about time
@@ -57,7 +57,8 @@ public class RKSolverBack implements Solver {
         for (int v = 0; v < values.length; v++) {
 
             k1[v].copy(
-                    dU_method.calcDU(values[v].getU(), values[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(values[v].getU(), values[v].getAssociatedTriangle(),
+                                     basis, time, timeStep)
             );
         }
 
@@ -71,7 +72,8 @@ public class RKSolverBack implements Solver {
 
         for (int v = 0; v < values.length; v++) {
             k2[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), values[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(bufferValues[v].getU(), values[v].getAssociatedTriangle(),
+                                     basis, time + timeStep / 2, timeStep)
             );
         }
 
@@ -86,7 +88,8 @@ public class RKSolverBack implements Solver {
 
         for (int v = 0; v < values.length; v++) {
             k3[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(),
+                                     basis, time + timeStep / 2, timeStep)
             );
         }
 
@@ -100,7 +103,8 @@ public class RKSolverBack implements Solver {
 
         for (int v = 0; v < values.length; v++) {
             k4[v].copy(
-                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(), basis)
+                    dU_method.calcDU(bufferValues[v].getU(), bufferValues[v].getAssociatedTriangle(),
+                                     basis, time + timeStep, timeStep)
             );
 
             values[v].getU().copy(

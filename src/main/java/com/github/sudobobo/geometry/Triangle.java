@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import org.jblas.DoubleMatrix;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public
 @Data
 @Builder
@@ -36,6 +39,7 @@ class Triangle {
 
     private Border[] borders;
     private Domain domain;
+    private List<PointSource> pointSources;
 
     // borders of triangle are indexed by j {0, 1, 2}
     // and each of this border contact with neighbour triangle's border
@@ -227,5 +231,21 @@ class Triangle {
 
     public double getS(int j) {
         return borders[j].getS();
+    }
+
+    public void addPointSource(PointSource s) {
+        if (pointSources == null) {
+            pointSources = new ArrayList<PointSource>();
+        }
+        pointSources.add(s);
+    }
+
+    public boolean hasStaticSource() {
+        return (pointSources != null);
+    }
+
+    public PointSource[] getStaticPointSources() {
+        return (PointSource[]) pointSources.toArray(new PointSource[pointSources.size()]);
+
     }
 }

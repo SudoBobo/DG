@@ -38,7 +38,13 @@ public class General {
         Domain[] domains = Domain.createDomains(config.getDomains());
         MeshBorder[] borders = MeshBorder.createMeshBorders(config.getBorders(), config.getDefaultBorderType());
         SourceConfig[] sources = SourceConfig.createSourceConfigs(config.getSources());
-        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains, borders, sources);
+        double spatialStepForNumericalIntegration = 0.001;
+
+        Basis basis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
+
+        Mesh mesh = SalomeMeshConstructor.constructHomoMesh(meshFile, domains,
+            borders, sources, (PreLinear2DBasis) basis,
+            spatialStepForNumericalIntegration);
         System.out.println("Mesh is built");
 
 
@@ -52,9 +58,7 @@ public class General {
         double timeStep = calcCourantTimeStep(maxCP, maxCS,  minSideLength, durability);
         timeStep = timeStep / 5.0;
 
-        double spatialStepForNumericalIntegration = 0.001;
 //        Basis basis = new Linear2DBasis(spatialStepForNumericalIntegration);
-        Basis basis = new PreLinear2DBasis(spatialStepForNumericalIntegration);
 //        Basis basis = new SimpleBasis(spatialStepForNumericalIntegration);
 //        Basis basis = new ArticleBasis(spatialStepForNumericalIntegration);
 
@@ -158,6 +162,7 @@ public class General {
 
         String fileNameTemplate = "/part0_%d.vtr";
 
+        double time = 0;
         for (int t = 0; t < timeSteps; t++) {
             try {
                 meshWriter.writeMeshVTR(valuesToWrite.getRawValuesToWrite(),
@@ -167,7 +172,20 @@ public class General {
                 e.printStackTrace();
             }
 
-            RK_Solver.solveOneStep(values, bufferValues, timeStep, basis);
+            // todo add dynamic sources
+            // spatial static point sources are implemented in the following way:
+            // while the mesh is built every point source is associated with
+            // only one triangle (because it's point source). Then this point
+            // source is taken in account on every iteration.
+            //
+            // dynamic (moving) sources are implemented in the following way:
+            // they are an array with functions S(x, y, z, t).
+            // When every dU for every triangle is calculated each function
+            // is check to be non-null at the integration
+            // area and then account
+            // for this source calculated.
+            RK_Solver.solveOneStep(values, bufferValues, time, timeStep, basis);
+            time += timeStep;
         }
 
         long endTime   = System.currentTimeMillis();

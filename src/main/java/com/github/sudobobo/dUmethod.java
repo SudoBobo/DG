@@ -6,5 +6,5 @@ import org.jblas.DoubleMatrix;
 
 public interface dUmethod {
 
-    DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis);
+    DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis, double time, double d_time);
 }

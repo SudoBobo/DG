@@ -1,6 +1,7 @@
 package com.github.sudobobo.meshconstruction;
 
 import com.github.sudobobo.IO.MeshFileReader;
+import com.github.sudobobo.basis.PreLinear2DBasis;
 import com.github.sudobobo.geometry.*;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -18,7 +19,8 @@ public class SalomeMeshConstructor {
     private static Map<Integer, String> IdxToBorderType;
 
     public static Mesh constructHomoMesh(Path meshFile, Domain[] domains,
-                                         MeshBorder[] borders, SourceConfig [] sources) {
+                                         MeshBorder[] borders, SourceConfig [] sources,
+                                         PreLinear2DBasis basis, double integrationStep) {
         // order of functions call here is important! (as these functions have output params)
 
         IdxToBorderType = new HashMap<Integer, String>();
@@ -44,20 +46,27 @@ public class SalomeMeshConstructor {
         setNeighborsAndBounds(mesh, borders);
         setIJ(triangles);
         setConstantPhysicalFields(triangles, domains);
-        setSources(triangles, sources);
+        setSources(triangles, sources, basis, integrationStep);
         return mesh;
     }
 
-    private static boolean match(SourceConfig s, Triangle t){
-
+    private static boolean matchPointSource(SourceConfig s, Triangle t){
+         return t.isInTriangle(s.getPoint()[0], s.getPoint()[1]);
     }
 
-    private static void setSources(Triangle[] triangles, SourceConfig[] sources) {
+    // static means spatial static
+    private static void setSources(Triangle[] triangles, SourceConfig[] sources,
+                                   PreLinear2DBasis basis, double integrationStep) {
         for (SourceConfig s: sources){
             for (Triangle t: triangles){
-                if(match(s, t)){
-                    t.addStaticSource(s);
+                if(matchPointSource(s, t)){
+                    t.addPointSource(
+                        new SinPointSource(s, basis, t, integrationStep));
+                    break;
+                    //point static source may be associated only with one
+                    //triangle
                 }
+
             }
         }
     }

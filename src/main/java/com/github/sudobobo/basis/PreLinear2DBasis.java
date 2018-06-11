@@ -401,7 +401,7 @@ public class PreLinear2DBasis implements Basis {
         return u;
     }
 
-    private double[] squareIntegralForCoeffCalc(Function initialConditionPhaseInInnerSystem, double integrationStep) {
+    public double[] squareIntegralForCoeffCalc(Function initialConditionPhaseInInnerSystem, double integrationStep) {
 
         double ordinary = 1.0;
         double hypotenuse = 0.5;

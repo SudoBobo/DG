@@ -2,6 +2,7 @@ package com.github.sudobobo;
 
 import com.github.sudobobo.basis.Basis;
 import com.github.sudobobo.geometry.Border;
+import com.github.sudobobo.geometry.PointSource;
 import com.github.sudobobo.geometry.Triangle;
 import org.jblas.DoubleMatrix;
 import org.jblas.Solve;
@@ -12,7 +13,7 @@ public class DendUmethodWithNoDebug implements dUmethod {
         DoubleMatrix.diag(new DoubleMatrix(new double[]{-1.0, 1, -1.0, 1.0, 1.0}));
 
     @Override
-    public DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis) {
+    public DoubleMatrix calcDU(DoubleMatrix u, Triangle t, Basis basis, double time, double d_time) {
         DoubleMatrix M_inv = Solve.pinv(basis.M());
         DoubleMatrix Dx = basis.KKsi();
         DoubleMatrix Dy = basis.KEta();
@@ -74,11 +75,13 @@ public class DendUmethodWithNoDebug implements dUmethod {
 
         DoubleMatrix staticSourcesSum = new DoubleMatrix(AUDX.rows, AUDX.columns);
         // static source processing
+        //todo finish me
         if (t.hasStaticSource()){
             // calculate
-            for (StaticSource s: t.getStaticSources()) {
-                // make use of time part
-                // add
+            for (PointSource s: t.getStaticPointSources()) {
+                staticSourcesSum = staticSourcesSum.add(s.integrateOverTriangle(t, time, d_time));
+                staticSourcesSum.print();
+                System.out.println("heh");
             }
         }
 

@@ -1,12 +1,12 @@
 realFullTime : 5.0
-resName : 16
-pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
+resName : SUPER_NEW_2
+pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/600.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/galerkin_1/meshes/50_tr_1_domen.mesh
 #pathToMeshFile : /home/bobo/IdeaProjects/DG/meshes/tunnel_and_border_2500.mesh
 initialCondition :
   profile: cos
   width: 25.0
-  amplitude: 1.0
+  amplitude: 0.0
   direction:
     x: 1.0
     y: 0.0
@@ -48,51 +48,25 @@ domains:
     rho: 1.0
     mu: 1.0
 -   index: 1
-    lambda: 6.0
-    rho: 7.0
-    mu: 8.0
+    lambda: 2.0
+    rho: 1.0
+    mu: 1.0
 -   index: 2
     lambda: 2.0
     rho: 1.0
     mu: 1.0
 
-
-#
-#		<domains>
-#			<domain>
-#				<index>0</index>
-#				<cp>2f</cp>
-#				<cs>1f</cs>
-#				<ro>1f</ro>
-#			</domain>
-#
-#			<domain>
-#				<index>1</index>
-#				<cp>2f</cp>
-#				<cs>1f</cs>
-#				<ro>1f</ro>
-#			</domain>
-#
-#			<domain>
-#				<index>2</index>
-#				<cp>2f</cp>
-#				<cs>1f</cs>
-#				<ro>1f</ro>
-#			</domain>
-#
-#		</domains>
-
 sources:
 -   name: P
-    profile: sin
-    amplitude: 2
+    profile: cos
+    amplitude: 2.0
     vector:
       x: 0.0
       y: 1.0
       z: 0.0
     point:
-      x: -9.0
-      y: 12.0
+      x: -10.0
+      y: -11.0
       z: 0.0
     size:
       x: 0.01
